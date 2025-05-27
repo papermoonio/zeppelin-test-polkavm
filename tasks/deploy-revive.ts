@@ -1,8 +1,6 @@
-
-
-import { task } from "hardhat/config"
-import { readFileSync } from 'fs'
-import { join } from 'path'
+import { task } from "hardhat/config";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 task("deploy-revive", "Deploys a contract")
   .addParam("contract", "The contract name")
@@ -17,15 +15,22 @@ task("deploy-revive", "Deploys a contract")
       const abi = JSON.parse(
         readFileSync(
           join("artifacts", "contracts", contractName, `${contractName}.json`),
-          "utf8"
-        )
+          "utf8",
+        ),
       );
 
       console.log("ABI:", abi);
-      
-      const bytecode = `0x${readFileSync(
-        join("artifacts", "contracts", contractName, `${contractName}.polkavm`)
-      ).toString("hex")}`;
+
+      const bytecode = `0x${
+        readFileSync(
+          join(
+            "artifacts",
+            "contracts",
+            contractName,
+            `${contractName}.polkavm`,
+          ),
+        ).toString("hex")
+      }`;
 
       // Create contract factory and deploy
       const factory = new hre.ethers.ContractFactory(abi, bytecode, deployer);
@@ -37,7 +42,6 @@ task("deploy-revive", "Deploys a contract")
 
       const contract = await factory.deploy(...constructorArgs);
       // const contract = await factory.deploy(...[]);
-
 
       await contract.waitForDeployment();
       console.log(`${contractName} deployed to:`, await contract.getAddress());

@@ -1,6 +1,6 @@
-import { task } from "hardhat/config"
-import { readFileSync } from 'fs'
-import { join } from 'path'
+import { task } from "hardhat/config";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 task("deploy-revive", "Deploys a contract")
   .addParam("contract", "The contract name")
@@ -12,8 +12,22 @@ task("deploy-revive", "Deploys a contract")
     const contractName = taskArgs.contract;
 
     try {
-      const abi = JSON.parse(readFileSync(join('artifacts', 'contracts', contractName, `${contractName}.json`), 'utf8'));
-      const bytecode = `0x${readFileSync(join('artifacts', 'contracts', contractName, `${contractName}.polkavm`)).toString('hex')}`;
+      const abi = JSON.parse(
+        readFileSync(
+          join("artifacts", "contracts", contractName, `${contractName}.json`),
+          "utf8",
+        ),
+      );
+      const bytecode = `0x${
+        readFileSync(
+          join(
+            "artifacts",
+            "contracts",
+            contractName,
+            `${contractName}.polkavm`,
+          ),
+        ).toString("hex")
+      }`;
       //   console.log('ABI:', JSON.stringify(abi));
       //   console.log('Bytecode:', bytecode);
 
@@ -21,7 +35,7 @@ task("deploy-revive", "Deploys a contract")
       const factory = new hre.ethers.ContractFactory(abi, bytecode, deployer);
 
       // Log constructor args to verify
-      const constructorArgs = taskArgs.args.split(',');
+      const constructorArgs = taskArgs.args.split(",");
       console.log("Constructor Arguments:", constructorArgs);
 
       // Deploy contract with gas limit specified

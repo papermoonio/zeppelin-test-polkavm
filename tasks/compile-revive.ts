@@ -1,7 +1,7 @@
-import { task } from "hardhat/config"
-import { compile } from "@parity/revive"
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs'
-import { join } from 'path'
+import { task } from "hardhat/config";
+import { compile } from "@parity/revive";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { join } from "path";
 
 task("compile-revive", "Compiles a contract using Revive")
   .addParam("contract", "The contract file to compile (e.g., Storage.sol)")
@@ -34,13 +34,13 @@ task("compile-revive", "Compiles a contract using Revive")
           // Save ABI
           writeFileSync(
             join(contractDir, `${name}.json`),
-            JSON.stringify(contract.abi, null, 2)
+            JSON.stringify(contract.abi, null, 2),
           );
 
           // Save bytecode
           writeFileSync(
             join(contractDir, `${name}.polkavm`),
-            Buffer.from(contract.evm.bytecode.object, "hex")
+            Buffer.from(contract.evm.bytecode.object, "hex"),
           );
 
           console.log(`Compiled ${name} successfully`);

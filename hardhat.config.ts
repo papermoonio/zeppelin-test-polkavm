@@ -1,12 +1,12 @@
-import "@nomicfoundation/hardhat-toolbox"
-import "@nomicfoundation/hardhat-ignition"
+import "@nomicfoundation/hardhat-toolbox";
+import "@nomicfoundation/hardhat-ignition";
 
-import "hardhat-resolc"
-import { config } from "dotenv"
-import "./tasks/compile-revive"
-import "./tasks/deploy-revive"
+import "hardhat-resolc";
+import { config } from "dotenv";
+import "./tasks/compile-revive";
+import "./tasks/deploy-revive";
 
-config()
+config();
 
 module.exports = {
   solidity: "0.8.19",
@@ -26,7 +26,7 @@ module.exports = {
     polkavm: {
       polkavm: true,
       url: "http://127.0.0.1:8545",
-      accounts: [process.env.LOCAL_PRIV_KEY],
+      accounts: [process.env.LOCAL_PRIV_KEY, process.env.LOCAL_PRIV_KEY_2],
     },
     // polkavm: { url: "http://127.0.0.1:8545" },
     ah: {
