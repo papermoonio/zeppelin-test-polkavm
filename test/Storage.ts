@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { Storage } from "../typechain-types/Storage";
+import { Storage } from "../typechain-types/contracts/Storage";
 
 describe("Storage", function () {
   let storage: Storage;

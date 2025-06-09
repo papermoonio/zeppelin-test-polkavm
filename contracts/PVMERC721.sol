@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {ERC721} from "./token/ERC721/ERC721.sol";
 import {Ownable} from "./access/Ownable.sol";
@@ -28,9 +28,7 @@ contract PVMERC721 is ERC721, Ownable {
 
     function burn(uint256 tokenId) public {
         require(
-            ERC721.ownerOf(tokenId) == msg.sender ||
-                ERC721.getApproved(tokenId) == msg.sender ||
-                ERC721.isApprovedForAll(ERC721.ownerOf(tokenId), msg.sender),
+            _isApprovedOrOwner(msg.sender, tokenId),
             "ERC721: caller is not token owner or approved"
         );
         _burn(tokenId);

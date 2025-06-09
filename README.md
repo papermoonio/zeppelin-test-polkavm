@@ -31,5 +31,5 @@ npx hardhat compile-revive --contract MiniDex.sol --network ah
 test
 
 ```shell
-npx hardhat test test/Storage.ts --network polkavm --no-compile
+npx hardhat test test/Storage.ts --network passetHub --no-compile
 ```

@@ -1,63 +1,38 @@
-import "@nomicfoundation/hardhat-toolbox";
-import "@nomicfoundation/hardhat-ignition";
+import { HardhatUserConfig } from "hardhat/config"
+import "@nomicfoundation/hardhat-toolbox"
+import "@parity/hardhat-polkadot"
+import { config as dotConfig } from "dotenv"
+dotConfig()
 
-import "hardhat-resolc";
-import { config } from "dotenv";
-import "./tasks/compile-revive";
-import "./tasks/deploy-revive";
-
-config();
-
-module.exports = {
-  solidity: "0.8.19",
+const config: HardhatUserConfig = {
+  solidity: "0.8.28",
+  resolc: {
+    compilerSource: "npm",
+  },
   networks: {
     hardhat: {
       polkavm: true,
       nodeConfig: {
-        nodeBinaryPath: "../../../polkadot-sdk/target/debug/substrate-node",
+        nodeBinaryPath: 'INSERT_PATH_TO_SUBSTRATE_NODE',
         rpcPort: 8000,
         dev: true,
       },
       adapterConfig: {
-        adapterBinaryPath: "../../../polkadot-sdk/target/debug/eth-rpc",
+        adapterBinaryPath: 'INSERT_PATH_TO_ETH_RPC_ADAPTER',
         dev: true,
       },
     },
-    polkavm: {
+    localNode: {
       polkavm: true,
-      url: "http://127.0.0.1:8545",
-      accounts: [process.env.LOCAL_PRIV_KEY, process.env.LOCAL_PRIV_KEY_2],
+      url: `http://127.0.0.1:8545`,
+      accounts: [process.env.LOCAL_PRIV_KEY ?? "", process.env.LOCAL_PRIV_KEY_2 ?? ""],
     },
-    // polkavm: { url: "http://127.0.0.1:8545" },
-    ah: {
-      url: "https://westend-asset-hub-eth-rpc.polkadot.io",
-      accounts: [process.env.AH_PRIV_KEY],
+    passetHub: {
+      polkavm: true,
+      url: 'https://testnet-passet-hub-eth-rpc.polkadot.io',
+      accounts: [process.env.PH_PRIV_KEY ?? ""],
     },
   },
-  // using remix compiler
-  // resolc: {
-  //   version: "1.5.2",
-  //   compilerSource: "remix",
-  //   settings: {
-  //     optimizer: {
-  //       enabled: false,
-  //       runs: 600,
-  //     },
-  //     evmVersion: "istanbul",
-  //   },
-  // },
+}
 
-  // using binary compiler
-  resolc: {
-    compilerSource: "binary",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 400,
-      },
-      evmVersion: "istanbul",
-      compilerPath: "~/.cargo/bin/resolc",
-      standardJson: true,
-    },
-  },
-};
+export default config
