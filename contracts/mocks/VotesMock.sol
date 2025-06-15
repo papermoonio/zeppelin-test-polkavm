@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {Votes} from "../governance/utils/Votes.sol";
 
@@ -15,7 +15,9 @@ abstract contract VotesMock is Votes {
         return _delegate(account, newDelegation);
     }
 
-    function _getVotingUnits(address account) internal view override returns (uint256) {
+    function _getVotingUnits(
+        address account
+    ) internal view override returns (uint256) {
         return _votingUnits[account];
     }
 

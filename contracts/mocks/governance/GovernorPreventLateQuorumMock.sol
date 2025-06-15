@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {Governor} from "../../governance/Governor.sol";
 import {GovernorPreventLateQuorum} from "../../governance/extensions/GovernorPreventLateQuorum.sol";
@@ -26,11 +26,21 @@ abstract contract GovernorPreventLateQuorumMock is
 
     function proposalDeadline(
         uint256 proposalId
-    ) public view override(Governor, GovernorPreventLateQuorum) returns (uint256) {
+    )
+        public
+        view
+        override(Governor, GovernorPreventLateQuorum)
+        returns (uint256)
+    {
         return super.proposalDeadline(proposalId);
     }
 
-    function proposalThreshold() public view override(Governor, GovernorSettings) returns (uint256) {
+    function proposalThreshold()
+        public
+        view
+        override(Governor, GovernorSettings)
+        returns (uint256)
+    {
         return super.proposalThreshold();
     }
 

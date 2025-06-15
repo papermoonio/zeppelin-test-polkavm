@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (governance/utils/Votes.sol)
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IERC5805} from "../../interfaces/IERC5805.sol";
 import {Context} from "../../utils/Context.sol";
@@ -37,7 +37,8 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
 
     mapping(address account => address) private _delegatee;
 
-    mapping(address delegatee => Checkpoints.Trace208) private _delegateCheckpoints;
+    mapping(address delegatee => Checkpoints.Trace208)
+        private _delegateCheckpoints;
 
     Checkpoints.Trace208 private _totalCheckpoints;
 
@@ -86,12 +87,18 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      *
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
-    function getPastVotes(address account, uint256 timepoint) public view virtual returns (uint256) {
+    function getPastVotes(
+        address account,
+        uint256 timepoint
+    ) public view virtual returns (uint256) {
         uint48 currentTimepoint = clock();
         if (timepoint >= currentTimepoint) {
             revert ERC5805FutureLookup(timepoint, currentTimepoint);
         }
-        return _delegateCheckpoints[account].upperLookupRecent(SafeCast.toUint48(timepoint));
+        return
+            _delegateCheckpoints[account].upperLookupRecent(
+                SafeCast.toUint48(timepoint)
+            );
     }
 
     /**
@@ -106,12 +113,15 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      *
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
-    function getPastTotalSupply(uint256 timepoint) public view virtual returns (uint256) {
+    function getPastTotalSupply(
+        uint256 timepoint
+    ) public view virtual returns (uint256) {
         uint48 currentTimepoint = clock();
         if (timepoint >= currentTimepoint) {
             revert ERC5805FutureLookup(timepoint, currentTimepoint);
         }
-        return _totalCheckpoints.upperLookupRecent(SafeCast.toUint48(timepoint));
+        return
+            _totalCheckpoints.upperLookupRecent(SafeCast.toUint48(timepoint));
     }
 
     /**
@@ -151,7 +161,11 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
             revert VotesExpiredSignature(expiry);
         }
         address signer = ECDSA.recover(
-            _hashTypedDataV4(keccak256(abi.encode(DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
+            _hashTypedDataV4(
+                keccak256(
+                    abi.encode(DELEGATION_TYPEHASH, delegatee, nonce, expiry)
+                )
+            ),
             v,
             r,
             s
@@ -177,7 +191,11 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      * @dev Transfers, mints, or burns voting units. To register a mint, `from` should be zero. To register a burn, `to`
      * should be zero. Total supply of voting units will be adjusted with mints and burns.
      */
-    function _transferVotingUnits(address from, address to, uint256 amount) internal virtual {
+    function _transferVotingUnits(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual {
         if (from == address(0)) {
             _push(_totalCheckpoints, _add, SafeCast.toUint208(amount));
         }
@@ -190,7 +208,11 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     /**
      * @dev Moves delegated votes from one delegate to another.
      */
-    function _moveDelegateVotes(address from, address to, uint256 amount) private {
+    function _moveDelegateVotes(
+        address from,
+        address to,
+        uint256 amount
+    ) private {
         if (from != to && amount > 0) {
             if (from != address(0)) {
                 (uint256 oldValue, uint256 newValue) = _push(
@@ -214,7 +236,9 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     /**
      * @dev Get number of checkpoints for `account`.
      */
-    function _numCheckpoints(address account) internal view virtual returns (uint32) {
+    function _numCheckpoints(
+        address account
+    ) internal view virtual returns (uint32) {
         return SafeCast.toUint32(_delegateCheckpoints[account].length());
     }
 

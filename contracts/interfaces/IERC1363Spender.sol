@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (interfaces/IERC1363Spender.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 /**
  * @dev Interface for any contract that wants to support {IERC1363-approveAndCall}
@@ -25,5 +25,9 @@ interface IERC1363Spender {
      * @param data bytes Additional data with no specified format
      * @return `bytes4(keccak256("onApprovalReceived(address,uint256,bytes)"))`unless throwing
      */
-    function onApprovalReceived(address owner, uint256 amount, bytes memory data) external returns (bytes4);
+    function onApprovalReceived(
+        address owner,
+        uint256 amount,
+        bytes memory data
+    ) external returns (bytes4);
 }

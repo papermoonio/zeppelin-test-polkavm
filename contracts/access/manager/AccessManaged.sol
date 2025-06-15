@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (access/manager/AccessManaged.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IAuthority} from "./IAuthority.sol";
 import {AuthorityUtils} from "./AuthorityUtils.sol";
@@ -77,7 +77,10 @@ abstract contract AccessManaged is Context, IAccessManaged {
 
     /// @inheritdoc IAccessManaged
     function isConsumingScheduledOp() public view returns (bytes4) {
-        return _consumingSchedule ? this.isConsumingScheduledOp.selector : bytes4(0);
+        return
+            _consumingSchedule
+                ? this.isConsumingScheduledOp.selector
+                : bytes4(0);
     }
 
     /**
@@ -93,7 +96,10 @@ abstract contract AccessManaged is Context, IAccessManaged {
      * @dev Reverts if the caller is not allowed to call the function identified by a selector. Panics if the calldata
      * is less than 4 bytes long.
      */
-    function _checkCanCall(address caller, bytes calldata data) internal virtual {
+    function _checkCanCall(
+        address caller,
+        bytes calldata data
+    ) internal virtual {
         (bool immediate, uint32 delay) = AuthorityUtils.canCallWithDelay(
             authority(),
             caller,

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/extensions/ERC20Votes.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {ERC20} from "../ERC20.sol";
 import {Votes} from "../../../governance/utils/Votes.sol";
@@ -45,7 +45,11 @@ abstract contract ERC20Votes is ERC20, Votes {
      *
      * Emits a {IVotes-DelegateVotesChanged} event.
      */
-    function _update(address from, address to, uint256 value) internal virtual override {
+    function _update(
+        address from,
+        address to,
+        uint256 value
+    ) internal virtual override {
         super._update(from, to, value);
         if (from == address(0)) {
             uint256 supply = totalSupply();
@@ -63,21 +67,28 @@ abstract contract ERC20Votes is ERC20, Votes {
      * WARNING: Overriding this function may compromise the internal vote accounting.
      * `ERC20Votes` assumes tokens map to voting units 1:1 and this is not easy to change.
      */
-    function _getVotingUnits(address account) internal view virtual override returns (uint256) {
+    function _getVotingUnits(
+        address account
+    ) internal view virtual override returns (uint256) {
         return balanceOf(account);
     }
 
     /**
      * @dev Get number of checkpoints for `account`.
      */
-    function numCheckpoints(address account) public view virtual returns (uint32) {
+    function numCheckpoints(
+        address account
+    ) public view virtual returns (uint32) {
         return _numCheckpoints(account);
     }
 
     /**
      * @dev Get the `pos`-th checkpoint for `account`.
      */
-    function checkpoints(address account, uint32 pos) public view virtual returns (Checkpoints.Checkpoint208 memory) {
+    function checkpoints(
+        address account,
+        uint32 pos
+    ) public view virtual returns (Checkpoints.Checkpoint208 memory) {
         return _checkpoints(account, pos);
     }
 }

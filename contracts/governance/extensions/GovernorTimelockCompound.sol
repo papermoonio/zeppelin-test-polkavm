@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (governance/extensions/GovernorTimelockCompound.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IGovernor, Governor} from "../Governor.sol";
 import {ICompoundTimelock} from "../../vendor/compound/ICompoundTimelock.sol";
@@ -36,12 +36,15 @@ abstract contract GovernorTimelockCompound is Governor {
     /**
      * @dev Overridden version of the {Governor-state} function with added support for the `Expired` state.
      */
-    function state(uint256 proposalId) public view virtual override returns (ProposalState) {
+    function state(
+        uint256 proposalId
+    ) public view virtual override returns (ProposalState) {
         ProposalState currentState = super.state(proposalId);
 
         return
             (currentState == ProposalState.Queued &&
-                block.timestamp >= proposalEta(proposalId) + _timelock.GRACE_PERIOD())
+                block.timestamp >=
+                proposalEta(proposalId) + _timelock.GRACE_PERIOD())
                 ? ProposalState.Expired
                 : currentState;
     }
@@ -56,7 +59,9 @@ abstract contract GovernorTimelockCompound is Governor {
     /**
      * @dev See {IGovernor-proposalNeedsQueuing}.
      */
-    function proposalNeedsQueuing(uint256) public view virtual override returns (bool) {
+    function proposalNeedsQueuing(
+        uint256
+    ) public view virtual override returns (bool) {
         return true;
     }
 
@@ -70,15 +75,33 @@ abstract contract GovernorTimelockCompound is Governor {
         bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
     ) internal virtual override returns (uint48) {
-        uint48 etaSeconds = SafeCast.toUint48(block.timestamp + _timelock.delay());
+        uint48 etaSeconds = SafeCast.toUint48(
+            block.timestamp + _timelock.delay()
+        );
 
         for (uint256 i = 0; i < targets.length; ++i) {
             if (
-                _timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], etaSeconds)))
+                _timelock.queuedTransactions(
+                    keccak256(
+                        abi.encode(
+                            targets[i],
+                            values[i],
+                            "",
+                            calldatas[i],
+                            etaSeconds
+                        )
+                    )
+                )
             ) {
                 revert GovernorAlreadyQueuedProposal(proposalId);
             }
-            _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], etaSeconds);
+            _timelock.queueTransaction(
+                targets[i],
+                values[i],
+                "",
+                calldatas[i],
+                etaSeconds
+            );
         }
 
         return etaSeconds;
@@ -101,7 +124,13 @@ abstract contract GovernorTimelockCompound is Governor {
         }
         Address.sendValue(payable(_timelock), msg.value);
         for (uint256 i = 0; i < targets.length; ++i) {
-            _timelock.executeTransaction(targets[i], values[i], "", calldatas[i], etaSeconds);
+            _timelock.executeTransaction(
+                targets[i],
+                values[i],
+                "",
+                calldatas[i],
+                etaSeconds
+            );
         }
     }
 
@@ -115,13 +144,24 @@ abstract contract GovernorTimelockCompound is Governor {
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal virtual override returns (uint256) {
-        uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = super._cancel(
+            targets,
+            values,
+            calldatas,
+            descriptionHash
+        );
 
         uint256 etaSeconds = proposalEta(proposalId);
         if (etaSeconds > 0) {
             // do external call later
             for (uint256 i = 0; i < targets.length; ++i) {
-                _timelock.cancelTransaction(targets[i], values[i], "", calldatas[i], etaSeconds);
+                _timelock.cancelTransaction(
+                    targets[i],
+                    values[i],
+                    "",
+                    calldatas[i],
+                    etaSeconds
+                );
             }
         }
 
@@ -156,7 +196,9 @@ abstract contract GovernorTimelockCompound is Governor {
 
      * CAUTION: It is not recommended to change the timelock while there are other queued governance proposals.
      */
-    function updateTimelock(ICompoundTimelock newTimelock) external virtual onlyGovernance {
+    function updateTimelock(
+        ICompoundTimelock newTimelock
+    ) external virtual onlyGovernance {
         _updateTimelock(newTimelock);
     }
 

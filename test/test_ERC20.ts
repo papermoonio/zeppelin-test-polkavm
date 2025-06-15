@@ -3,9 +3,9 @@ import { expect } from "chai";
 import { ethers, network } from "hardhat";
 import { Contract, Signer } from "ethers";
 
-import { PVMERC20 } from "../typechain-types/PVMERC20";
+import { PVMERC20 } from "../typechain-types/contracts/PVMERC20";
 
-describe("ERC20", function () {
+describe("PVMERC20", function () {
   // Test fixture with contract and signers
   let token: PVMERC20;
   let owner: Signer;

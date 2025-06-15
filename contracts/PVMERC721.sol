@@ -26,11 +26,7 @@ contract PVMERC721 is ERC721, Ownable {
         return _totalSupply;
     }
 
-    function burn(uint256 tokenId) public {
-        require(
-            _isApprovedOrOwner(msg.sender, tokenId),
-            "ERC721: caller is not token owner or approved"
-        );
+    function burn(uint256 tokenId) public onlyOwner {
         _burn(tokenId);
         _totalSupply--;
     }

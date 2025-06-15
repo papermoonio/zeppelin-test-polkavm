@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (metatx/ERC2771Context.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {Context} from "../utils/Context.sol";
 
@@ -39,7 +39,9 @@ abstract contract ERC2771Context is Context {
     /**
      * @dev Indicates whether any particular address is the trusted forwarder.
      */
-    function isTrustedForwarder(address forwarder) public view virtual returns (bool) {
+    function isTrustedForwarder(
+        address forwarder
+    ) public view virtual returns (bool) {
         return forwarder == trustedForwarder();
     }
 
@@ -48,7 +50,13 @@ abstract contract ERC2771Context is Context {
      * a call is not performed by the trusted forwarder or the calldata length is less than
      * 20 bytes (an address length).
      */
-    function _msgSender() internal view virtual override returns (address sender) {
+    function _msgSender()
+        internal
+        view
+        virtual
+        override
+        returns (address sender)
+    {
         if (isTrustedForwarder(msg.sender) && msg.data.length >= 20) {
             // The assembly code is more direct than the Solidity version using `abi.decode`.
             /// @solidity memory-safe-assembly
@@ -65,7 +73,13 @@ abstract contract ERC2771Context is Context {
      * a call is not performed by the trusted forwarder or the calldata length is less than
      * 20 bytes (an address length).
      */
-    function _msgData() internal view virtual override returns (bytes calldata) {
+    function _msgData()
+        internal
+        view
+        virtual
+        override
+        returns (bytes calldata)
+    {
         if (isTrustedForwarder(msg.sender) && msg.data.length >= 20) {
             return msg.data[:msg.data.length - 20];
         } else {

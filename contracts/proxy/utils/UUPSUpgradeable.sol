@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (proxy/utils/UUPSUpgradeable.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IERC1822Proxiable} from "../../interfaces/draft-IERC1822.sol";
 import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
@@ -69,7 +69,13 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
      * bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this
      * function revert if invoked through a proxy. This is guaranteed by the `notDelegated` modifier.
      */
-    function proxiableUUID() external view virtual notDelegated returns (bytes32) {
+    function proxiableUUID()
+        external
+        view
+        virtual
+        notDelegated
+        returns (bytes32)
+    {
         return ERC1967Utils.IMPLEMENTATION_SLOT;
     }
 
@@ -83,7 +89,10 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
      *
      * @custom:oz-upgrades-unsafe-allow-reachable delegatecall
      */
-    function upgradeToAndCall(address newImplementation, bytes memory data) public payable virtual onlyProxy {
+    function upgradeToAndCall(
+        address newImplementation,
+        bytes memory data
+    ) public payable virtual onlyProxy {
         _authorizeUpgrade(newImplementation);
         _upgradeToAndCallUUPS(newImplementation, data);
     }
@@ -133,8 +142,13 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
      *
      * Emits an {IERC1967-Upgraded} event.
      */
-    function _upgradeToAndCallUUPS(address newImplementation, bytes memory data) private {
-        try IERC1822Proxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {
+    function _upgradeToAndCallUUPS(
+        address newImplementation,
+        bytes memory data
+    ) private {
+        try IERC1822Proxiable(newImplementation).proxiableUUID() returns (
+            bytes32 slot
+        ) {
             if (slot != ERC1967Utils.IMPLEMENTATION_SLOT) {
                 revert UUPSUnsupportedProxiableUUID(slot);
             }

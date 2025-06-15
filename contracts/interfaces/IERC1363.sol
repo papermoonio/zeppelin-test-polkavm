@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (interfaces/IERC1363.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IERC20} from "./IERC20.sol";
 import {IERC165} from "./IERC165.sol";
@@ -31,7 +31,10 @@ interface IERC1363 is IERC165, IERC20 {
      * @param amount uint256 The amount of tokens to be transferred
      * @return true unless throwing
      */
-    function transferAndCall(address to, uint256 amount) external returns (bool);
+    function transferAndCall(
+        address to,
+        uint256 amount
+    ) external returns (bool);
 
     /**
      * @dev Transfer tokens from `msg.sender` to another address and then call `onTransferReceived` on receiver
@@ -40,7 +43,11 @@ interface IERC1363 is IERC165, IERC20 {
      * @param data bytes Additional data with no specified format, sent in call to `to`
      * @return true unless throwing
      */
-    function transferAndCall(address to, uint256 amount, bytes memory data) external returns (bool);
+    function transferAndCall(
+        address to,
+        uint256 amount,
+        bytes memory data
+    ) external returns (bool);
 
     /**
      * @dev Transfer tokens from one address to another and then call `onTransferReceived` on receiver
@@ -49,7 +56,11 @@ interface IERC1363 is IERC165, IERC20 {
      * @param amount uint256 The amount of tokens to be transferred
      * @return true unless throwing
      */
-    function transferFromAndCall(address from, address to, uint256 amount) external returns (bool);
+    function transferFromAndCall(
+        address from,
+        address to,
+        uint256 amount
+    ) external returns (bool);
 
     /**
      * @dev Transfer tokens from one address to another and then call `onTransferReceived` on receiver
@@ -59,7 +70,12 @@ interface IERC1363 is IERC165, IERC20 {
      * @param data bytes Additional data with no specified format, sent in call to `to`
      * @return true unless throwing
      */
-    function transferFromAndCall(address from, address to, uint256 amount, bytes memory data) external returns (bool);
+    function transferFromAndCall(
+        address from,
+        address to,
+        uint256 amount,
+        bytes memory data
+    ) external returns (bool);
 
     /**
      * @dev Approve the passed address to spend the specified amount of tokens on behalf of msg.sender
@@ -67,7 +83,10 @@ interface IERC1363 is IERC165, IERC20 {
      * @param spender address The address which will spend the funds
      * @param amount uint256 The amount of tokens to be spent
      */
-    function approveAndCall(address spender, uint256 amount) external returns (bool);
+    function approveAndCall(
+        address spender,
+        uint256 amount
+    ) external returns (bool);
 
     /**
      * @dev Approve the passed address to spend the specified amount of tokens on behalf of msg.sender
@@ -76,5 +95,9 @@ interface IERC1363 is IERC165, IERC20 {
      * @param amount uint256 The amount of tokens to be spent
      * @param data bytes Additional data with no specified format, sent in call to `spender`
      */
-    function approveAndCall(address spender, uint256 amount, bytes memory data) external returns (bool);
+    function approveAndCall(
+        address spender,
+        uint256 amount,
+        bytes memory data
+    ) external returns (bool);
 }

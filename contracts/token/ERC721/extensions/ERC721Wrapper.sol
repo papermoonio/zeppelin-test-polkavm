@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/extensions/ERC721Wrapper.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IERC721, ERC721} from "../ERC721.sol";
 import {IERC721Receiver} from "../IERC721Receiver.sol";
@@ -28,7 +28,10 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
     /**
      * @dev Allow a user to deposit underlying tokens and mint the corresponding tokenIds.
      */
-    function depositFor(address account, uint256[] memory tokenIds) public virtual returns (bool) {
+    function depositFor(
+        address account,
+        uint256[] memory tokenIds
+    ) public virtual returns (bool) {
         uint256 length = tokenIds.length;
         for (uint256 i = 0; i < length; ++i) {
             uint256 tokenId = tokenIds[i];
@@ -46,7 +49,10 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
     /**
      * @dev Allow a user to burn wrapped tokens and withdraw the corresponding tokenIds of the underlying tokens.
      */
-    function withdrawTo(address account, uint256[] memory tokenIds) public virtual returns (bool) {
+    function withdrawTo(
+        address account,
+        uint256[] memory tokenIds
+    ) public virtual returns (bool) {
         uint256 length = tokenIds.length;
         for (uint256 i = 0; i < length; ++i) {
             uint256 tokenId = tokenIds[i];
@@ -72,7 +78,12 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
      * WARNING: Doesn't work with unsafe transfers (eg. {IERC721-transferFrom}). Use {ERC721Wrapper-_recover}
      * for recovering in that scenario.
      */
-    function onERC721Received(address, address from, uint256 tokenId, bytes memory) public virtual returns (bytes4) {
+    function onERC721Received(
+        address,
+        address from,
+        uint256 tokenId,
+        bytes memory
+    ) public virtual returns (bytes4) {
         if (address(underlying()) != _msgSender()) {
             revert ERC721UnsupportedToken(_msgSender());
         }
@@ -84,7 +95,10 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
      * @dev Mint a wrapped token to cover any underlyingToken that would have been transferred by mistake. Internal
      * function that can be exposed with access control if desired.
      */
-    function _recover(address account, uint256 tokenId) internal virtual returns (uint256) {
+    function _recover(
+        address account,
+        uint256 tokenId
+    ) internal virtual returns (uint256) {
         address owner = underlying().ownerOf(tokenId);
         if (owner != address(this)) {
             revert ERC721IncorrectOwner(address(this), tokenId, owner);

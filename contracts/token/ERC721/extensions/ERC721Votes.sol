@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/extensions/ERC721Votes.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {ERC721} from "../ERC721.sol";
 import {Votes} from "../../../governance/utils/Votes.sol";
@@ -20,7 +20,11 @@ abstract contract ERC721Votes is ERC721, Votes {
      *
      * Emits a {IVotes-DelegateVotesChanged} event.
      */
-    function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
+    function _update(
+        address to,
+        uint256 tokenId,
+        address auth
+    ) internal virtual override returns (address) {
         address previousOwner = super._update(to, tokenId, auth);
 
         _transferVotingUnits(previousOwner, to, 1);
@@ -33,14 +37,19 @@ abstract contract ERC721Votes is ERC721, Votes {
      *
      * WARNING: Overriding this function will likely result in incorrect vote tracking.
      */
-    function _getVotingUnits(address account) internal view virtual override returns (uint256) {
+    function _getVotingUnits(
+        address account
+    ) internal view virtual override returns (uint256) {
         return balanceOf(account);
     }
 
     /**
      * @dev See {ERC721-_increaseBalance}. We need that to account tokens that were minted in batch.
      */
-    function _increaseBalance(address account, uint128 amount) internal virtual override {
+    function _increaseBalance(
+        address account,
+        uint128 amount
+    ) internal virtual override {
         super._increaseBalance(account, amount);
         _transferVotingUnits(address(0), account, amount);
     }

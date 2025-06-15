@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (access/AccessControl.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IAccessControl} from "./IAccessControl.sol";
 import {Context} from "../utils/Context.sol";
@@ -68,14 +68,21 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     /**
      * @dev See {IERC165-supportsInterface}.
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IAccessControl).interfaceId || super.supportsInterface(interfaceId);
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override returns (bool) {
+        return
+            interfaceId == type(IAccessControl).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 
     /**
      * @dev Returns `true` if `account` has been granted `role`.
      */
-    function hasRole(bytes32 role, address account) public view virtual returns (bool) {
+    function hasRole(
+        bytes32 role,
+        address account
+    ) public view virtual returns (bool) {
         return _roles[role].hasRole[account];
     }
 
@@ -119,7 +126,10 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      *
      * May emit a {RoleGranted} event.
      */
-    function grantRole(bytes32 role, address account) public virtual onlyRole(getRoleAdmin(role)) {
+    function grantRole(
+        bytes32 role,
+        address account
+    ) public virtual onlyRole(getRoleAdmin(role)) {
         _grantRole(role, account);
     }
 
@@ -134,7 +144,10 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      *
      * May emit a {RoleRevoked} event.
      */
-    function revokeRole(bytes32 role, address account) public virtual onlyRole(getRoleAdmin(role)) {
+    function revokeRole(
+        bytes32 role,
+        address account
+    ) public virtual onlyRole(getRoleAdmin(role)) {
         _revokeRole(role, account);
     }
 
@@ -154,7 +167,10 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      *
      * May emit a {RoleRevoked} event.
      */
-    function renounceRole(bytes32 role, address callerConfirmation) public virtual {
+    function renounceRole(
+        bytes32 role,
+        address callerConfirmation
+    ) public virtual {
         if (callerConfirmation != _msgSender()) {
             revert AccessControlBadConfirmation();
         }
@@ -180,7 +196,10 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      *
      * May emit a {RoleGranted} event.
      */
-    function _grantRole(bytes32 role, address account) internal virtual returns (bool) {
+    function _grantRole(
+        bytes32 role,
+        address account
+    ) internal virtual returns (bool) {
         if (!hasRole(role, account)) {
             _roles[role].hasRole[account] = true;
             emit RoleGranted(role, account, _msgSender());
@@ -197,7 +216,10 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      *
      * May emit a {RoleRevoked} event.
      */
-    function _revokeRole(bytes32 role, address account) internal virtual returns (bool) {
+    function _revokeRole(
+        bytes32 role,
+        address account
+    ) internal virtual returns (bool) {
         if (hasRole(role, account)) {
             _roles[role].hasRole[account] = false;
             emit RoleRevoked(role, account, _msgSender());

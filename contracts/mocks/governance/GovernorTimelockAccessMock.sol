@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IGovernor, Governor} from "../../governance/Governor.sol";
 import {GovernorTimelockAccess} from "../../governance/extensions/GovernorTimelockAccess.sol";
@@ -16,17 +16,35 @@ abstract contract GovernorTimelockAccessMock is
 {
     function nonGovernanceFunction() external {}
 
-    function quorum(uint256 blockNumber) public view override(Governor, GovernorVotesQuorumFraction) returns (uint256) {
+    function quorum(
+        uint256 blockNumber
+    )
+        public
+        view
+        override(Governor, GovernorVotesQuorumFraction)
+        returns (uint256)
+    {
         return super.quorum(blockNumber);
     }
 
-    function proposalThreshold() public view override(Governor, GovernorSettings) returns (uint256) {
+    function proposalThreshold()
+        public
+        view
+        override(Governor, GovernorSettings)
+        returns (uint256)
+    {
         return super.proposalThreshold();
     }
 
     function proposalNeedsQueuing(
         uint256 proposalId
-    ) public view virtual override(Governor, GovernorTimelockAccess) returns (bool) {
+    )
+        public
+        view
+        virtual
+        override(Governor, GovernorTimelockAccess)
+        returns (bool)
+    {
         return super.proposalNeedsQueuing(proposalId);
     }
 
@@ -46,7 +64,14 @@ abstract contract GovernorTimelockAccessMock is
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal override(Governor, GovernorTimelockAccess) returns (uint48) {
-        return super._queueOperations(proposalId, targets, values, calldatas, descriptionHash);
+        return
+            super._queueOperations(
+                proposalId,
+                targets,
+                values,
+                calldatas,
+                descriptionHash
+            );
     }
 
     function _executeOperations(
@@ -56,7 +81,13 @@ abstract contract GovernorTimelockAccessMock is
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal override(Governor, GovernorTimelockAccess) {
-        super._executeOperations(proposalId, targets, values, calldatas, descriptionHash);
+        super._executeOperations(
+            proposalId,
+            targets,
+            values,
+            calldatas,
+            descriptionHash
+        );
     }
 
     function _cancel(

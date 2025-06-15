@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (governance/IGovernor.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IERC165} from "../interfaces/IERC165.sol";
 import {IERC6372} from "../interfaces/IERC6372.sol";
@@ -24,7 +24,11 @@ interface IGovernor is IERC165, IERC6372 {
     /**
      * @dev Empty proposal or a mismatch between the parameters length for a proposal call.
      */
-    error GovernorInvalidProposalLength(uint256 targets, uint256 calldatas, uint256 values);
+    error GovernorInvalidProposalLength(
+        uint256 targets,
+        uint256 calldatas,
+        uint256 values
+    );
 
     /**
      * @dev The vote was already cast.
@@ -61,7 +65,11 @@ interface IGovernor is IERC165, IERC6372 {
      *
      * See {Governor-_encodeStateBitmap}.
      */
-    error GovernorUnexpectedProposalState(uint256 proposalId, ProposalState current, bytes32 expectedStates);
+    error GovernorUnexpectedProposalState(
+        uint256 proposalId,
+        ProposalState current,
+        bytes32 expectedStates
+    );
 
     /**
      * @dev The voting period set is not a valid period.
@@ -71,7 +79,11 @@ interface IGovernor is IERC165, IERC6372 {
     /**
      * @dev The `proposer` does not have the required votes to create a proposal.
      */
-    error GovernorInsufficientProposerVotes(address proposer, uint256 votes, uint256 threshold);
+    error GovernorInsufficientProposerVotes(
+        address proposer,
+        uint256 votes,
+        uint256 threshold
+    );
 
     /**
      * @dev The `proposer` is not allowed to create a proposal.
@@ -139,7 +151,13 @@ interface IGovernor is IERC165, IERC6372 {
      *
      * Note: `support` values should be seen as buckets. Their interpretation depends on the voting module used.
      */
-    event VoteCast(address indexed voter, uint256 proposalId, uint8 support, uint256 weight, string reason);
+    event VoteCast(
+        address indexed voter,
+        uint256 proposalId,
+        uint8 support,
+        uint256 weight,
+        string reason
+    );
 
     /**
      * @dev Emitted when a vote is cast with params.
@@ -222,20 +240,26 @@ interface IGovernor is IERC165, IERC6372 {
      * snapshot is performed at the end of this block. Hence, voting for this proposal starts at the beginning of the
      * following block.
      */
-    function proposalSnapshot(uint256 proposalId) external view returns (uint256);
+    function proposalSnapshot(
+        uint256 proposalId
+    ) external view returns (uint256);
 
     /**
      * @notice module:core
      * @dev Timepoint at which votes close. If using block number, votes close at the end of this block, so it is
      * possible to cast a vote during this block.
      */
-    function proposalDeadline(uint256 proposalId) external view returns (uint256);
+    function proposalDeadline(
+        uint256 proposalId
+    ) external view returns (uint256);
 
     /**
      * @notice module:core
      * @dev The account that created a proposal.
      */
-    function proposalProposer(uint256 proposalId) external view returns (address);
+    function proposalProposer(
+        uint256 proposalId
+    ) external view returns (address);
 
     /**
      * @notice module:core
@@ -249,7 +273,9 @@ interface IGovernor is IERC165, IERC6372 {
      * @notice module:core
      * @dev Whether a proposal needs to be queued before execution.
      */
-    function proposalNeedsQueuing(uint256 proposalId) external view returns (bool);
+    function proposalNeedsQueuing(
+        uint256 proposalId
+    ) external view returns (bool);
 
     /**
      * @notice module:user-config
@@ -294,7 +320,10 @@ interface IGovernor is IERC165, IERC6372 {
      * Note: this can be implemented in a number of ways, for example by reading the delegated balance from one (or
      * multiple), {ERC20Votes} tokens.
      */
-    function getVotes(address account, uint256 timepoint) external view returns (uint256);
+    function getVotes(
+        address account,
+        uint256 timepoint
+    ) external view returns (uint256);
 
     /**
      * @notice module:reputation
@@ -310,7 +339,10 @@ interface IGovernor is IERC165, IERC6372 {
      * @notice module:voting
      * @dev Returns whether `account` has cast a vote on `proposalId`.
      */
-    function hasVoted(uint256 proposalId, address account) external view returns (bool);
+    function hasVoted(
+        uint256 proposalId,
+        address account
+    ) external view returns (bool);
 
     /**
      * @dev Create a new proposal. Vote start after a delay specified by {IGovernor-votingDelay} and lasts for a
@@ -373,7 +405,10 @@ interface IGovernor is IERC165, IERC6372 {
      *
      * Emits a {VoteCast} event.
      */
-    function castVote(uint256 proposalId, uint8 support) external returns (uint256 balance);
+    function castVote(
+        uint256 proposalId,
+        uint8 support
+    ) external returns (uint256 balance);
 
     /**
      * @dev Cast a vote with a reason

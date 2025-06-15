@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {ERC20FlashMint} from "../../token/ERC20/extensions/ERC20FlashMint.sol";
 
@@ -12,7 +12,10 @@ abstract contract ERC20FlashMintMock is ERC20FlashMint {
         _flashFeeAmount = amount;
     }
 
-    function _flashFee(address, uint256) internal view override returns (uint256) {
+    function _flashFee(
+        address,
+        uint256
+    ) internal view override returns (uint256) {
         return _flashFeeAmount;
     }
 

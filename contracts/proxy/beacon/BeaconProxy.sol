@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (proxy/beacon/BeaconProxy.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IBeacon} from "./IBeacon.sol";
 import {Proxy} from "../Proxy.sol";
@@ -44,7 +44,13 @@ contract BeaconProxy is Proxy {
     /**
      * @dev Returns the current implementation address of the associated beacon.
      */
-    function _implementation() internal view virtual override returns (address) {
+    function _implementation()
+        internal
+        view
+        virtual
+        override
+        returns (address)
+    {
         return IBeacon(_getBeacon()).implementation();
     }
 

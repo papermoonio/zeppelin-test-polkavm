@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (access/extensions/AccessControlEnumerable.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IAccessControlEnumerable} from "./IAccessControlEnumerable.sol";
 import {AccessControl} from "../AccessControl.sol";
@@ -10,7 +10,10 @@ import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
 /**
  * @dev Extension of {AccessControl} that allows enumerating the members of each role.
  */
-abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessControl {
+abstract contract AccessControlEnumerable is
+    IAccessControlEnumerable,
+    AccessControl
+{
     using EnumerableSet for EnumerableSet.AddressSet;
 
     mapping(bytes32 role => EnumerableSet.AddressSet) private _roleMembers;
@@ -18,8 +21,12 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
     /**
      * @dev See {IERC165-supportsInterface}.
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IAccessControlEnumerable).interfaceId || super.supportsInterface(interfaceId);
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override returns (bool) {
+        return
+            interfaceId == type(IAccessControlEnumerable).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 
     /**
@@ -34,7 +41,10 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
      * https://forum.openzeppelin.com/t/iterating-over-elements-on-enumerableset-in-openzeppelin-contracts/2296[forum post]
      * for more information.
      */
-    function getRoleMember(bytes32 role, uint256 index) public view virtual returns (address) {
+    function getRoleMember(
+        bytes32 role,
+        uint256 index
+    ) public view virtual returns (address) {
         return _roleMembers[role].at(index);
     }
 
@@ -42,14 +52,19 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
      * @dev Returns the number of accounts that have `role`. Can be used
      * together with {getRoleMember} to enumerate all bearers of a role.
      */
-    function getRoleMemberCount(bytes32 role) public view virtual returns (uint256) {
+    function getRoleMemberCount(
+        bytes32 role
+    ) public view virtual returns (uint256) {
         return _roleMembers[role].length();
     }
 
     /**
      * @dev Overload {AccessControl-_grantRole} to track enumerable memberships
      */
-    function _grantRole(bytes32 role, address account) internal virtual override returns (bool) {
+    function _grantRole(
+        bytes32 role,
+        address account
+    ) internal virtual override returns (bool) {
         bool granted = super._grantRole(role, account);
         if (granted) {
             _roleMembers[role].add(account);
@@ -60,7 +75,10 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
     /**
      * @dev Overload {AccessControl-_revokeRole} to track enumerable memberships
      */
-    function _revokeRole(bytes32 role, address account) internal virtual override returns (bool) {
+    function _revokeRole(
+        bytes32 role,
+        address account
+    ) internal virtual override returns (bool) {
         bool revoked = super._revokeRole(role, account);
         if (revoked) {
             _roleMembers[role].remove(account);

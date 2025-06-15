@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/extensions/ERC721Enumerable.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {ERC721} from "../ERC721.sol";
 import {IERC721Enumerable} from "./IERC721Enumerable.sol";
@@ -15,7 +15,8 @@ import {IERC165} from "../../../utils/introspection/ERC165.sol";
  * interfere with enumerability and should not be used together with `ERC721Enumerable`.
  */
 abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
-    mapping(address owner => mapping(uint256 index => uint256)) private _ownedTokens;
+    mapping(address owner => mapping(uint256 index => uint256))
+        private _ownedTokens;
     mapping(uint256 tokenId => uint256) private _ownedTokensIndex;
 
     uint256[] private _allTokens;
@@ -36,14 +37,21 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     /**
      * @dev See {IERC165-supportsInterface}.
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC721) returns (bool) {
-        return interfaceId == type(IERC721Enumerable).interfaceId || super.supportsInterface(interfaceId);
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(IERC165, ERC721) returns (bool) {
+        return
+            interfaceId == type(IERC721Enumerable).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 
     /**
      * @dev See {IERC721Enumerable-tokenOfOwnerByIndex}.
      */
-    function tokenOfOwnerByIndex(address owner, uint256 index) public view virtual returns (uint256) {
+    function tokenOfOwnerByIndex(
+        address owner,
+        uint256 index
+    ) public view virtual returns (uint256) {
         if (index >= balanceOf(owner)) {
             revert ERC721OutOfBoundsIndex(owner, index);
         }
@@ -70,7 +78,11 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     /**
      * @dev See {ERC721-_update}.
      */
-    function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
+    function _update(
+        address to,
+        uint256 tokenId,
+        address auth
+    ) internal virtual override returns (address) {
         address previousOwner = super._update(to, tokenId, auth);
 
         if (previousOwner == address(0)) {
@@ -115,7 +127,10 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
      * @param from address representing the previous owner of the given token ID
      * @param tokenId uint256 ID of the token to be removed from the tokens list of the given address
      */
-    function _removeTokenFromOwnerEnumeration(address from, uint256 tokenId) private {
+    function _removeTokenFromOwnerEnumeration(
+        address from,
+        uint256 tokenId
+    ) private {
         // To prevent a gap in from's tokens array, we store the last token in the index of the token to delete, and
         // then delete the last slot (swap and pop).
 
@@ -163,7 +178,10 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     /**
      * See {ERC721-_increaseBalance}. We need that to account tokens that were minted in batch
      */
-    function _increaseBalance(address account, uint128 amount) internal virtual override {
+    function _increaseBalance(
+        address account,
+        uint128 amount
+    ) internal virtual override {
         if (amount > 0) {
             revert ERC721EnumerableForbiddenBatchMint();
         }

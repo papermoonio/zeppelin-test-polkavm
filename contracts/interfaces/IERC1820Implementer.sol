@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (interfaces/IERC1820Implementer.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 /**
  * @dev Interface for an ERC1820 implementer, as defined in the
@@ -16,5 +16,8 @@ interface IERC1820Implementer {
      *
      * See {IERC1820Registry-setInterfaceImplementer}.
      */
-    function canImplementInterfaceForAddress(bytes32 interfaceHash, address account) external view returns (bytes32);
+    function canImplementInterfaceForAddress(
+        bytes32 interfaceHash,
+        address account
+    ) external view returns (bytes32);
 }

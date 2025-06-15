@@ -3,12 +3,14 @@
 
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules"
 
-const MyTokenModule = buildModule("MyTokenModule", (m) => {
+const PVMERC20Module = buildModule("PVMERC20Module", (m) => {
+    const name = m.getParameter("name", "name")
+    const symbol = m.getParameter("symbol", "symbol")
     const initialSupply = m.getParameter("initialSupply", 1_000_000n * 10n ** 18n)
 
-    const token = m.contract("MyToken", [initialSupply])
+    const token = m.contract("PVMERC20", [name, symbol, initialSupply])
 
     return { token }
 })
 
-export default MyTokenModule
+export default PVMERC20Module

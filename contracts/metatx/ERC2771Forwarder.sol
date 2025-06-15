@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (metatx/ERC2771Forwarder.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {ERC2771Context} from "./ERC2771Context.sol";
 import {ECDSA} from "../utils/cryptography/ECDSA.sol";
@@ -72,7 +72,11 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * or simply a revert in the requested call. The contract guarantees that the relayer is not able to force
      * the requested call to run out of gas.
      */
-    event ExecutedForwardRequest(address indexed signer, uint256 nonce, bool success);
+    event ExecutedForwardRequest(
+        address indexed signer,
+        uint256 nonce,
+        bool success
+    );
 
     /**
      * @dev The request `from` doesn't match with the recovered `signer`.
@@ -82,7 +86,10 @@ contract ERC2771Forwarder is EIP712, Nonces {
     /**
      * @dev The `requestedValue` doesn't match with the available `msgValue`.
      */
-    error ERC2771ForwarderMismatchedValue(uint256 requestedValue, uint256 msgValue);
+    error ERC2771ForwarderMismatchedValue(
+        uint256 requestedValue,
+        uint256 msgValue
+    );
 
     /**
      * @dev The request `deadline` has expired.
@@ -108,8 +115,12 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * NOTE: A request may return false here but it won't cause {executeBatch} to revert if a refund
      * receiver is provided.
      */
-    function verify(ForwardRequestData calldata request) public view virtual returns (bool) {
-        (bool isTrustedForwarder, bool active, bool signerMatch, ) = _validate(request);
+    function verify(
+        ForwardRequestData calldata request
+    ) public view virtual returns (bool) {
+        (bool isTrustedForwarder, bool active, bool signerMatch, ) = _validate(
+            request
+        );
         return isTrustedForwarder && active && signerMatch;
     }
 
@@ -123,7 +134,9 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * - The request value should be equal to the provided `msg.value`.
      * - The request should be valid according to {verify}.
      */
-    function execute(ForwardRequestData calldata request) public payable virtual {
+    function execute(
+        ForwardRequestData calldata request
+    ) public payable virtual {
         // We make sure that msg.value and request.value match exactly.
         // If the request is invalid or the call reverts, this whole function
         // will revert, ensuring value isn't stuck.
@@ -198,8 +211,20 @@ contract ERC2771Forwarder is EIP712, Nonces {
      */
     function _validate(
         ForwardRequestData calldata request
-    ) internal view virtual returns (bool isTrustedForwarder, bool active, bool signerMatch, address signer) {
-        (bool isValid, address recovered) = _recoverForwardRequestSigner(request);
+    )
+        internal
+        view
+        virtual
+        returns (
+            bool isTrustedForwarder,
+            bool active,
+            bool signerMatch,
+            address signer
+        )
+    {
+        (bool isValid, address recovered) = _recoverForwardRequestSigner(
+            request
+        );
 
         return (
             _isTrustedByTarget(request.to),
@@ -255,7 +280,12 @@ contract ERC2771Forwarder is EIP712, Nonces {
         ForwardRequestData calldata request,
         bool requireValidRequest
     ) internal virtual returns (bool success) {
-        (bool isTrustedForwarder, bool active, bool signerMatch, address signer) = _validate(request);
+        (
+            bool isTrustedForwarder,
+            bool active,
+            bool signerMatch,
+            address signer
+        ) = _validate(request);
 
         // Need to explicitly specify if a revert is required since non-reverting is default for
         // batches and reversion is opt-in since it could be useful in some scenarios
@@ -286,7 +316,15 @@ contract ERC2771Forwarder is EIP712, Nonces {
             uint256 gasLeft;
 
             assembly {
-                success := call(reqGas, to, value, add(data, 0x20), mload(data), 0, 0)
+                success := call(
+                    reqGas,
+                    to,
+                    value,
+                    add(data, 0x20),
+                    mload(data),
+                    0,
+                    0
+                )
                 gasLeft := gas()
             }
 
@@ -303,7 +341,10 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * {ERC2771Context-isTrustedForwarder} function.
      */
     function _isTrustedByTarget(address target) private view returns (bool) {
-        bytes memory encodedParams = abi.encodeCall(ERC2771Context.isTrustedForwarder, (address(this)));
+        bytes memory encodedParams = abi.encodeCall(
+            ERC2771Context.isTrustedForwarder,
+            (address(this))
+        );
 
         bool success;
         uint256 returnSize;
@@ -315,7 +356,14 @@ contract ERC2771Forwarder is EIP712, Nonces {
             // |-----------|----------|--------------------------------------------------------------------|
             // |           |          |                                                           result ↓ |
             // | 0x00:0x1F | selector | 0x0000000000000000000000000000000000000000000000000000000000000001 |
-            success := staticcall(gas(), target, add(encodedParams, 0x20), mload(encodedParams), 0, 0x20)
+            success := staticcall(
+                gas(),
+                target,
+                add(encodedParams, 0x20),
+                mload(encodedParams),
+                0,
+                0x20
+            )
             returnSize := returndatasize()
             returnValue := mload(0)
         }
@@ -335,7 +383,10 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * IMPORTANT: The `gasLeft` parameter should be measured exactly at the end of the forwarded call.
      * Any gas consumed in between will make room for bypassing this check.
      */
-    function _checkForwardedGas(uint256 gasLeft, ForwardRequestData calldata request) private pure {
+    function _checkForwardedGas(
+        uint256 gasLeft,
+        ForwardRequestData calldata request
+    ) private pure {
         // To avoid insufficient gas griefing attacks, as referenced in https://ronan.eth.limo/blog/ethereum-gas-dangers/
         //
         // A malicious relayer can attempt to shrink the gas forwarded so that the underlying call reverts out-of-gas

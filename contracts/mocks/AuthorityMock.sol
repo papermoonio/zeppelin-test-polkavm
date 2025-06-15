@@ -1,12 +1,16 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IAccessManaged} from "../access/manager/IAccessManaged.sol";
 import {IAuthority} from "../access/manager/IAuthority.sol";
 
 contract NotAuthorityMock is IAuthority {
-    function canCall(address /* caller */, address /* target */, bytes4 /* selector */) external pure returns (bool) {
+    function canCall(
+        address /* caller */,
+        address /* target */,
+        bytes4 /* selector */
+    ) external pure returns (bool) {
         revert("AuthorityNoDelayMock: not implemented");
     }
 }
@@ -49,11 +53,19 @@ contract AuthorityDelayMock {
 }
 
 contract AuthorityNoResponse {
-    function canCall(address /* caller */, address /* target */, bytes4 /* selector */) external view {}
+    function canCall(
+        address /* caller */,
+        address /* target */,
+        bytes4 /* selector */
+    ) external view {}
 }
 
 contract AuthoritiyObserveIsConsuming {
-    event ConsumeScheduledOpCalled(address caller, bytes data, bytes4 isConsuming);
+    event ConsumeScheduledOpCalled(
+        address caller,
+        bytes data,
+        bytes4 isConsuming
+    );
 
     function canCall(
         address /* caller */,
@@ -64,6 +76,10 @@ contract AuthoritiyObserveIsConsuming {
     }
 
     function consumeScheduledOp(address caller, bytes memory data) public {
-        emit ConsumeScheduledOpCalled(caller, data, IAccessManaged(msg.sender).isConsumingScheduledOp());
+        emit ConsumeScheduledOpCalled(
+            caller,
+            data,
+            IAccessManaged(msg.sender).isConsumingScheduledOp()
+        );
     }
 }

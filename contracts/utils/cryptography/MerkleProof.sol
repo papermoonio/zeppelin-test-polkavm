@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (utils/cryptography/MerkleProof.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 /**
  * @dev These functions deal with verification of Merkle Tree proofs.
@@ -29,14 +29,22 @@ library MerkleProof {
      * sibling hashes on the branch from the leaf to the root of the tree. Each
      * pair of leaves and each pair of pre-images are assumed to be sorted.
      */
-    function verify(bytes32[] memory proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
+    function verify(
+        bytes32[] memory proof,
+        bytes32 root,
+        bytes32 leaf
+    ) internal pure returns (bool) {
         return processProof(proof, leaf) == root;
     }
 
     /**
      * @dev Calldata version of {verify}
      */
-    function verifyCalldata(bytes32[] calldata proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
+    function verifyCalldata(
+        bytes32[] calldata proof,
+        bytes32 root,
+        bytes32 leaf
+    ) internal pure returns (bool) {
         return processProofCalldata(proof, leaf) == root;
     }
 
@@ -46,7 +54,10 @@ library MerkleProof {
      * hash matches the root of the tree. When processing the proof, the pairs
      * of leafs & pre-images are assumed to be sorted.
      */
-    function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
+    function processProof(
+        bytes32[] memory proof,
+        bytes32 leaf
+    ) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
         for (uint256 i = 0; i < proof.length; i++) {
             computedHash = _hashPair(computedHash, proof[i]);
@@ -57,7 +68,10 @@ library MerkleProof {
     /**
      * @dev Calldata version of {processProof}
      */
-    function processProofCalldata(bytes32[] calldata proof, bytes32 leaf) internal pure returns (bytes32) {
+    function processProofCalldata(
+        bytes32[] calldata proof,
+        bytes32 leaf
+    ) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
         for (uint256 i = 0; i < proof.length; i++) {
             computedHash = _hashPair(computedHash, proof[i]);
@@ -134,7 +148,9 @@ library MerkleProof {
         // - depending on the flag, either another value from the "main queue" (merging branches) or an element from the
         //   `proof` array.
         for (uint256 i = 0; i < totalHashes; i++) {
-            bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
+            bytes32 a = leafPos < leavesLen
+                ? leaves[leafPos++]
+                : hashes[hashPos++];
             bytes32 b = proofFlags[i]
                 ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
                 : proof[proofPos++];
@@ -190,7 +206,9 @@ library MerkleProof {
         // - depending on the flag, either another value from the "main queue" (merging branches) or an element from the
         //   `proof` array.
         for (uint256 i = 0; i < totalHashes; i++) {
-            bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
+            bytes32 a = leafPos < leavesLen
+                ? leaves[leafPos++]
+                : hashes[hashPos++];
             bytes32 b = proofFlags[i]
                 ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
                 : proof[proofPos++];
@@ -221,7 +239,10 @@ library MerkleProof {
     /**
      * @dev Implementation of keccak256(abi.encode(a, b)) that doesn't allocate or expand memory.
      */
-    function _efficientHash(bytes32 a, bytes32 b) private pure returns (bytes32 value) {
+    function _efficientHash(
+        bytes32 a,
+        bytes32 b
+    ) private pure returns (bytes32 value) {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, a)

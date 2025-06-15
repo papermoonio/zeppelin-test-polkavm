@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {Governor} from "../../governance/Governor.sol";
 import {GovernorCountingSimple} from "../../governance/extensions/GovernorCountingSimple.sol";
 import {GovernorVotes} from "../../governance/extensions/GovernorVotes.sol";
 
-abstract contract GovernorWithParamsMock is GovernorVotes, GovernorCountingSimple {
+abstract contract GovernorWithParamsMock is
+    GovernorVotes,
+    GovernorCountingSimple
+{
     event CountParams(uint256 uintParam, string strParam);
 
     function quorum(uint256) public pure override returns (uint256) {
@@ -43,7 +46,10 @@ abstract contract GovernorWithParamsMock is GovernorVotes, GovernorCountingSimpl
         bytes memory params
     ) internal override(Governor, GovernorCountingSimple) {
         if (params.length > 0) {
-            (uint256 _uintParam, string memory _strParam) = abi.decode(params, (uint256, string));
+            (uint256 _uintParam, string memory _strParam) = abi.decode(
+                params,
+                (uint256, string)
+            );
             emit CountParams(_uintParam, _strParam);
         }
         return super._countVote(proposalId, account, support, weight, params);

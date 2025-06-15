@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/extensions/ERC20Permit.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IERC20Permit} from "./IERC20Permit.sol";
 import {ERC20} from "../ERC20.sol";
@@ -19,7 +19,9 @@ import {Nonces} from "../../../utils/Nonces.sol";
  */
 abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
     bytes32 private constant PERMIT_TYPEHASH =
-        keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
+        keccak256(
+            "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
+        );
 
     /**
      * @dev Permit deadline has expired.
@@ -54,7 +56,16 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
             revert ERC2612ExpiredSignature(deadline);
         }
 
-        bytes32 structHash = keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline));
+        bytes32 structHash = keccak256(
+            abi.encode(
+                PERMIT_TYPEHASH,
+                owner,
+                spender,
+                value,
+                _useNonce(owner),
+                deadline
+            )
+        );
 
         bytes32 hash = _hashTypedDataV4(structHash);
 
@@ -69,7 +80,9 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
     /**
      * @inheritdoc IERC20Permit
      */
-    function nonces(address owner) public view virtual override(IERC20Permit, Nonces) returns (uint256) {
+    function nonces(
+        address owner
+    ) public view virtual override(IERC20Permit, Nonces) returns (uint256) {
         return super.nonces(owner);
     }
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/extensions/ERC20Wrapper.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IERC20, IERC20Metadata, ERC20} from "../ERC20.sol";
 import {SafeERC20} from "../utils/SafeERC20.sol";
@@ -32,7 +32,9 @@ abstract contract ERC20Wrapper is ERC20 {
      * @dev See {ERC20-decimals}.
      */
     function decimals() public view virtual override returns (uint8) {
-        try IERC20Metadata(address(_underlying)).decimals() returns (uint8 value) {
+        try IERC20Metadata(address(_underlying)).decimals() returns (
+            uint8 value
+        ) {
             return value;
         } catch {
             return super.decimals();
@@ -49,7 +51,10 @@ abstract contract ERC20Wrapper is ERC20 {
     /**
      * @dev Allow a user to deposit underlying tokens and mint the corresponding number of wrapped tokens.
      */
-    function depositFor(address account, uint256 value) public virtual returns (bool) {
+    function depositFor(
+        address account,
+        uint256 value
+    ) public virtual returns (bool) {
         address sender = _msgSender();
         if (sender == address(this)) {
             revert ERC20InvalidSender(address(this));
@@ -65,7 +70,10 @@ abstract contract ERC20Wrapper is ERC20 {
     /**
      * @dev Allow a user to burn a number of wrapped tokens and withdraw the corresponding number of underlying tokens.
      */
-    function withdrawTo(address account, uint256 value) public virtual returns (bool) {
+    function withdrawTo(
+        address account,
+        uint256 value
+    ) public virtual returns (bool) {
         if (account == address(this)) {
             revert ERC20InvalidReceiver(account);
         }

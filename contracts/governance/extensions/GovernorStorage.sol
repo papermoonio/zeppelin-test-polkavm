@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (governance/extensions/GovernorStorage.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {Governor} from "../Governor.sol";
 
@@ -35,7 +35,13 @@ abstract contract GovernorStorage is Governor {
         string memory description,
         address proposer
     ) internal virtual override returns (uint256) {
-        uint256 proposalId = super._propose(targets, values, calldatas, description, proposer);
+        uint256 proposalId = super._propose(
+            targets,
+            values,
+            calldatas,
+            description,
+            proposer
+        );
 
         // store
         _proposalIds.push(proposalId);
@@ -55,7 +61,12 @@ abstract contract GovernorStorage is Governor {
     function queue(uint256 proposalId) public virtual {
         // here, using storage is more efficient than memory
         ProposalDetails storage details = _proposalDetails[proposalId];
-        queue(details.targets, details.values, details.calldatas, details.descriptionHash);
+        queue(
+            details.targets,
+            details.values,
+            details.calldatas,
+            details.descriptionHash
+        );
     }
 
     /**
@@ -64,7 +75,12 @@ abstract contract GovernorStorage is Governor {
     function execute(uint256 proposalId) public payable virtual {
         // here, using storage is more efficient than memory
         ProposalDetails storage details = _proposalDetails[proposalId];
-        execute(details.targets, details.values, details.calldatas, details.descriptionHash);
+        execute(
+            details.targets,
+            details.values,
+            details.calldatas,
+            details.descriptionHash
+        );
     }
 
     /**
@@ -73,7 +89,12 @@ abstract contract GovernorStorage is Governor {
     function cancel(uint256 proposalId) public virtual {
         // here, using storage is more efficient than memory
         ProposalDetails storage details = _proposalDetails[proposalId];
-        cancel(details.targets, details.values, details.calldatas, details.descriptionHash);
+        cancel(
+            details.targets,
+            details.values,
+            details.calldatas,
+            details.descriptionHash
+        );
     }
 
     /**
@@ -88,13 +109,23 @@ abstract contract GovernorStorage is Governor {
      */
     function proposalDetails(
         uint256 proposalId
-    ) public view virtual returns (address[] memory, uint256[] memory, bytes[] memory, bytes32) {
+    )
+        public
+        view
+        virtual
+        returns (address[] memory, uint256[] memory, bytes[] memory, bytes32)
+    {
         // here, using memory is more efficient than storage
         ProposalDetails memory details = _proposalDetails[proposalId];
         if (details.descriptionHash == 0) {
             revert GovernorNonexistentProposal(proposalId);
         }
-        return (details.targets, details.values, details.calldatas, details.descriptionHash);
+        return (
+            details.targets,
+            details.values,
+            details.calldatas,
+            details.descriptionHash
+        );
     }
 
     /**
@@ -102,7 +133,18 @@ abstract contract GovernorStorage is Governor {
      */
     function proposalDetailsAt(
         uint256 index
-    ) public view virtual returns (uint256, address[] memory, uint256[] memory, bytes[] memory, bytes32) {
+    )
+        public
+        view
+        virtual
+        returns (
+            uint256,
+            address[] memory,
+            uint256[] memory,
+            bytes[] memory,
+            bytes32
+        )
+    {
         uint256 proposalId = _proposalIds[index];
         (
             address[] memory targets,

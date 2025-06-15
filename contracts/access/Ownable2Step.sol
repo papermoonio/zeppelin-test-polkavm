@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (access/Ownable2Step.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {Ownable} from "./Ownable.sol";
 
@@ -19,7 +19,10 @@ import {Ownable} from "./Ownable.sol";
 abstract contract Ownable2Step is Ownable {
     address private _pendingOwner;
 
-    event OwnershipTransferStarted(address indexed previousOwner, address indexed newOwner);
+    event OwnershipTransferStarted(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
 
     /**
      * @dev Returns the address of the pending owner.
@@ -32,7 +35,9 @@ abstract contract Ownable2Step is Ownable {
      * @dev Starts the ownership transfer of the contract to a new account. Replaces the pending transfer if there is one.
      * Can only be called by the current owner.
      */
-    function transferOwnership(address newOwner) public virtual override onlyOwner {
+    function transferOwnership(
+        address newOwner
+    ) public virtual override onlyOwner {
         _pendingOwner = newOwner;
         emit OwnershipTransferStarted(owner(), newOwner);
     }

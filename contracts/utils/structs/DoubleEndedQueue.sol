@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (utils/structs/DoubleEndedQueue.sol)
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 /**
  * @dev A sequence of items with the ability to efficiently push and pop items (i.e. insert and remove) on both ends of
@@ -64,7 +64,9 @@ library DoubleEndedQueue {
      *
      * Reverts with {QueueEmpty} if the queue is empty.
      */
-    function popBack(Bytes32Deque storage deque) internal returns (bytes32 value) {
+    function popBack(
+        Bytes32Deque storage deque
+    ) internal returns (bytes32 value) {
         unchecked {
             uint128 backIndex = deque._end;
             if (backIndex == deque._begin) revert QueueEmpty();
@@ -94,7 +96,9 @@ library DoubleEndedQueue {
      *
      * Reverts with `QueueEmpty` if the queue is empty.
      */
-    function popFront(Bytes32Deque storage deque) internal returns (bytes32 value) {
+    function popFront(
+        Bytes32Deque storage deque
+    ) internal returns (bytes32 value) {
         unchecked {
             uint128 frontIndex = deque._begin;
             if (frontIndex == deque._end) revert QueueEmpty();
@@ -109,7 +113,9 @@ library DoubleEndedQueue {
      *
      * Reverts with `QueueEmpty` if the queue is empty.
      */
-    function front(Bytes32Deque storage deque) internal view returns (bytes32 value) {
+    function front(
+        Bytes32Deque storage deque
+    ) internal view returns (bytes32 value) {
         if (empty(deque)) revert QueueEmpty();
         return deque._data[deque._begin];
     }
@@ -119,7 +125,9 @@ library DoubleEndedQueue {
      *
      * Reverts with `QueueEmpty` if the queue is empty.
      */
-    function back(Bytes32Deque storage deque) internal view returns (bytes32 value) {
+    function back(
+        Bytes32Deque storage deque
+    ) internal view returns (bytes32 value) {
         if (empty(deque)) revert QueueEmpty();
         unchecked {
             return deque._data[deque._end - 1];
@@ -132,7 +140,10 @@ library DoubleEndedQueue {
      *
      * Reverts with `QueueOutOfBounds` if the index is out of bounds.
      */
-    function at(Bytes32Deque storage deque, uint256 index) internal view returns (bytes32 value) {
+    function at(
+        Bytes32Deque storage deque,
+        uint256 index
+    ) internal view returns (bytes32 value) {
         if (index >= length(deque)) revert QueueOutOfBounds();
         // By construction, length is a uint128, so the check above ensures that index can be safely downcast to uint128
         unchecked {
@@ -154,7 +165,9 @@ library DoubleEndedQueue {
     /**
      * @dev Returns the number of items in the queue.
      */
-    function length(Bytes32Deque storage deque) internal view returns (uint256) {
+    function length(
+        Bytes32Deque storage deque
+    ) internal view returns (uint256) {
         unchecked {
             return uint256(deque._end - deque._begin);
         }

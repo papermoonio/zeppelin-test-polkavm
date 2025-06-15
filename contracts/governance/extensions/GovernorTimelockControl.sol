@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (governance/extensions/GovernorTimelockControl.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IGovernor, Governor} from "../Governor.sol";
 import {TimelockController} from "../TimelockController.sol";
@@ -44,7 +44,9 @@ abstract contract GovernorTimelockControl is Governor {
     /**
      * @dev Overridden version of the {Governor-state} function that considers the status reported by the timelock.
      */
-    function state(uint256 proposalId) public view virtual override returns (ProposalState) {
+    function state(
+        uint256 proposalId
+    ) public view virtual override returns (ProposalState) {
         ProposalState currentState = super.state(proposalId);
 
         if (currentState != ProposalState.Queued) {
@@ -73,7 +75,9 @@ abstract contract GovernorTimelockControl is Governor {
     /**
      * @dev See {IGovernor-proposalNeedsQueuing}.
      */
-    function proposalNeedsQueuing(uint256) public view virtual override returns (bool) {
+    function proposalNeedsQueuing(
+        uint256
+    ) public view virtual override returns (bool) {
         return true;
     }
 
@@ -90,7 +94,13 @@ abstract contract GovernorTimelockControl is Governor {
         uint256 delay = _timelock.getMinDelay();
 
         bytes32 salt = _timelockSalt(descriptionHash);
-        _timelockIds[proposalId] = _timelock.hashOperationBatch(targets, values, calldatas, 0, salt);
+        _timelockIds[proposalId] = _timelock.hashOperationBatch(
+            targets,
+            values,
+            calldatas,
+            0,
+            salt
+        );
         _timelock.scheduleBatch(targets, values, calldatas, 0, salt, delay);
 
         return SafeCast.toUint48(block.timestamp + delay);
@@ -108,7 +118,13 @@ abstract contract GovernorTimelockControl is Governor {
         bytes32 descriptionHash
     ) internal virtual override {
         // execute
-        _timelock.executeBatch{value: msg.value}(targets, values, calldatas, 0, _timelockSalt(descriptionHash));
+        _timelock.executeBatch{value: msg.value}(
+            targets,
+            values,
+            calldatas,
+            0,
+            _timelockSalt(descriptionHash)
+        );
         // cleanup for refund
         delete _timelockIds[proposalId];
     }
@@ -126,7 +142,12 @@ abstract contract GovernorTimelockControl is Governor {
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal virtual override returns (uint256) {
-        uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = super._cancel(
+            targets,
+            values,
+            calldatas,
+            descriptionHash
+        );
 
         bytes32 timelockId = _timelockIds[proposalId];
         if (timelockId != 0) {
@@ -152,7 +173,9 @@ abstract contract GovernorTimelockControl is Governor {
      *
      * CAUTION: It is not recommended to change the timelock while there are other queued governance proposals.
      */
-    function updateTimelock(TimelockController newTimelock) external virtual onlyGovernance {
+    function updateTimelock(
+        TimelockController newTimelock
+    ) external virtual onlyGovernance {
         _updateTimelock(newTimelock);
     }
 
@@ -167,7 +190,9 @@ abstract contract GovernorTimelockControl is Governor {
      * It is computed with the governor address itself to avoid collisions across governor instances using the
      * same timelock.
      */
-    function _timelockSalt(bytes32 descriptionHash) private view returns (bytes32) {
+    function _timelockSalt(
+        bytes32 descriptionHash
+    ) private view returns (bytes32) {
         return bytes20(address(this)) ^ descriptionHash;
     }
 }

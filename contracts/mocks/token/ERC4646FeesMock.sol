@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {ERC4626Fees} from "../docs/ERC4626Fees.sol";
 
@@ -22,19 +22,43 @@ abstract contract ERC4626FeesMock is ERC4626Fees {
         _exitFeeRecipientValue = exitFeeRecipient;
     }
 
-    function _entryFeeBasisPoints() internal view virtual override returns (uint256) {
+    function _entryFeeBasisPoints()
+        internal
+        view
+        virtual
+        override
+        returns (uint256)
+    {
         return _entryFeeBasisPointValue;
     }
 
-    function _entryFeeRecipient() internal view virtual override returns (address) {
+    function _entryFeeRecipient()
+        internal
+        view
+        virtual
+        override
+        returns (address)
+    {
         return _entryFeeRecipientValue;
     }
 
-    function _exitFeeBasisPoints() internal view virtual override returns (uint256) {
+    function _exitFeeBasisPoints()
+        internal
+        view
+        virtual
+        override
+        returns (uint256)
+    {
         return _exitFeeBasisPointValue;
     }
 
-    function _exitFeeRecipient() internal view virtual override returns (address) {
+    function _exitFeeRecipient()
+        internal
+        view
+        virtual
+        override
+        returns (address)
+    {
         return _exitFeeRecipientValue;
     }
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (token/common/ERC2981.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IERC2981} from "../../interfaces/IERC2981.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
@@ -41,7 +41,11 @@ abstract contract ERC2981 is IERC2981, ERC165 {
     /**
      * @dev The royalty set for an specific `tokenId` is invalid (eg. (numerator / denominator) >= 1).
      */
-    error ERC2981InvalidTokenRoyalty(uint256 tokenId, uint256 numerator, uint256 denominator);
+    error ERC2981InvalidTokenRoyalty(
+        uint256 tokenId,
+        uint256 numerator,
+        uint256 denominator
+    );
 
     /**
      * @dev The royalty receiver for `tokenId` is invalid.
@@ -51,21 +55,29 @@ abstract contract ERC2981 is IERC2981, ERC165 {
     /**
      * @dev See {IERC165-supportsInterface}.
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
-        return interfaceId == type(IERC2981).interfaceId || super.supportsInterface(interfaceId);
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(IERC165, ERC165) returns (bool) {
+        return
+            interfaceId == type(IERC2981).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 
     /**
      * @inheritdoc IERC2981
      */
-    function royaltyInfo(uint256 tokenId, uint256 salePrice) public view virtual returns (address, uint256) {
+    function royaltyInfo(
+        uint256 tokenId,
+        uint256 salePrice
+    ) public view virtual returns (address, uint256) {
         RoyaltyInfo memory royalty = _tokenRoyaltyInfo[tokenId];
 
         if (royalty.receiver == address(0)) {
             royalty = _defaultRoyaltyInfo;
         }
 
-        uint256 royaltyAmount = (salePrice * royalty.royaltyFraction) / _feeDenominator();
+        uint256 royaltyAmount = (salePrice * royalty.royaltyFraction) /
+            _feeDenominator();
 
         return (royalty.receiver, royaltyAmount);
     }
@@ -87,7 +99,10 @@ abstract contract ERC2981 is IERC2981, ERC165 {
      * - `receiver` cannot be the zero address.
      * - `feeNumerator` cannot be greater than the fee denominator.
      */
-    function _setDefaultRoyalty(address receiver, uint96 feeNumerator) internal virtual {
+    function _setDefaultRoyalty(
+        address receiver,
+        uint96 feeNumerator
+    ) internal virtual {
         uint256 denominator = _feeDenominator();
         if (feeNumerator > denominator) {
             // Royalty fee will exceed the sale price
@@ -115,11 +130,19 @@ abstract contract ERC2981 is IERC2981, ERC165 {
      * - `receiver` cannot be the zero address.
      * - `feeNumerator` cannot be greater than the fee denominator.
      */
-    function _setTokenRoyalty(uint256 tokenId, address receiver, uint96 feeNumerator) internal virtual {
+    function _setTokenRoyalty(
+        uint256 tokenId,
+        address receiver,
+        uint96 feeNumerator
+    ) internal virtual {
         uint256 denominator = _feeDenominator();
         if (feeNumerator > denominator) {
             // Royalty fee will exceed the sale price
-            revert ERC2981InvalidTokenRoyalty(tokenId, feeNumerator, denominator);
+            revert ERC2981InvalidTokenRoyalty(
+                tokenId,
+                feeNumerator,
+                denominator
+            );
         }
         if (receiver == address(0)) {
             revert ERC2981InvalidTokenRoyaltyReceiver(tokenId, address(0));

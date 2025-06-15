@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (proxy/beacon/UpgradeableBeacon.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IBeacon} from "./IBeacon.sol";
 import {Ownable} from "../../access/Ownable.sol";
@@ -28,7 +28,10 @@ contract UpgradeableBeacon is IBeacon, Ownable {
     /**
      * @dev Sets the address of the initial implementation, and the initial owner who can upgrade the beacon.
      */
-    constructor(address implementation_, address initialOwner) Ownable(initialOwner) {
+    constructor(
+        address implementation_,
+        address initialOwner
+    ) Ownable(initialOwner) {
         _setImplementation(implementation_);
     }
 

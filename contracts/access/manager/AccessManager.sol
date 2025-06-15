@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (access/manager/AccessManager.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IAccessManager} from "./IAccessManager.sol";
 import {IAccessManaged} from "./IAccessManaged.sol";
@@ -162,12 +162,17 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /// @inheritdoc IAccessManager
-    function getTargetFunctionRole(address target, bytes4 selector) public view virtual returns (uint64) {
+    function getTargetFunctionRole(
+        address target,
+        bytes4 selector
+    ) public view virtual returns (uint64) {
         return _targets[target].allowedRoles[selector];
     }
 
     /// @inheritdoc IAccessManager
-    function getTargetAdminDelay(address target) public view virtual returns (uint32) {
+    function getTargetAdminDelay(
+        address target
+    ) public view virtual returns (uint32) {
         return _targets[target].adminDelay.get();
     }
 
@@ -177,12 +182,16 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /// @inheritdoc IAccessManager
-    function getRoleGuardian(uint64 roleId) public view virtual returns (uint64) {
+    function getRoleGuardian(
+        uint64 roleId
+    ) public view virtual returns (uint64) {
         return _roles[roleId].guardian;
     }
 
     /// @inheritdoc IAccessManager
-    function getRoleGrantDelay(uint64 roleId) public view virtual returns (uint32) {
+    function getRoleGrantDelay(
+        uint64 roleId
+    ) public view virtual returns (uint32) {
         return _roles[roleId].grantDelay.get();
     }
 
@@ -190,7 +199,17 @@ contract AccessManager is Context, Multicall, IAccessManager {
     function getAccess(
         uint64 roleId,
         address account
-    ) public view virtual returns (uint48 since, uint32 currentDelay, uint32 pendingDelay, uint48 effect) {
+    )
+        public
+        view
+        virtual
+        returns (
+            uint48 since,
+            uint32 currentDelay,
+            uint32 pendingDelay,
+            uint48 effect
+        )
+    {
         Access storage access = _roles[roleId].members[account];
 
         since = access.since;
@@ -207,14 +226,23 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (roleId == PUBLIC_ROLE) {
             return (true, 0);
         } else {
-            (uint48 hasRoleSince, uint32 currentDelay, , ) = getAccess(roleId, account);
-            return (hasRoleSince != 0 && hasRoleSince <= Time.timestamp(), currentDelay);
+            (uint48 hasRoleSince, uint32 currentDelay, , ) = getAccess(
+                roleId,
+                account
+            );
+            return (
+                hasRoleSince != 0 && hasRoleSince <= Time.timestamp(),
+                currentDelay
+            );
         }
     }
 
     // =============================================== ROLE MANAGEMENT ===============================================
     /// @inheritdoc IAccessManager
-    function labelRole(uint64 roleId, string calldata label) public virtual onlyAuthorized {
+    function labelRole(
+        uint64 roleId,
+        string calldata label
+    ) public virtual onlyAuthorized {
         if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
             revert AccessManagerLockedRole(roleId);
         }
@@ -222,17 +250,27 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /// @inheritdoc IAccessManager
-    function grantRole(uint64 roleId, address account, uint32 executionDelay) public virtual onlyAuthorized {
+    function grantRole(
+        uint64 roleId,
+        address account,
+        uint32 executionDelay
+    ) public virtual onlyAuthorized {
         _grantRole(roleId, account, getRoleGrantDelay(roleId), executionDelay);
     }
 
     /// @inheritdoc IAccessManager
-    function revokeRole(uint64 roleId, address account) public virtual onlyAuthorized {
+    function revokeRole(
+        uint64 roleId,
+        address account
+    ) public virtual onlyAuthorized {
         _revokeRole(roleId, account);
     }
 
     /// @inheritdoc IAccessManager
-    function renounceRole(uint64 roleId, address callerConfirmation) public virtual {
+    function renounceRole(
+        uint64 roleId,
+        address callerConfirmation
+    ) public virtual {
         if (callerConfirmation != _msgSender()) {
             revert AccessManagerBadConfirmation();
         }
@@ -240,17 +278,26 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /// @inheritdoc IAccessManager
-    function setRoleAdmin(uint64 roleId, uint64 admin) public virtual onlyAuthorized {
+    function setRoleAdmin(
+        uint64 roleId,
+        uint64 admin
+    ) public virtual onlyAuthorized {
         _setRoleAdmin(roleId, admin);
     }
 
     /// @inheritdoc IAccessManager
-    function setRoleGuardian(uint64 roleId, uint64 guardian) public virtual onlyAuthorized {
+    function setRoleGuardian(
+        uint64 roleId,
+        uint64 guardian
+    ) public virtual onlyAuthorized {
         _setRoleGuardian(roleId, guardian);
     }
 
     /// @inheritdoc IAccessManager
-    function setGrantDelay(uint64 roleId, uint32 newDelay) public virtual onlyAuthorized {
+    function setGrantDelay(
+        uint64 roleId,
+        uint32 newDelay
+    ) public virtual onlyAuthorized {
         _setGrantDelay(roleId, newDelay);
     }
 
@@ -274,14 +321,17 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         if (newMember) {
             since = Time.timestamp() + grantDelay;
-            _roles[roleId].members[account] = Access({since: since, delay: executionDelay.toDelay()});
+            _roles[roleId].members[account] = Access({
+                since: since,
+                delay: executionDelay.toDelay()
+            });
         } else {
             // No setback here. Value can be reset by doing revoke + grant, effectively allowing the admin to perform
             // any change to the execution delay within the duration of the role admin delay.
-            (_roles[roleId].members[account].delay, since) = _roles[roleId].members[account].delay.withUpdate(
-                executionDelay,
-                0
-            );
+            (_roles[roleId].members[account].delay, since) = _roles[roleId]
+                .members[account]
+                .delay
+                .withUpdate(executionDelay, 0);
         }
 
         emit RoleGranted(roleId, account, executionDelay, since, newMember);
@@ -294,7 +344,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {RoleRevoked} event if the account had the role.
      */
-    function _revokeRole(uint64 roleId, address account) internal virtual returns (bool) {
+    function _revokeRole(
+        uint64 roleId,
+        address account
+    ) internal virtual returns (bool) {
         if (roleId == PUBLIC_ROLE) {
             revert AccessManagerLockedRole(roleId);
         }
@@ -356,7 +409,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         uint48 effect;
-        (_roles[roleId].grantDelay, effect) = _roles[roleId].grantDelay.withUpdate(newDelay, minSetback());
+        (_roles[roleId].grantDelay, effect) = _roles[roleId]
+            .grantDelay
+            .withUpdate(newDelay, minSetback());
 
         emit RoleGrantDelayChanged(roleId, newDelay, effect);
     }
@@ -378,13 +433,20 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {TargetFunctionRoleUpdated} event.
      */
-    function _setTargetFunctionRole(address target, bytes4 selector, uint64 roleId) internal virtual {
+    function _setTargetFunctionRole(
+        address target,
+        bytes4 selector,
+        uint64 roleId
+    ) internal virtual {
         _targets[target].allowedRoles[selector] = roleId;
         emit TargetFunctionRoleUpdated(target, selector, roleId);
     }
 
     /// @inheritdoc IAccessManager
-    function setTargetAdminDelay(address target, uint32 newDelay) public virtual onlyAuthorized {
+    function setTargetAdminDelay(
+        address target,
+        uint32 newDelay
+    ) public virtual onlyAuthorized {
         _setTargetAdminDelay(target, newDelay);
     }
 
@@ -393,16 +455,24 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Emits a {TargetAdminDelayUpdated} event.
      */
-    function _setTargetAdminDelay(address target, uint32 newDelay) internal virtual {
+    function _setTargetAdminDelay(
+        address target,
+        uint32 newDelay
+    ) internal virtual {
         uint48 effect;
-        (_targets[target].adminDelay, effect) = _targets[target].adminDelay.withUpdate(newDelay, minSetback());
+        (_targets[target].adminDelay, effect) = _targets[target]
+            .adminDelay
+            .withUpdate(newDelay, minSetback());
 
         emit TargetAdminDelayUpdated(target, newDelay, effect);
     }
 
     // =============================================== MODE MANAGEMENT ================================================
     /// @inheritdoc IAccessManager
-    function setTargetClosed(address target, bool closed) public virtual onlyAuthorized {
+    function setTargetClosed(
+        address target,
+        bool closed
+    ) public virtual onlyAuthorized {
         _setTargetClosed(target, closed);
     }
 
@@ -446,7 +516,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         // if call with delay is not authorized, or if requested timing is too soon
         if (setback == 0 || (when > 0 && when < minWhen)) {
-            revert AccessManagerUnauthorizedCall(caller, target, _checkSelector(data));
+            revert AccessManagerUnauthorizedCall(
+                caller,
+                target,
+                _checkSelector(data)
+            );
         }
 
         // Reuse variable due to stack too deep
@@ -483,15 +557,26 @@ contract AccessManager is Context, Multicall, IAccessManager {
     // Reentrancy is not an issue because permissions are checked on msg.sender. Additionally,
     // _consumeScheduledOp guarantees a scheduled operation is only executed once.
     // slither-disable-next-line reentrancy-no-eth
-    function execute(address target, bytes calldata data) public payable virtual returns (uint32) {
+    function execute(
+        address target,
+        bytes calldata data
+    ) public payable virtual returns (uint32) {
         address caller = _msgSender();
 
         // Fetch restrictions that apply to the caller on the targeted function
-        (bool immediate, uint32 setback) = _canCallExtended(caller, target, data);
+        (bool immediate, uint32 setback) = _canCallExtended(
+            caller,
+            target,
+            data
+        );
 
         // If caller is not authorised, revert
         if (!immediate && setback == 0) {
-            revert AccessManagerUnauthorizedCall(caller, target, _checkSelector(data));
+            revert AccessManagerUnauthorizedCall(
+                caller,
+                target,
+                _checkSelector(data)
+            );
         }
 
         bytes32 operationId = hashOperation(caller, target, data);
@@ -517,7 +602,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /// @inheritdoc IAccessManager
-    function cancel(address caller, address target, bytes calldata data) public virtual returns (uint32) {
+    function cancel(
+        address caller,
+        address target,
+        bytes calldata data
+    ) public virtual returns (uint32) {
         address msgsender = _msgSender();
         bytes4 selector = _checkSelector(data);
 
@@ -527,9 +616,17 @@ contract AccessManager is Context, Multicall, IAccessManager {
         } else if (caller != msgsender) {
             // calls can only be canceled by the account that scheduled them, a global admin, or by a guardian of the required role.
             (bool isAdmin, ) = hasRole(ADMIN_ROLE, msgsender);
-            (bool isGuardian, ) = hasRole(getRoleGuardian(getTargetFunctionRole(target, selector)), msgsender);
+            (bool isGuardian, ) = hasRole(
+                getRoleGuardian(getTargetFunctionRole(target, selector)),
+                msgsender
+            );
             if (!isAdmin && !isGuardian) {
-                revert AccessManagerUnauthorizedCancel(msgsender, caller, target, selector);
+                revert AccessManagerUnauthorizedCancel(
+                    msgsender,
+                    caller,
+                    target,
+                    selector
+                );
             }
         }
 
@@ -541,9 +638,15 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /// @inheritdoc IAccessManager
-    function consumeScheduledOp(address caller, bytes calldata data) public virtual {
+    function consumeScheduledOp(
+        address caller,
+        bytes calldata data
+    ) public virtual {
         address target = _msgSender();
-        if (IAccessManaged(target).isConsumingScheduledOp() != IAccessManaged.isConsumingScheduledOp.selector) {
+        if (
+            IAccessManaged(target).isConsumingScheduledOp() !=
+            IAccessManaged.isConsumingScheduledOp.selector
+        ) {
             revert AccessManagerUnauthorizedConsume(target);
         }
         _consumeScheduledOp(hashOperation(caller, target, data));
@@ -554,7 +657,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
      *
      * Returns the nonce of the scheduled operation that is consumed.
      */
-    function _consumeScheduledOp(bytes32 operationId) internal virtual returns (uint32) {
+    function _consumeScheduledOp(
+        bytes32 operationId
+    ) internal virtual returns (uint32) {
         uint48 timepoint = _schedules[operationId].timepoint;
         uint32 nonce = _schedules[operationId].nonce;
 
@@ -573,13 +678,20 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /// @inheritdoc IAccessManager
-    function hashOperation(address caller, address target, bytes calldata data) public view virtual returns (bytes32) {
+    function hashOperation(
+        address caller,
+        address target,
+        bytes calldata data
+    ) public view virtual returns (bytes32) {
         return keccak256(abi.encode(caller, target, data));
     }
 
     // ==================================================== OTHERS ====================================================
     /// @inheritdoc IAccessManager
-    function updateAuthority(address target, address newAuthority) public virtual onlyAuthorized {
+    function updateAuthority(
+        address target,
+        address newAuthority
+    ) public virtual onlyAuthorized {
         IAccessManaged(target).setAuthority(newAuthority);
     }
 
@@ -595,7 +707,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
                 (, uint64 requiredRole, ) = _getAdminRestrictions(_msgData());
                 revert AccessManagerUnauthorizedAccount(caller, requiredRole);
             } else {
-                _consumeScheduledOp(hashOperation(caller, address(this), _msgData()));
+                _consumeScheduledOp(
+                    hashOperation(caller, address(this), _msgData())
+                );
             }
         }
     }
@@ -610,7 +724,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _getAdminRestrictions(
         bytes calldata data
-    ) private view returns (bool restricted, uint64 roleAdminId, uint32 executionDelay) {
+    )
+        private
+        view
+        returns (bool restricted, uint64 roleAdminId, uint32 executionDelay)
+    {
         if (data.length < 4) {
             return (false, 0, 0);
         }
@@ -641,7 +759,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
 
         // Restricted to that role's admin with no delay beside any execution delay the caller may have.
-        if (selector == this.grantRole.selector || selector == this.revokeRole.selector) {
+        if (
+            selector == this.grantRole.selector ||
+            selector == this.revokeRole.selector
+        ) {
             // First argument is a roleId.
             uint64 roleId = abi.decode(data[0x04:0x24], (uint64));
             return (true, getRoleAdmin(roleId), 0);
@@ -667,14 +788,20 @@ contract AccessManager is Context, Multicall, IAccessManager {
         if (target == address(this)) {
             return _canCallSelf(caller, data);
         } else {
-            return data.length < 4 ? (false, 0) : canCall(caller, target, _checkSelector(data));
+            return
+                data.length < 4
+                    ? (false, 0)
+                    : canCall(caller, target, _checkSelector(data));
         }
     }
 
     /**
      * @dev A version of {canCall} that checks for admin restrictions in this contract.
      */
-    function _canCallSelf(address caller, bytes calldata data) private view returns (bool immediate, uint32 delay) {
+    function _canCallSelf(
+        address caller,
+        bytes calldata data
+    ) private view returns (bool immediate, uint32 delay) {
         if (data.length < 4) {
             return (false, 0);
         }
@@ -685,7 +812,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
             return (_isExecuting(address(this), _checkSelector(data)), 0);
         }
 
-        (bool enabled, uint64 roleId, uint32 operationDelay) = _getAdminRestrictions(data);
+        (
+            bool enabled,
+            uint64 roleId,
+            uint32 operationDelay
+        ) = _getAdminRestrictions(data);
         if (!enabled) {
             return (false, 0);
         }
@@ -703,7 +834,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Returns true if a call with `target` and `selector` is being executed via {executed}.
      */
-    function _isExecuting(address target, bytes4 selector) private view returns (bool) {
+    function _isExecuting(
+        address target,
+        bytes4 selector
+    ) private view returns (bool) {
         return _executionId == _hashExecutionId(target, selector);
     }
 
@@ -724,7 +858,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Hashing function for execute protection
      */
-    function _hashExecutionId(address target, bytes4 selector) private pure returns (bytes32) {
+    function _hashExecutionId(
+        address target,
+        bytes4 selector
+    ) private pure returns (bytes32) {
         return keccak256(abi.encode(target, selector));
     }
 }

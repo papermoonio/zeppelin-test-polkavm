@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IERC165} from "../../utils/introspection/IERC165.sol";
 
@@ -36,7 +36,9 @@ contract SupportsInterfaceWithLookupMock is IERC165 {
     /**
      * @dev Implement supportsInterface(bytes4) using a lookup table.
      */
-    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override returns (bool) {
         return _supportedInterfaces[interfaceId];
     }
 
@@ -44,7 +46,10 @@ contract SupportsInterfaceWithLookupMock is IERC165 {
      * @dev Private method for registering an interface.
      */
     function _registerInterface(bytes4 interfaceId) internal {
-        require(interfaceId != 0xffffffff, "ERC165InterfacesSupported: invalid interface id");
+        require(
+            interfaceId != 0xffffffff,
+            "ERC165InterfacesSupported: invalid interface id"
+        );
         _supportedInterfaces[interfaceId] = true;
     }
 }

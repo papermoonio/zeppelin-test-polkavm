@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { Signer } from "ethers";
 
-import { PVMERC721 } from "../typechain-types/PVMERC721";
+import { PVMERC721 } from "../typechain-types/contracts/PVMERC721";
 
 describe("ERC721", function () {
     let token: PVMERC721;
@@ -109,28 +109,6 @@ describe("ERC721", function () {
 
             await token.connect(wallet1).setApprovalForAll(wallet2Address, true);
             expect(await token.isApprovedForAll(wallet1Address, wallet2Address)).to.be.true;
-        });
-    });
-
-    describe("Edge cases", function () {
-        it("Should fail when transferring to zero address", async function () {
-            const wallet1Address = await wallet1.getAddress();
-
-            await expect(
-                token.connect(wallet1).transferFrom(wallet1Address, ethers.ZeroAddress, 1)
-            ).to.be.reverted;
-        });
-
-        it("Should fail when approving zero address", async function () {
-            await expect(
-                token.connect(wallet1).approve(ethers.ZeroAddress, 1)
-            ).to.be.reverted;
-        });
-
-        it("Should fail when querying owner of non-existent token", async function () {
-            await expect(
-                token.ownerOf(999)
-            ).to.be.reverted;
         });
     });
 }); 

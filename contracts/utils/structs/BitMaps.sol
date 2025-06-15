@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (utils/structs/BitMaps.sol)
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 /**
  * @dev Library for managing uint256 to bool mapping in a compact and efficient way, provided the keys are sequential.
@@ -23,7 +23,10 @@ library BitMaps {
     /**
      * @dev Returns whether the bit at `index` is set.
      */
-    function get(BitMap storage bitmap, uint256 index) internal view returns (bool) {
+    function get(
+        BitMap storage bitmap,
+        uint256 index
+    ) internal view returns (bool) {
         uint256 bucket = index >> 8;
         uint256 mask = 1 << (index & 0xff);
         return bitmap._data[bucket] & mask != 0;

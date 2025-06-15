@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (interfaces/IERC777.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 /**
  * @dev Interface of the ERC777Token standard as defined in the EIP.
@@ -18,24 +18,42 @@ interface IERC777 {
      *
      * Note that some additional user `data` and `operatorData` can be logged in the event.
      */
-    event Minted(address indexed operator, address indexed to, uint256 amount, bytes data, bytes operatorData);
+    event Minted(
+        address indexed operator,
+        address indexed to,
+        uint256 amount,
+        bytes data,
+        bytes operatorData
+    );
 
     /**
      * @dev Emitted when `operator` destroys `amount` tokens from `account`.
      *
      * Note that some additional user `data` and `operatorData` can be logged in the event.
      */
-    event Burned(address indexed operator, address indexed from, uint256 amount, bytes data, bytes operatorData);
+    event Burned(
+        address indexed operator,
+        address indexed from,
+        uint256 amount,
+        bytes data,
+        bytes operatorData
+    );
 
     /**
      * @dev Emitted when `operator` is made operator for `tokenHolder`.
      */
-    event AuthorizedOperator(address indexed operator, address indexed tokenHolder);
+    event AuthorizedOperator(
+        address indexed operator,
+        address indexed tokenHolder
+    );
 
     /**
      * @dev Emitted when `operator` is revoked its operator status for `tokenHolder`.
      */
-    event RevokedOperator(address indexed operator, address indexed tokenHolder);
+    event RevokedOperator(
+        address indexed operator,
+        address indexed tokenHolder
+    );
 
     /**
      * @dev Returns the name of the token.
@@ -83,7 +101,11 @@ interface IERC777 {
      * - if `recipient` is a contract, it must implement the {IERC777Recipient}
      * interface.
      */
-    function send(address recipient, uint256 amount, bytes calldata data) external;
+    function send(
+        address recipient,
+        uint256 amount,
+        bytes calldata data
+    ) external;
 
     /**
      * @dev Destroys `amount` tokens from the caller's account, reducing the
@@ -107,7 +129,10 @@ interface IERC777 {
      *
      * See {operatorSend} and {operatorBurn}.
      */
-    function isOperatorFor(address operator, address tokenHolder) external view returns (bool);
+    function isOperatorFor(
+        address operator,
+        address tokenHolder
+    ) external view returns (bool);
 
     /**
      * @dev Make an account an operator of the caller.
@@ -187,7 +212,12 @@ interface IERC777 {
      * - `account` must have at least `amount` tokens.
      * - the caller must be an operator for `account`.
      */
-    function operatorBurn(address account, uint256 amount, bytes calldata data, bytes calldata operatorData) external;
+    function operatorBurn(
+        address account,
+        uint256 amount,
+        bytes calldata data,
+        bytes calldata operatorData
+    ) external;
 
     event Sent(
         address indexed operator,

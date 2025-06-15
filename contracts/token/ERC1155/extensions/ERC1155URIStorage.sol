@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (token/ERC1155/extensions/ERC1155URIStorage.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {Strings} from "../../../utils/Strings.sol";
 import {ERC1155} from "../ERC1155.sol";
@@ -37,11 +37,16 @@ abstract contract ERC1155URIStorage is ERC1155 {
      * - if `_tokenURIs[tokenId]` is NOT set, and if the parents do not have a
      *   uri value set, then the result is empty.
      */
-    function uri(uint256 tokenId) public view virtual override returns (string memory) {
+    function uri(
+        uint256 tokenId
+    ) public view virtual override returns (string memory) {
         string memory tokenURI = _tokenURIs[tokenId];
 
         // If token URI is set, concatenate base URI and tokenURI (via string.concat).
-        return bytes(tokenURI).length > 0 ? string.concat(_baseURI, tokenURI) : super.uri(tokenId);
+        return
+            bytes(tokenURI).length > 0
+                ? string.concat(_baseURI, tokenURI)
+                : super.uri(tokenId);
     }
 
     /**

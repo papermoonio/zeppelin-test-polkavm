@@ -13,12 +13,12 @@ const config: HardhatUserConfig = {
     hardhat: {
       polkavm: true,
       nodeConfig: {
-        nodeBinaryPath: 'INSERT_PATH_TO_SUBSTRATE_NODE',
-        rpcPort: 8000,
+        nodeBinaryPath: '/home/user/github/polkadot-sdk/target/release/substrate-node',
         dev: true,
+
       },
       adapterConfig: {
-        adapterBinaryPath: 'INSERT_PATH_TO_ETH_RPC_ADAPTER',
+        adapterBinaryPath: '/home/user/github/polkadot-sdk/target/release/eth-rpc',
         dev: true,
       },
     },

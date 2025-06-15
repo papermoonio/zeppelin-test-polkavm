@@ -14,22 +14,20 @@ npx hardhat node
 npx hardhat ignition deploy ./ignition/modules/Lock.ts
 ```
 
-deploy
-
-```shell
-npx hardhat deploy-revive --contract SimpleERC20 --network ah --args a,b,18,10000000
-
-npx hardhat deploy-revive --contract Lock --network ah --args 10000000000
-```
-
 compile
 
 ```shell
-npx hardhat compile-revive --contract MiniDex.sol --network ah
+npx hardhat compile --network passetHub
 ```
 
-test
+deploy
 
 ```shell
-npx hardhat test test/Storage.ts --network passetHub --no-compile
+echo y | npx hardhat ignition deploy ./ignition/modules/PVMERC20.ts --network localNode --parameters ./parameters.json
+```
+
+test, to aovid compile all again with --no-compile
+
+```shell
+npx hardhat test test/test_ERC20.ts --network localNode --no-compile
 ```

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/extensions/ERC721URIStorage.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {ERC721} from "../ERC721.sol";
 import {Strings} from "../../../utils/Strings.sol";
@@ -24,14 +24,20 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
     /**
      * @dev See {IERC165-supportsInterface}
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, IERC165) returns (bool) {
-        return interfaceId == ERC4906_INTERFACE_ID || super.supportsInterface(interfaceId);
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(ERC721, IERC165) returns (bool) {
+        return
+            interfaceId == ERC4906_INTERFACE_ID ||
+            super.supportsInterface(interfaceId);
     }
 
     /**
      * @dev See {IERC721Metadata-tokenURI}.
      */
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+    function tokenURI(
+        uint256 tokenId
+    ) public view virtual override returns (string memory) {
         _requireOwned(tokenId);
 
         string memory _tokenURI = _tokenURIs[tokenId];
@@ -54,7 +60,10 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
      *
      * Emits {MetadataUpdate}.
      */
-    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
+    function _setTokenURI(
+        uint256 tokenId,
+        string memory _tokenURI
+    ) internal virtual {
         _tokenURIs[tokenId] = _tokenURI;
         emit MetadataUpdate(tokenId);
     }

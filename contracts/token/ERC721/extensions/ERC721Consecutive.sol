@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/extensions/ERC721Consecutive.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {ERC721} from "../ERC721.sol";
 import {IERC2309} from "../../../interfaces/IERC2309.sol";
@@ -72,17 +72,26 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      * @dev See {ERC721-_ownerOf}. Override that checks the sequential ownership structure for tokens that have
      * been minted as part of a batch, and not yet transferred.
      */
-    function _ownerOf(uint256 tokenId) internal view virtual override returns (address) {
+    function _ownerOf(
+        uint256 tokenId
+    ) internal view virtual override returns (address) {
         address owner = super._ownerOf(tokenId);
 
         // If token is owned by the core, or beyond consecutive range, return base value
-        if (owner != address(0) || tokenId > type(uint96).max || tokenId < _firstConsecutiveId()) {
+        if (
+            owner != address(0) ||
+            tokenId > type(uint96).max ||
+            tokenId < _firstConsecutiveId()
+        ) {
             return owner;
         }
 
         // Otherwise, check the token was not burned, and fetch ownership from the anchors
         // Note: no need for safe cast, we know that tokenId <= type(uint96).max
-        return _sequentialBurn.get(tokenId) ? address(0) : address(_sequentialOwnership.lowerLookup(uint96(tokenId)));
+        return
+            _sequentialBurn.get(tokenId)
+                ? address(0)
+                : address(_sequentialOwnership.lowerLookup(uint96(tokenId)));
     }
 
     /**
@@ -101,7 +110,10 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      *
      * Emits a {IERC2309-ConsecutiveTransfer} event.
      */
-    function _mintConsecutive(address to, uint96 batchSize) internal virtual returns (uint96) {
+    function _mintConsecutive(
+        address to,
+        uint96 batchSize
+    ) internal virtual returns (uint96) {
         uint96 next = _nextConsecutiveId();
 
         // minting a batch of size 0 is a no-op
@@ -138,7 +150,11 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      * WARNING: Using {ERC721Consecutive} prevents minting during construction in favor of {_mintConsecutive}.
      * After construction, {_mintConsecutive} is no longer available and minting through {_update} becomes available.
      */
-    function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
+    function _update(
+        address to,
+        uint256 tokenId,
+        address auth
+    ) internal virtual override returns (address) {
         address previousOwner = super._update(to, tokenId, auth);
 
         // only mint after construction
@@ -170,7 +186,8 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      * if no consecutive tokenId has been minted before.
      */
     function _nextConsecutiveId() private view returns (uint96) {
-        (bool exists, uint96 latestId, ) = _sequentialOwnership.latestCheckpoint();
+        (bool exists, uint96 latestId, ) = _sequentialOwnership
+            .latestCheckpoint();
         return exists ? latestId + 1 : _firstConsecutiveId();
     }
 }

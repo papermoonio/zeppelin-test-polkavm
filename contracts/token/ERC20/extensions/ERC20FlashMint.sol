@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/extensions/ERC20FlashMint.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IERC3156FlashBorrower} from "../../../interfaces/IERC3156FlashBorrower.sol";
 import {IERC3156FlashLender} from "../../../interfaces/IERC3156FlashLender.sol";
@@ -19,7 +19,8 @@ import {ERC20} from "../ERC20.sol";
  * overriding {maxFlashLoan} so that it correctly reflects the supply cap.
  */
 abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
-    bytes32 private constant RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
+    bytes32 private constant RETURN_VALUE =
+        keccak256("ERC3156FlashBorrower.onFlashLoan");
 
     /**
      * @dev The loan token is not valid.
@@ -57,7 +58,10 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      * @param value The amount of tokens to be loaned.
      * @return The fees applied to the corresponding flash loan.
      */
-    function flashFee(address token, uint256 value) public view virtual returns (uint256) {
+    function flashFee(
+        address token,
+        uint256 value
+    ) public view virtual returns (uint256) {
         if (token != address(this)) {
             revert ERC3156UnsupportedToken(token);
         }
@@ -72,7 +76,10 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      * @param value The amount of tokens to be loaned.
      * @return The fees applied to the corresponding flash loan.
      */
-    function _flashFee(address token, uint256 value) internal view virtual returns (uint256) {
+    function _flashFee(
+        address token,
+        uint256 value
+    ) internal view virtual returns (uint256) {
         // silence warning about unused variable without the addition of bytecode.
         token;
         value;
@@ -118,7 +125,10 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
         }
         uint256 fee = flashFee(token, value);
         _mint(address(receiver), value);
-        if (receiver.onFlashLoan(_msgSender(), token, value, fee, data) != RETURN_VALUE) {
+        if (
+            receiver.onFlashLoan(_msgSender(), token, value, fee, data) !=
+            RETURN_VALUE
+        ) {
             revert ERC3156InvalidReceiver(address(receiver));
         }
         address flashFeeReceiver = _flashFeeReceiver();

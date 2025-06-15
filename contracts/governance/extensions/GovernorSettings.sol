@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (governance/extensions/GovernorSettings.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {Governor} from "../Governor.sol";
 
@@ -18,12 +18,19 @@ abstract contract GovernorSettings is Governor {
 
     event VotingDelaySet(uint256 oldVotingDelay, uint256 newVotingDelay);
     event VotingPeriodSet(uint256 oldVotingPeriod, uint256 newVotingPeriod);
-    event ProposalThresholdSet(uint256 oldProposalThreshold, uint256 newProposalThreshold);
+    event ProposalThresholdSet(
+        uint256 oldProposalThreshold,
+        uint256 newProposalThreshold
+    );
 
     /**
      * @dev Initialize the governance parameters.
      */
-    constructor(uint48 initialVotingDelay, uint32 initialVotingPeriod, uint256 initialProposalThreshold) {
+    constructor(
+        uint48 initialVotingDelay,
+        uint32 initialVotingPeriod,
+        uint256 initialProposalThreshold
+    ) {
         _setVotingDelay(initialVotingDelay);
         _setVotingPeriod(initialVotingPeriod);
         _setProposalThreshold(initialProposalThreshold);
@@ -46,7 +53,13 @@ abstract contract GovernorSettings is Governor {
     /**
      * @dev See {Governor-proposalThreshold}.
      */
-    function proposalThreshold() public view virtual override returns (uint256) {
+    function proposalThreshold()
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
         return _proposalThreshold;
     }
 
@@ -55,7 +68,9 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {VotingDelaySet} event.
      */
-    function setVotingDelay(uint48 newVotingDelay) public virtual onlyGovernance {
+    function setVotingDelay(
+        uint48 newVotingDelay
+    ) public virtual onlyGovernance {
         _setVotingDelay(newVotingDelay);
     }
 
@@ -64,7 +79,9 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {VotingPeriodSet} event.
      */
-    function setVotingPeriod(uint32 newVotingPeriod) public virtual onlyGovernance {
+    function setVotingPeriod(
+        uint32 newVotingPeriod
+    ) public virtual onlyGovernance {
         _setVotingPeriod(newVotingPeriod);
     }
 
@@ -73,7 +90,9 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {ProposalThresholdSet} event.
      */
-    function setProposalThreshold(uint256 newProposalThreshold) public virtual onlyGovernance {
+    function setProposalThreshold(
+        uint256 newProposalThreshold
+    ) public virtual onlyGovernance {
         _setProposalThreshold(newProposalThreshold);
     }
 
@@ -105,7 +124,9 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {ProposalThresholdSet} event.
      */
-    function _setProposalThreshold(uint256 newProposalThreshold) internal virtual {
+    function _setProposalThreshold(
+        uint256 newProposalThreshold
+    ) internal virtual {
         emit ProposalThresholdSet(_proposalThreshold, newProposalThreshold);
         _proposalThreshold = newProposalThreshold;
     }

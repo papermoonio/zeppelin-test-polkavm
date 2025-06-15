@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (governance/extensions/GovernorPreventLateQuorum.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {Governor} from "../Governor.sol";
 import {Math} from "../../utils/math/Math.sol";
@@ -24,7 +24,10 @@ abstract contract GovernorPreventLateQuorum is Governor {
     event ProposalExtended(uint256 indexed proposalId, uint64 extendedDeadline);
 
     /// @dev Emitted when the {lateQuorumVoteExtension} parameter is changed.
-    event LateQuorumVoteExtensionSet(uint64 oldVoteExtension, uint64 newVoteExtension);
+    event LateQuorumVoteExtensionSet(
+        uint64 oldVoteExtension,
+        uint64 newVoteExtension
+    );
 
     /**
      * @dev Initializes the vote extension parameter: the time in either number of blocks or seconds (depending on the
@@ -39,8 +42,14 @@ abstract contract GovernorPreventLateQuorum is Governor {
      * @dev Returns the proposal deadline, which may have been extended beyond that set at proposal creation, if the
      * proposal reached quorum late in the voting period. See {Governor-proposalDeadline}.
      */
-    function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {
-        return Math.max(super.proposalDeadline(proposalId), _extendedDeadlines[proposalId]);
+    function proposalDeadline(
+        uint256 proposalId
+    ) public view virtual override returns (uint256) {
+        return
+            Math.max(
+                super.proposalDeadline(proposalId),
+                _extendedDeadlines[proposalId]
+            );
     }
 
     /**
@@ -56,7 +65,13 @@ abstract contract GovernorPreventLateQuorum is Governor {
         string memory reason,
         bytes memory params
     ) internal virtual override returns (uint256) {
-        uint256 result = super._castVote(proposalId, account, support, reason, params);
+        uint256 result = super._castVote(
+            proposalId,
+            account,
+            support,
+            reason,
+            params
+        );
 
         if (_extendedDeadlines[proposalId] == 0 && _quorumReached(proposalId)) {
             uint48 extendedDeadline = clock() + lateQuorumVoteExtension();
@@ -85,7 +100,9 @@ abstract contract GovernorPreventLateQuorum is Governor {
      *
      * Emits a {LateQuorumVoteExtensionSet} event.
      */
-    function setLateQuorumVoteExtension(uint48 newVoteExtension) public virtual onlyGovernance {
+    function setLateQuorumVoteExtension(
+        uint48 newVoteExtension
+    ) public virtual onlyGovernance {
         _setLateQuorumVoteExtension(newVoteExtension);
     }
 
@@ -95,7 +112,9 @@ abstract contract GovernorPreventLateQuorum is Governor {
      *
      * Emits a {LateQuorumVoteExtensionSet} event.
      */
-    function _setLateQuorumVoteExtension(uint48 newVoteExtension) internal virtual {
+    function _setLateQuorumVoteExtension(
+        uint48 newVoteExtension
+    ) internal virtual {
         emit LateQuorumVoteExtensionSet(_voteExtension, newVoteExtension);
         _voteExtension = newVoteExtension;
     }

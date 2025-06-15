@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (governance/TimelockController.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {AccessControl} from "../access/AccessControl.sol";
 import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
@@ -40,7 +40,11 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     /**
      * @dev Mismatch between the parameters length for an operation call.
      */
-    error TimelockInvalidOperationLength(uint256 targets, uint256 payloads, uint256 values);
+    error TimelockInvalidOperationLength(
+        uint256 targets,
+        uint256 payloads,
+        uint256 values
+    );
 
     /**
      * @dev The schedule operation doesn't meet the minimum delay.
@@ -54,7 +58,10 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      *
      * See {_encodeStateBitmap}.
      */
-    error TimelockUnexpectedOperationState(bytes32 operationId, bytes32 expectedStates);
+    error TimelockUnexpectedOperationState(
+        bytes32 operationId,
+        bytes32 expectedStates
+    );
 
     /**
      * @dev The predecessor to an operation not yet done.
@@ -82,7 +89,13 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     /**
      * @dev Emitted when a call is performed as part of operation `id`.
      */
-    event CallExecuted(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data);
+    event CallExecuted(
+        bytes32 indexed id,
+        uint256 indexed index,
+        address target,
+        uint256 value,
+        bytes data
+    );
 
     /**
      * @dev Emitted when new proposal is scheduled with non-zero salt.
@@ -112,7 +125,12 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      * administration through timelocked proposals. Previous versions of this contract would assign
      * this admin to the deployer automatically and should be renounced as well.
      */
-    constructor(uint256 minDelay, address[] memory proposers, address[] memory executors, address admin) {
+    constructor(
+        uint256 minDelay,
+        address[] memory proposers,
+        address[] memory executors,
+        address admin
+    ) {
         // self administration
         _grantRole(DEFAULT_ADMIN_ROLE, address(this));
 
@@ -159,7 +177,13 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function supportsInterface(
         bytes4 interfaceId
-    ) public view virtual override(AccessControl, ERC1155Holder) returns (bool) {
+    )
+        public
+        view
+        virtual
+        override(AccessControl, ERC1155Holder)
+        returns (bool)
+    {
         return super.supportsInterface(interfaceId);
     }
 
@@ -204,7 +228,9 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     /**
      * @dev Returns operation state.
      */
-    function getOperationState(bytes32 id) public view virtual returns (OperationState) {
+    function getOperationState(
+        bytes32 id
+    ) public view virtual returns (OperationState) {
         uint256 timestamp = getTimestamp(id);
         if (timestamp == 0) {
             return OperationState.Unset;
@@ -251,7 +277,8 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
         bytes32 predecessor,
         bytes32 salt
     ) public pure virtual returns (bytes32) {
-        return keccak256(abi.encode(targets, values, payloads, predecessor, salt));
+        return
+            keccak256(abi.encode(targets, values, payloads, predecessor, salt));
     }
 
     /**
@@ -296,14 +323,34 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
         bytes32 salt,
         uint256 delay
     ) public virtual onlyRole(PROPOSER_ROLE) {
-        if (targets.length != values.length || targets.length != payloads.length) {
-            revert TimelockInvalidOperationLength(targets.length, payloads.length, values.length);
+        if (
+            targets.length != values.length || targets.length != payloads.length
+        ) {
+            revert TimelockInvalidOperationLength(
+                targets.length,
+                payloads.length,
+                values.length
+            );
         }
 
-        bytes32 id = hashOperationBatch(targets, values, payloads, predecessor, salt);
+        bytes32 id = hashOperationBatch(
+            targets,
+            values,
+            payloads,
+            predecessor,
+            salt
+        );
         _schedule(id, delay);
         for (uint256 i = 0; i < targets.length; ++i) {
-            emit CallScheduled(id, i, targets[i], values[i], payloads[i], predecessor, delay);
+            emit CallScheduled(
+                id,
+                i,
+                targets[i],
+                values[i],
+                payloads[i],
+                predecessor,
+                delay
+            );
         }
         if (salt != bytes32(0)) {
             emit CallSalt(id, salt);
@@ -315,7 +362,10 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function _schedule(bytes32 id, uint256 delay) private {
         if (isOperation(id)) {
-            revert TimelockUnexpectedOperationState(id, _encodeStateBitmap(OperationState.Unset));
+            revert TimelockUnexpectedOperationState(
+                id,
+                _encodeStateBitmap(OperationState.Unset)
+            );
         }
         uint256 minDelay = getMinDelay();
         if (delay < minDelay) {
@@ -335,7 +385,8 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
         if (!isOperationPending(id)) {
             revert TimelockUnexpectedOperationState(
                 id,
-                _encodeStateBitmap(OperationState.Waiting) | _encodeStateBitmap(OperationState.Ready)
+                _encodeStateBitmap(OperationState.Waiting) |
+                    _encodeStateBitmap(OperationState.Ready)
             );
         }
         delete _timestamps[id];
@@ -389,11 +440,23 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
         bytes32 predecessor,
         bytes32 salt
     ) public payable virtual onlyRoleOrOpenRole(EXECUTOR_ROLE) {
-        if (targets.length != values.length || targets.length != payloads.length) {
-            revert TimelockInvalidOperationLength(targets.length, payloads.length, values.length);
+        if (
+            targets.length != values.length || targets.length != payloads.length
+        ) {
+            revert TimelockInvalidOperationLength(
+                targets.length,
+                payloads.length,
+                values.length
+            );
         }
 
-        bytes32 id = hashOperationBatch(targets, values, payloads, predecessor, salt);
+        bytes32 id = hashOperationBatch(
+            targets,
+            values,
+            payloads,
+            predecessor,
+            salt
+        );
 
         _beforeCall(id, predecessor);
         for (uint256 i = 0; i < targets.length; ++i) {
@@ -409,8 +472,14 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     /**
      * @dev Execute an operation's call.
      */
-    function _execute(address target, uint256 value, bytes calldata data) internal virtual {
-        (bool success, bytes memory returndata) = target.call{value: value}(data);
+    function _execute(
+        address target,
+        uint256 value,
+        bytes calldata data
+    ) internal virtual {
+        (bool success, bytes memory returndata) = target.call{value: value}(
+            data
+        );
         Address.verifyCallResult(success, returndata);
     }
 
@@ -419,7 +488,10 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function _beforeCall(bytes32 id, bytes32 predecessor) private view {
         if (!isOperationReady(id)) {
-            revert TimelockUnexpectedOperationState(id, _encodeStateBitmap(OperationState.Ready));
+            revert TimelockUnexpectedOperationState(
+                id,
+                _encodeStateBitmap(OperationState.Ready)
+            );
         }
         if (predecessor != bytes32(0) && !isOperationDone(predecessor)) {
             revert TimelockUnexecutedPredecessor(predecessor);
@@ -431,7 +503,10 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     function _afterCall(bytes32 id) private {
         if (!isOperationReady(id)) {
-            revert TimelockUnexpectedOperationState(id, _encodeStateBitmap(OperationState.Ready));
+            revert TimelockUnexpectedOperationState(
+                id,
+                _encodeStateBitmap(OperationState.Ready)
+            );
         }
         _timestamps[id] = _DONE_TIMESTAMP;
     }
@@ -466,7 +541,9 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      *           ^-- Waiting
      *            ^- Unset
      */
-    function _encodeStateBitmap(OperationState operationState) internal pure returns (bytes32) {
+    function _encodeStateBitmap(
+        OperationState operationState
+    ) internal pure returns (bytes32) {
         return bytes32(1 << uint8(operationState));
     }
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (utils/types/Time.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {Math} from "../math/Math.sol";
 import {SafeCast} from "../math/SafeCast.sol";
@@ -71,16 +71,24 @@ library Time {
      * @dev Get the value at a given timepoint plus the pending value and effect timepoint if there is a scheduled
      * change after this timepoint. If the effect timepoint is 0, then the pending value should not be considered.
      */
-    function _getFullAt(Delay self, uint48 timepoint) private pure returns (uint32, uint32, uint48) {
+    function _getFullAt(
+        Delay self,
+        uint48 timepoint
+    ) private pure returns (uint32, uint32, uint48) {
         (uint32 valueBefore, uint32 valueAfter, uint48 effect) = self.unpack();
-        return effect <= timepoint ? (valueAfter, 0, 0) : (valueBefore, valueAfter, effect);
+        return
+            effect <= timepoint
+                ? (valueAfter, 0, 0)
+                : (valueBefore, valueAfter, effect);
     }
 
     /**
      * @dev Get the current value plus the pending value and effect timepoint if there is a scheduled change. If the
      * effect timepoint is 0, then the pending value should not be considered.
      */
-    function getFull(Delay self) internal view returns (uint32, uint32, uint48) {
+    function getFull(
+        Delay self
+    ) internal view returns (uint32, uint32, uint48) {
         return _getFullAt(self, timestamp());
     }
 
@@ -103,7 +111,9 @@ library Time {
         uint32 minSetback
     ) internal view returns (Delay updatedDelay, uint48 effect) {
         uint32 value = self.get();
-        uint32 setback = uint32(Math.max(minSetback, value > newValue ? value - newValue : 0));
+        uint32 setback = uint32(
+            Math.max(minSetback, value > newValue ? value - newValue : 0)
+        );
         effect = timestamp() + setback;
         return (pack(value, newValue, effect), effect);
     }
@@ -111,7 +121,13 @@ library Time {
     /**
      * @dev Split a delay into its components: valueBefore, valueAfter and effect (transition timepoint).
      */
-    function unpack(Delay self) internal pure returns (uint32 valueBefore, uint32 valueAfter, uint48 effect) {
+    function unpack(
+        Delay self
+    )
+        internal
+        pure
+        returns (uint32 valueBefore, uint32 valueAfter, uint48 effect)
+    {
         uint112 raw = Delay.unwrap(self);
 
         valueAfter = uint32(raw);
@@ -124,7 +140,16 @@ library Time {
     /**
      * @dev pack the components into a Delay object.
      */
-    function pack(uint32 valueBefore, uint32 valueAfter, uint48 effect) internal pure returns (Delay) {
-        return Delay.wrap((uint112(effect) << 64) | (uint112(valueBefore) << 32) | uint112(valueAfter));
+    function pack(
+        uint32 valueBefore,
+        uint32 valueAfter,
+        uint48 effect
+    ) internal pure returns (Delay) {
+        return
+            Delay.wrap(
+                (uint112(effect) << 64) |
+                    (uint112(valueBefore) << 32) |
+                    uint112(valueAfter)
+            );
     }
 }

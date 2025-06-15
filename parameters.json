@@ -1,0 +1,7 @@
+{
+  "MintableERC20Module": {
+    "name": "Name",
+    "symbol": "SYMBOL",
+    "initialSupply": 100000000
+  }
+}

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {ERC20Permit} from "../../token/ERC20/extensions/ERC20Permit.sol";
 import {Math} from "../../utils/math/Math.sol";
@@ -27,14 +27,19 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
     /**
      * @dev Get the `pos`-th checkpoint for `account`.
      */
-    function checkpoints(address account, uint32 pos) public view virtual returns (Checkpoint memory) {
+    function checkpoints(
+        address account,
+        uint32 pos
+    ) public view virtual returns (Checkpoint memory) {
         return _checkpoints[account][pos];
     }
 
     /**
      * @dev Get number of checkpoints for `account`.
      */
-    function numCheckpoints(address account) public view virtual returns (uint32) {
+    function numCheckpoints(
+        address account
+    ) public view virtual returns (uint32) {
         return SafeCast.toUint32(_checkpoints[account].length);
     }
 
@@ -62,7 +67,10 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastVotes(address account, uint256 blockNumber) public view virtual returns (uint256) {
+    function getPastVotes(
+        address account,
+        uint256 blockNumber
+    ) public view virtual returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
         return _checkpointsLookup(_checkpoints[account], blockNumber);
     }
@@ -75,7 +83,9 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastTotalSupply(uint256 blockNumber) public view virtual returns (uint256) {
+    function getPastTotalSupply(
+        uint256 blockNumber
+    ) public view virtual returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
         return _checkpointsLookup(_totalSupplyCheckpoints, blockNumber);
     }
@@ -83,7 +93,10 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
     /**
      * @dev Lookup a value in a list of (sorted) checkpoints.
      */
-    function _checkpointsLookup(Checkpoint[] storage ckpts, uint256 blockNumber) private view returns (uint256) {
+    function _checkpointsLookup(
+        Checkpoint[] storage ckpts,
+        uint256 blockNumber
+    ) private view returns (uint256) {
         // We run a binary search to look for the earliest checkpoint taken after `blockNumber`.
         //
         // Initially we check if the block is recent to narrow the search range.
@@ -145,7 +158,11 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
     ) public virtual {
         require(block.timestamp <= expiry, "ERC20Votes: signature expired");
         address signer = ECDSA.recover(
-            _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
+            _hashTypedDataV4(
+                keccak256(
+                    abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry)
+                )
+            ),
             v,
             r,
             s
@@ -166,11 +183,18 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
      *
      * Emits a {IVotes-DelegateVotesChanged} event.
      */
-    function _update(address from, address to, uint256 amount) internal virtual override {
+    function _update(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual override {
         super._update(from, to, amount);
 
         if (from == address(0)) {
-            require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
+            require(
+                totalSupply() <= _maxSupply(),
+                "ERC20Votes: total supply risks overflowing votes"
+            );
             _writeCheckpoint(_totalSupplyCheckpoints, _add, amount);
         }
 
@@ -196,15 +220,27 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
         _moveVotingPower(currentDelegate, delegatee, delegatorBalance);
     }
 
-    function _moveVotingPower(address src, address dst, uint256 amount) private {
+    function _moveVotingPower(
+        address src,
+        address dst,
+        uint256 amount
+    ) private {
         if (src != dst && amount > 0) {
             if (src != address(0)) {
-                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], _subtract, amount);
+                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(
+                    _checkpoints[src],
+                    _subtract,
+                    amount
+                );
                 emit DelegateVotesChanged(src, oldWeight, newWeight);
             }
 
             if (dst != address(0)) {
-                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[dst], _add, amount);
+                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(
+                    _checkpoints[dst],
+                    _add,
+                    amount
+                );
                 emit DelegateVotesChanged(dst, oldWeight, newWeight);
             }
         }
@@ -218,16 +254,23 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
         uint256 pos = ckpts.length;
 
         unchecked {
-            Checkpoint memory oldCkpt = pos == 0 ? Checkpoint(0, 0) : _unsafeAccess(ckpts, pos - 1);
+            Checkpoint memory oldCkpt = pos == 0
+                ? Checkpoint(0, 0)
+                : _unsafeAccess(ckpts, pos - 1);
 
             oldWeight = oldCkpt.votes;
             newWeight = op(oldWeight, delta);
 
             if (pos > 0 && oldCkpt.fromBlock == block.number) {
-                _unsafeAccess(ckpts, pos - 1).votes = SafeCast.toUint224(newWeight);
+                _unsafeAccess(ckpts, pos - 1).votes = SafeCast.toUint224(
+                    newWeight
+                );
             } else {
                 ckpts.push(
-                    Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)})
+                    Checkpoint({
+                        fromBlock: SafeCast.toUint32(block.number),
+                        votes: SafeCast.toUint224(newWeight)
+                    })
                 );
             }
         }
@@ -244,7 +287,10 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
     /**
      * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
      */
-    function _unsafeAccess(Checkpoint[] storage ckpts, uint256 pos) private pure returns (Checkpoint storage result) {
+    function _unsafeAccess(
+        Checkpoint[] storage ckpts,
+        uint256 pos
+    ) private pure returns (Checkpoint storage result) {
         assembly {
             mstore(0, ckpts.slot)
             result.slot := add(keccak256(0, 0x20), pos)

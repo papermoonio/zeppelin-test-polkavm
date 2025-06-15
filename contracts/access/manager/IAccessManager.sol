@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (access/manager/IAccessManager.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 import {IAccessManaged} from "./IAccessManaged.sol";
 import {Time} from "../../utils/types/Time.sol";
@@ -41,7 +41,13 @@ interface IAccessManager {
      * If the role is granted to a new member, the `since` argument indicates when the account becomes a member of the role,
      * otherwise it indicates the execution delay for this account and roleId is updated.
      */
-    event RoleGranted(uint64 indexed roleId, address indexed account, uint32 delay, uint48 since, bool newMember);
+    event RoleGranted(
+        uint64 indexed roleId,
+        address indexed account,
+        uint32 delay,
+        uint48 since,
+        bool newMember
+    );
 
     /**
      * @dev Emitted when `account` membership or `roleId` is revoked. Unlike granting, revoking is instantaneous.
@@ -61,7 +67,11 @@ interface IAccessManager {
     /**
      * @dev Grant delay for a given `roleId` will be updated to `delay` when `since` is reached.
      */
-    event RoleGrantDelayChanged(uint64 indexed roleId, uint32 delay, uint48 since);
+    event RoleGrantDelayChanged(
+        uint64 indexed roleId,
+        uint32 delay,
+        uint48 since
+    );
 
     /**
      * @dev Target mode is updated (true = closed, false = open).
@@ -71,12 +81,20 @@ interface IAccessManager {
     /**
      * @dev Role required to invoke `selector` on `target` is updated to `roleId`.
      */
-    event TargetFunctionRoleUpdated(address indexed target, bytes4 selector, uint64 indexed roleId);
+    event TargetFunctionRoleUpdated(
+        address indexed target,
+        bytes4 selector,
+        uint64 indexed roleId
+    );
 
     /**
      * @dev Admin delay for a given `target` will be updated to `delay` when `since` is reached.
      */
-    event TargetAdminDelayUpdated(address indexed target, uint32 delay, uint48 since);
+    event TargetAdminDelayUpdated(
+        address indexed target,
+        uint32 delay,
+        uint48 since
+    );
 
     error AccessManagerAlreadyScheduled(bytes32 operationId);
     error AccessManagerNotScheduled(bytes32 operationId);
@@ -86,9 +104,18 @@ interface IAccessManager {
     error AccessManagerLockedRole(uint64 roleId);
     error AccessManagerBadConfirmation();
     error AccessManagerUnauthorizedAccount(address msgsender, uint64 roleId);
-    error AccessManagerUnauthorizedCall(address caller, address target, bytes4 selector);
+    error AccessManagerUnauthorizedCall(
+        address caller,
+        address target,
+        bytes4 selector
+    );
     error AccessManagerUnauthorizedConsume(address target);
-    error AccessManagerUnauthorizedCancel(address msgsender, address caller, address target, bytes4 selector);
+    error AccessManagerUnauthorizedCancel(
+        address msgsender,
+        address caller,
+        address target,
+        bytes4 selector
+    );
     error AccessManagerInvalidInitialAdmin(address initialAdmin);
 
     /**
@@ -140,7 +167,10 @@ interface IAccessManager {
     /**
      * @dev Get the role required to call a function.
      */
-    function getTargetFunctionRole(address target, bytes4 selector) external view returns (uint64);
+    function getTargetFunctionRole(
+        address target,
+        bytes4 selector
+    ) external view returns (uint64);
 
     /**
      * @dev Get the admin delay for a target contract. Changes to contract configuration are subject to this delay.
@@ -181,13 +211,19 @@ interface IAccessManager {
      * [2] Pending execution delay for the account.
      * [3] Timestamp at which the pending execution delay will become active. 0 means no delay update is scheduled.
      */
-    function getAccess(uint64 roleId, address account) external view returns (uint48, uint32, uint32, uint48);
+    function getAccess(
+        uint64 roleId,
+        address account
+    ) external view returns (uint48, uint32, uint32, uint48);
 
     /**
      * @dev Check if a given account currently has the permission level corresponding to a given role. Note that this
      * permission might be associated with an execution delay. {getAccess} can provide more details.
      */
-    function hasRole(uint64 roleId, address account) external view returns (bool, uint32);
+    function hasRole(
+        uint64 roleId,
+        address account
+    ) external view returns (bool, uint32);
 
     /**
      * @dev Give a label to a role, for improved role discoverability by UIs.
@@ -220,7 +256,11 @@ interface IAccessManager {
      *
      * Emits a {RoleGranted} event.
      */
-    function grantRole(uint64 roleId, address account, uint32 executionDelay) external;
+    function grantRole(
+        uint64 roleId,
+        address account,
+        uint32 executionDelay
+    ) external;
 
     /**
      * @dev Remove an account from a role, with immediate effect. If the account does not have the role, this call has
@@ -289,7 +329,11 @@ interface IAccessManager {
      *
      * Emits a {TargetFunctionRoleUpdated} event per selector.
      */
-    function setTargetFunctionRole(address target, bytes4[] calldata selectors, uint64 roleId) external;
+    function setTargetFunctionRole(
+        address target,
+        bytes4[] calldata selectors,
+        uint64 roleId
+    ) external;
 
     /**
      * @dev Set the delay for changing the configuration of a given target contract.
@@ -340,7 +384,11 @@ interface IAccessManager {
      * this is necessary, a random byte can be appended to `data` to act as a salt that will be ignored by the target
      * contract if it is using standard Solidity ABI encoding.
      */
-    function schedule(address target, bytes calldata data, uint48 when) external returns (bytes32, uint32);
+    function schedule(
+        address target,
+        bytes calldata data,
+        uint48 when
+    ) external returns (bytes32, uint32);
 
     /**
      * @dev Execute a function that is delay restricted, provided it was properly scheduled beforehand, or the
@@ -351,7 +399,10 @@ interface IAccessManager {
      *
      * Emits an {OperationExecuted} event only if the call was scheduled and delayed.
      */
-    function execute(address target, bytes calldata data) external payable returns (uint32);
+    function execute(
+        address target,
+        bytes calldata data
+    ) external payable returns (uint32);
 
     /**
      * @dev Cancel a scheduled (delayed) operation. Returns the nonce that identifies the previously scheduled
@@ -363,7 +414,11 @@ interface IAccessManager {
      *
      * Emits a {OperationCanceled} event.
      */
-    function cancel(address caller, address target, bytes calldata data) external returns (uint32);
+    function cancel(
+        address caller,
+        address target,
+        bytes calldata data
+    ) external returns (uint32);
 
     /**
      * @dev Consume a scheduled operation targeting the caller. If such an operation exists, mark it as consumed
@@ -379,7 +434,11 @@ interface IAccessManager {
     /**
      * @dev Hashing function for delayed operations.
      */
-    function hashOperation(address caller, address target, bytes calldata data) external view returns (bytes32);
+    function hashOperation(
+        address caller,
+        address target,
+        bytes calldata data
+    ) external view returns (bytes32);
 
     /**
      * @dev Changes the authority of a target managed by this manager instance.
