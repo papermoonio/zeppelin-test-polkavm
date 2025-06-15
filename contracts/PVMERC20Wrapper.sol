@@ -4,7 +4,7 @@ pragma solidity ^0.8.28;
 
 import {ERC20} from "./token/ERC20/ERC20.sol";
 
-contract PVMERC20 is ERC20 {
+contract PVMERC20Wrapper is ERC20 {
     constructor(
         string memory name,
         string memory symbol,

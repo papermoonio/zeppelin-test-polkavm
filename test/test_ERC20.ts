@@ -65,10 +65,17 @@ describe("PVMERC20", function () {
       const wallet2Address = await wallet2.getAddress();
       const amount = await token.balanceOf(wallet1Address);
 
-      await token.connect(wallet1).transfer(wallet2Address, amount / ethers.toBigInt(2));
+      await token.connect(wallet1).transfer(
+        wallet2Address,
+        amount / ethers.toBigInt(2),
+      );
       // Check balances
-      expect(await token.balanceOf(wallet1Address)).to.equal(amount / ethers.toBigInt(2));
-      expect(await token.balanceOf(wallet2Address)).to.equal(amount / ethers.toBigInt(2));
+      expect(await token.balanceOf(wallet1Address)).to.equal(
+        amount / ethers.toBigInt(2),
+      );
+      expect(await token.balanceOf(wallet2Address)).to.equal(
+        amount / ethers.toBigInt(2),
+      );
     });
   });
 
@@ -76,30 +83,38 @@ describe("PVMERC20", function () {
     it("Should update allowance when approve is called", async function () {
       const amount = ethers.parseEther("100");
       const ownerAddress = await owner.getAddress();
-      const allowanceWallet = ethers.Wallet.createRandom(ethers.getDefaultProvider());
+      const allowanceWallet = ethers.Wallet.createRandom(
+        ethers.getDefaultProvider(),
+      );
       const allowanceWalletAddress = await allowanceWallet.getAddress();
 
       await token.approve(allowanceWalletAddress, amount);
 
-      expect(await token.allowance(ownerAddress, allowanceWalletAddress)).to.equal(amount);
+      expect(await token.allowance(ownerAddress, allowanceWalletAddress)).to
+        .equal(amount);
     });
 
     it("Should allow transferFrom with sufficient allowance", async function () {
       const amount = ethers.parseEther("100");
       const ownerAddress = await owner.getAddress();
       const wallet1Address = await wallet1.getAddress();
-      const receiverWallet = ethers.Wallet.createRandom(ethers.getDefaultProvider());
+      const receiverWallet = ethers.Wallet.createRandom(
+        ethers.getDefaultProvider(),
+      );
       const receiverWalletAddress = await receiverWallet.getAddress();
 
       await token.approve(wallet1Address, amount);
-      await token.connect(wallet1).transferFrom(ownerAddress, receiverWalletAddress, amount);
+      await token.connect(wallet1).transferFrom(
+        ownerAddress,
+        receiverWalletAddress,
+        amount,
+      );
 
       expect(await token.balanceOf(receiverWalletAddress)).to.equal(amount);
       expect(await token.allowance(ownerAddress, wallet1Address)).to.equal(0);
     });
 
     it("Should not decrease allowance for over approval", async function () {
-
       const ownerAddress = await owner.getAddress();
       const wallet1Address = await wallet1.getAddress();
       const initialBalance = await token.balanceOf(ownerAddress);
@@ -120,18 +135,21 @@ describe("PVMERC20", function () {
       await token.approve(wallet1Address, allowance);
 
       await expect(
-        token.connect(wallet1).transferFrom(ownerAddress, wallet2Address, amount)
+        token.connect(wallet1).transferFrom(
+          ownerAddress,
+          wallet2Address,
+          amount,
+        ),
       ).to.be.reverted;
     });
   });
-
 
   describe("Edge cases", function () {
     it("Should fail when transferring to the zero address", async function () {
       const amount = ethers.parseEther("100");
 
       await expect(
-        token.transfer(ethers.ZeroAddress, amount)
+        token.transfer(ethers.ZeroAddress, amount),
       ).to.be.reverted;
     });
 
@@ -139,7 +157,7 @@ describe("PVMERC20", function () {
       const amount = ethers.parseEther("100");
 
       await expect(
-        token.approve(ethers.ZeroAddress, amount)
+        token.approve(ethers.ZeroAddress, amount),
       ).to.be.reverted;
     });
 
@@ -157,7 +175,8 @@ describe("PVMERC20", function () {
 
       await token.approve(wallet1Address, 0);
 
-      expect(await token.allowance(await owner.getAddress(), wallet1Address)).to.equal(0);
+      expect(await token.allowance(await owner.getAddress(), wallet1Address)).to
+        .equal(0);
     });
   });
 });
