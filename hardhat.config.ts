@@ -31,10 +31,16 @@ const config: HardhatUserConfig = {
         process.env.LOCAL_PRIV_KEY_2 ?? "",
       ],
     },
+    sepolia: {
+      polkavm: false,
+      url: process.env.SEPOLIA_URL || "https://sepolia.infura.io/v3/7b0c8b0d85d843cfb9e94bc85450f7ad",
+      accounts: process.env.SEPOLIA_PRIV_KEY ? [process.env.SEPOLIA_PRIV_KEY] : [],
+      chainId: 11155111,
+    },
     passetHub: {
       polkavm: true,
       url: "https://testnet-passet-hub-eth-rpc.polkadot.io",
-      accounts: [process.env.PH_PRIV_KEY ?? ""],
+      accounts: [process.env.PH_PRIV_KEY ?? "", process.env.PH_PRIV_KEY_2 ?? ""],
     },
   },
 };
