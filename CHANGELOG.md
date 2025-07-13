@@ -182,3 +182,73 @@ npx hardhat test/test_ERC20FlashMint.ts --network passetHub
   11 passing
 
 ```
+
+### PVMERC721.sol
+
+```shell
+npx hardhat test test/test_ERC721.ts --network passetHub
+
+  ERC721
+    Deployment
+      ✔ Should set the correct name and symbol (471ms)
+      ✔ Should start with zero total supply (220ms)
+    Minting
+      ✔ Should mint a new token (3327ms)
+      ✔ Should fail when minting to zero address (450ms)
+      ✔ Should fail when minting token that already exists (490ms)
+    Transfers
+      ✔ Should fail when transferring token without approval (450ms)
+      ✔ Should transfer token between accounts (7796ms)
+      ✔ Should transfer token with approval (11145ms)
+
+
+  8 passing (35s)
+```
+
+### PVMERC721Burnable.sol
+
+```shell
+npx hardhat test test/test_ERC721Burnable.ts --network passetHub
+
+
+  PVMERC721Burnable
+    Deployment
+      ✔ Should set the correct name and symbol (433ms)
+      ✔ Should set the deployer as owner (313ms)
+    Minting
+      ✔ Should allow owner to mint tokens (1156ms)
+      ✔ Should prevent non-owner from minting
+    Burning
+      ✔ Should allow token owner to burn their token (1152ms)
+      ✔ Should allow approved address to burn token (6301ms)
+      ✔ Should allow operator to burn token (6302ms)
+      ✔ Should prevent unauthorized burning
+      ✔ Should fail when trying to burn non-existent token
+    Owner Functions
+      ✔ Should allow owner to transfer ownership (5155ms)
+      ✔ Should prevent non-owner from transferring ownership
+
+
+  11 passing
+```
+
+### PVMERC721Consecutive.sol
+
+```shell
+nh test test/test_ERC721Consecutive.ts --network passetHub
+
+  PVMERC721Consecutive
+    Deployment
+AggregatedError: fields had validation errors
+    at validateFields (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/tx.ts:575:32)
+    at new Transaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/index.ts:114:19)
+    at Function.prepare (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/index.ts:140:12)
+    at LocalAccountsProvider._getSignedTransaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async LocalAccountsProvider.request (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
+    at async HardhatEthersSigner.sendTransaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
+    at async ContractFactory.deploy (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/ethers/src.ts/contract/factory.ts:111:24)
+    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC721Consecutive.ts:22:21) {
+  errors: [ { field: 'data', error: 'initcode is too big: 100286' } ]
+}
+```
