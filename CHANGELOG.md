@@ -235,7 +235,7 @@ npx hardhat test test/test_ERC721Burnable.ts --network passetHub
 ### PVMERC721Consecutive.sol
 
 ```shell
-nh test test/test_ERC721Consecutive.ts --network passetHub
+npx hardhat test test/test_ERC721Consecutive.ts --network passetHub
 
   PVMERC721Consecutive
     Deployment
@@ -251,4 +251,26 @@ AggregatedError: fields had validation errors
     at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC721Consecutive.ts:22:21) {
   errors: [ { field: 'data', error: 'initcode is too big: 100286' } ]
 }
+```
+
+### PVMERC721Enumerable
+
+```shell
+npx hardhat test test/test_ERC721Enumerable.ts --network passetHub
+
+PVMERC721Enumerable
+    Deployment
+error is  AggregatedError: fields had validation errors
+    at validateFields (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/tx.ts:575:32)
+    at new Transaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/index.ts:114:19)
+    at Function.prepare (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/index.ts:140:12)
+    at LocalAccountsProvider._getSignedTransaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async LocalAccountsProvider.request (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
+    at async HardhatEthersSigner.sendTransaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
+    at async ContractFactory.deploy (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/ethers/src.ts/contract/factory.ts:111:24)
+    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC721Enumerable.ts:19:21) {
+  errors: [ { field: 'data', error: 'initcode is too big: 157182' } ]
+}
+
 ```
