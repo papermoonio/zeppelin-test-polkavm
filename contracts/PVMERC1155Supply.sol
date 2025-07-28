@@ -1,0 +1,68 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.28;
+
+import {ERC1155} from "./token/ERC1155/ERC1155.sol";
+import {ERC1155Supply} from "./token/ERC1155/extensions/ERC1155Supply.sol";
+import {Ownable} from "./access/Ownable.sol";
+
+contract PVMERC1155Supply is ERC1155Supply, Ownable {
+    constructor(
+        string memory uri_
+    ) ERC1155Supply() ERC1155(uri_) Ownable(msg.sender) {}
+
+    function mint(
+        address to,
+        uint256 id,
+        uint256 value,
+        bytes memory data
+    ) public onlyOwner {
+        require(to != address(0), "ERC1155: mint to the zero address");
+        _mint(to, id, value, data);
+    }
+
+    function mintBatch(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory values,
+        bytes memory data
+    ) public onlyOwner {
+        require(to != address(0), "ERC1155: mint to the zero address");
+        require(
+            ids.length == values.length,
+            "ERC1155: ids and values length mismatch"
+        );
+
+        _mintBatch(to, ids, values, data);
+    }
+
+    function burn(address from, uint256 id, uint256 value) public onlyOwner {
+        require(from != address(0), "ERC1155: burn from the zero address");
+        require(
+            balanceOf(from, id) >= value,
+            "ERC1155: burn amount exceeds balance"
+        );
+
+        _burn(from, id, value);
+    }
+
+    function burnBatch(
+        address from,
+        uint256[] memory ids,
+        uint256[] memory values
+    ) public onlyOwner {
+        require(from != address(0), "ERC1155: burn from the zero address");
+        require(
+            ids.length == values.length,
+            "ERC1155: ids and values length mismatch"
+        );
+
+        for (uint256 i = 0; i < ids.length; i++) {
+            require(
+                balanceOf(from, ids[i]) >= values[i],
+                "ERC1155: burn amount exceeds balance"
+            );
+        }
+
+        _burnBatch(from, ids, values);
+    }
+}

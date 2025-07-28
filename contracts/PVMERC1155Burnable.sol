@@ -1,0 +1,69 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.28;
+
+import {ERC1155} from "./token/ERC1155/ERC1155.sol";
+import {ERC1155Burnable} from "./token/ERC1155/extensions/ERC1155Burnable.sol";
+import {Ownable} from "./access/Ownable.sol";
+
+contract PVMERC1155Burnable is ERC1155Burnable, Ownable {
+    mapping(uint256 => uint256) private _totalSupply;
+
+    constructor(
+        string memory uri_
+    ) ERC1155Burnable() ERC1155(uri_) Ownable(msg.sender) {}
+
+    function mint(
+        address to,
+        uint256 id,
+        uint256 value,
+        bytes memory data
+    ) public onlyOwner {
+        require(to != address(0), "ERC1155: mint to the zero address");
+        _mint(to, id, value, data);
+        _totalSupply[id] += value;
+    }
+
+    function mintBatch(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory values,
+        bytes memory data
+    ) public onlyOwner {
+        require(to != address(0), "ERC1155: mint to the zero address");
+        require(
+            ids.length == values.length,
+            "ERC1155: ids and values length mismatch"
+        );
+
+        _mintBatch(to, ids, values, data);
+
+        for (uint256 i = 0; i < ids.length; i++) {
+            _totalSupply[ids[i]] += values[i];
+        }
+    }
+
+    function burn(address account, uint256 id, uint256 value) public override {
+        super.burn(account, id, value);
+        _totalSupply[id] -= value;
+    }
+
+    function burnBatch(
+        address account,
+        uint256[] memory ids,
+        uint256[] memory values
+    ) public override {
+        super.burnBatch(account, ids, values);
+
+        for (uint256 i = 0; i < ids.length; i++) {
+            _totalSupply[ids[i]] -= values[i];
+        }
+    }
+
+    function totalSupply(uint256 id) public view returns (uint256) {
+        return _totalSupply[id];
+    }
+
+    function exists(uint256 id) public view returns (bool) {
+        return _totalSupply[id] > 0;
+    }
+}

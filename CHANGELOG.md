@@ -278,7 +278,7 @@ error is  AggregatedError: fields had validation errors
 ### PVMERC721Pausable
 
 ```shell
-npx hardhat test test/test_ERC721Pausable.ts --network passetHub --no-compile
+npx hardhat test test/test_ERC721Pausable.ts --network passetHub
 
   PVMERC721Pausable
     Deployment
@@ -308,7 +308,7 @@ npx hardhat test test/test_ERC721Pausable.ts --network passetHub --no-compile
 ### PVMERC721Royalty
 
 ```shell
-npx hardhat test test/test_ERC721Royalty.ts --network passetHub --no-compile
+npx hardhat test test/test_ERC721Royalty.ts --network passetHub
 
   PVMERC721Royalty
     Deployment
@@ -329,7 +329,7 @@ AggregatedError: fields had validation errors
 ### PVMERC721URIStorage
 
 ```shell
-npx hardhat test/test_ERC721URIStorage.ts --network passetHub --no-compile
+npx hardhat test/test_ERC721URIStorage.ts --network passetHub
 
   PVMERC721URIStorage
     Deployment
@@ -350,7 +350,7 @@ AggregatedError: fields had validation errors
 ### PVMERC721Votes
 
 ```shell
-npx hardhat test/test_ERC721Votes.ts --network passetHub --no-compile
+npx hardhat test/test_ERC721Votes.ts --network passetHub
 
   PVMERC721Votes
     Deployment
@@ -371,7 +371,7 @@ AggregatedError: fields had validation errors
 ### PVMERC721Wrapper
 
 ```shell
-npx hardhat test/test_ERC721Wrapper.ts --network passetHub --no-compile
+npx hardhat test/test_ERC721Wrapper.ts --network passetHub
 
   PVMERC721Wrapper
     Deployment
@@ -387,4 +387,139 @@ AggregatedError: fields had validation errors
     at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC721Wrapper.ts:30:23) {
   errors: [ { field: 'data', error: 'initcode is too big: 103104' } ]
 }
+```
+
+### PVMERC1155
+
+```shell
+npx hardhat test test/test_ERC1155.ts --network passetHub
+
+ERC1155
+AggregatedError: fields had validation errors
+at validateFields (/home/user/node_modules/micro-eth-signer/src/tx.ts:575:32)
+at new Transaction (/home/user/node_modules/micro-eth-signer/src/index.ts:114:19)
+at Function.prepare (/home/user/node_modules/micro-eth-signer/src/index.ts:140:12)
+at LocalAccountsProvider.\_getSignedTransaction (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
+at processTicksAndRejections (node:internal/process/task_queues:105:5)
+at async LocalAccountsProvider.request (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
+at async HardhatEthersSigner.sendTransaction (/home/user/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
+at async ContractFactory.deploy (/home/user/node_modules/ethers/src.ts/contract/factory.ts:111:24)
+at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC1155.ts:21:21) {
+errors: [ { field: 'data', error: 'initcode is too big: 125404' } ]
+}
+Deployment
+```
+
+### PVMERC1155Burnable
+
+```shell
+npx hardhat test test/test_ERC1155Burnable.ts --network passetHub
+
+
+  PVMERC1155Burnable
+    Deployment
+AggregatedError: fields had validation errors
+    at validateFields (/home/user/node_modules/micro-eth-signer/src/tx.ts:575:32)
+    at new Transaction (/home/user/node_modules/micro-eth-signer/src/index.ts:114:19)
+    at Function.prepare (/home/user/node_modules/micro-eth-signer/src/index.ts:140:12)
+    at LocalAccountsProvider._getSignedTransaction (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async LocalAccountsProvider.request (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
+    at async HardhatEthersSigner.sendTransaction (/home/user/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
+    at async ContractFactory.deploy (/home/user/node_modules/ethers/src.ts/contract/factory.ts:111:24)
+    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC1155Burnable.ts:20:21) {
+  errors: [ { field: 'data', error: 'initcode is too big: 123972' } ]
+}
+
+```
+
+### PVMERC1155Pausable
+
+```shell
+npx hardhat test test/test_ERC1155Pausable.ts --network passetHub
+
+
+  PVMERC1155Pausable
+    Deployment
+AggregatedError: fields had validation errors
+    at validateFields (/home/user/node_modules/micro-eth-signer/src/tx.ts:575:32)
+    at new Transaction (/home/user/node_modules/micro-eth-signer/src/index.ts:114:19)
+    at Function.prepare (/home/user/node_modules/micro-eth-signer/src/index.ts:140:12)
+    at LocalAccountsProvider._getSignedTransaction (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async LocalAccountsProvider.request (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
+    at async HardhatEthersSigner.sendTransaction (/home/user/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
+    at async ContractFactory.deploy (/home/user/node_modules/ethers/src.ts/contract/factory.ts:111:24)
+    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC1155Pausable.ts:20:21) {
+  errors: [ { field: 'data', error: 'initcode is too big: 129140' } ]
+}
+
+```
+
+### PVMERC1155Public
+
+```shell
+npx hardhat test test/test_ERC1155Public.ts --network passetHub
+
+
+  PVMERC1155Public
+    Deployment
+AggregatedError: fields had validation errors
+    at validateFields (/home/user/node_modules/micro-eth-signer/src/tx.ts:575:32)
+    at new Transaction (/home/user/node_modules/micro-eth-signer/src/index.ts:114:19)
+    at Function.prepare (/home/user/node_modules/micro-eth-signer/src/index.ts:140:12)
+    at LocalAccountsProvider._getSignedTransaction (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async LocalAccountsProvider.request (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
+    at async HardhatEthersSigner.sendTransaction (/home/user/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
+    at async ContractFactory.deploy (/home/user/node_modules/ethers/src.ts/contract/factory.ts:111:24)
+    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC1155Public.ts:21:21) {
+  errors: [ { field: 'data', error: 'initcode is too big: 123770' } ]
+}
+```
+
+### PVMERC1155Supply
+
+```shell
+npx hardhat test test/test_ERC1155Supply.ts --network passetHub
+
+  PVMERC1155Supply
+    Deployment
+AggregatedError: fields had validation errors
+    at validateFields (/home/user/node_modules/micro-eth-signer/src/tx.ts:575:32)
+    at new Transaction (/home/user/node_modules/micro-eth-signer/src/index.ts:114:19)
+    at Function.prepare (/home/user/node_modules/micro-eth-signer/src/index.ts:140:12)
+    at LocalAccountsProvider._getSignedTransaction (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async LocalAccountsProvider.request (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
+    at async HardhatEthersSigner.sendTransaction (/home/user/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
+    at async ContractFactory.deploy (/home/user/node_modules/ethers/src.ts/contract/factory.ts:111:24)
+    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC1155Supply.ts:20:21) {
+  errors: [ { field: 'data', error: 'initcode is too big: 122462' } ]
+}
+
+```
+
+### PVMERC1155URIStorage
+
+```shell
+npx hardhat test test/test_ERC1155URIStorage.ts --network passetH
+ub
+
+
+  PVMERC1155URIStorage
+    Deployment
+AggregatedError: fields had validation errors
+    at validateFields (/home/user/node_modules/micro-eth-signer/src/tx.ts:575:32)
+    at new Transaction (/home/user/node_modules/micro-eth-signer/src/index.ts:114:19)
+    at Function.prepare (/home/user/node_modules/micro-eth-signer/src/index.ts:140:12)
+    at LocalAccountsProvider._getSignedTransaction (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async LocalAccountsProvider.request (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
+    at async HardhatEthersSigner.sendTransaction (/home/user/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
+    at async ContractFactory.deploy (/home/user/node_modules/ethers/src.ts/contract/factory.ts:111:24)
+    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC1155URIStorage.ts:21:21) {
+  errors: [ { field: 'data', error: 'initcode is too big: 147750' } ]
+}
+
 ```
