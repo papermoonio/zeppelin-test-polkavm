@@ -14,7 +14,7 @@ describe("PVMERC20Pausable", function () {
     const initialSupply = ethers.parseEther("10000");
 
     before(async function () {
-        [owner, wallet1] = await ethers.getSigners();
+        [owner, wallet1] = getWallets(2);
         wallet2 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
 
         const ERC20PausableFactory = await ethers.getContractFactory("PVMERC20Pausable");

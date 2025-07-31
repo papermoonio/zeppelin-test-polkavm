@@ -4,6 +4,8 @@ import { ethers, network } from "hardhat";
 import { Contract, Signer } from "ethers";
 
 import { PVMERC20 } from "../typechain-types/contracts/PVMERC20";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { getWallets } from "./test_util";
 
 describe("PVMERC20", function () {
   // Test fixture with contract and signers
@@ -18,10 +20,12 @@ describe("PVMERC20", function () {
 
   // Deploy a concrete implementation of the abstract ERC20 contract before each test
   before(async function () {
-    [owner, wallet1] = await ethers.getSigners();
-    wallet2 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
+    [owner, wallet1] = getWallets(2);
 
-    // Deploy a test implementation of ERC20
+    wallet2 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
+  });
+
+  beforeEach(async function () {
     const ERC20Factory = await ethers.getContractFactory("PVMERC20");
     token = await ERC20Factory.deploy(name, symbol, initialSupply);
     await token.waitForDeployment();
@@ -51,7 +55,8 @@ describe("PVMERC20", function () {
       const wallet1Address = await wallet1.getAddress();
 
       // Transfer from owner to wallet1
-      await token.transfer(wallet1Address, amount);
+      let transfer = await token.connect(owner).transfer(wallet1Address, amount);
+      await transfer.wait();
 
       // Check balances reflect the transfer
       expect(await token.balanceOf(wallet1Address)).to.equal(amount);
@@ -65,10 +70,12 @@ describe("PVMERC20", function () {
       const wallet2Address = await wallet2.getAddress();
       const amount = await token.balanceOf(wallet1Address);
 
-      await token.connect(wallet1).transfer(
+      let transfer = await token.connect(wallet1).transfer(
         wallet2Address,
         amount / ethers.toBigInt(2),
       );
+      await transfer.wait();
+
       // Check balances
       expect(await token.balanceOf(wallet1Address)).to.equal(
         amount / ethers.toBigInt(2),
@@ -88,7 +95,8 @@ describe("PVMERC20", function () {
       );
       const allowanceWalletAddress = await allowanceWallet.getAddress();
 
-      await token.approve(allowanceWalletAddress, amount);
+      let approve = await token.connect(owner).approve(allowanceWalletAddress, amount);
+      await approve.wait();
 
       expect(await token.allowance(ownerAddress, allowanceWalletAddress)).to
         .equal(amount);
@@ -103,12 +111,17 @@ describe("PVMERC20", function () {
       );
       const receiverWalletAddress = await receiverWallet.getAddress();
 
-      await token.approve(wallet1Address, amount);
-      await token.connect(wallet1).transferFrom(
+      let approval = await token.connect(owner).approve(wallet1Address, amount);
+      await approval.wait();
+
+      // await new Promise(resolve => setTimeout(resolve, 6000));
+      let transferFrom = await token.connect(wallet1).transferFrom(
         ownerAddress,
         receiverWalletAddress,
         amount,
       );
+
+      await transferFrom.wait();
 
       expect(await token.balanceOf(receiverWalletAddress)).to.equal(amount);
       expect(await token.allowance(ownerAddress, wallet1Address)).to.equal(0);
@@ -120,7 +133,8 @@ describe("PVMERC20", function () {
       const initialBalance = await token.balanceOf(ownerAddress);
       const amount = initialBalance + 1n;
 
-      await token.approve(wallet1Address, amount);
+      let approve = await token.connect(owner).approve(wallet1Address, amount);
+      await approve.wait();
 
       expect(await token.balanceOf(ownerAddress)).to.equal(initialBalance);
     });
@@ -132,7 +146,8 @@ describe("PVMERC20", function () {
       const wallet1Address = await wallet1.getAddress();
       const wallet2Address = await wallet2.getAddress();
 
-      await token.approve(wallet1Address, allowance);
+      let approve = await token.connect(owner).approve(wallet1Address, allowance);
+      await approve.wait();
 
       await expect(
         token.connect(wallet1).transferFrom(
@@ -165,7 +180,8 @@ describe("PVMERC20", function () {
       const wallet1Address = await wallet1.getAddress();
       const initialBalance = await token.balanceOf(wallet1Address);
 
-      await token.transfer(wallet1Address, 0);
+      let transfer = await token.connect(owner).transfer(wallet1Address, 0);
+      await transfer.wait();
 
       expect(await token.balanceOf(wallet1Address)).to.equal(initialBalance);
     });

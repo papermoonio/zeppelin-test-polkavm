@@ -13,7 +13,7 @@ describe("PVMERC20Capped", function () {
     const cap = ethers.parseEther("10000");
 
     before(async function () {
-        [owner, wallet1] = await ethers.getSigners();
+        [owner, wallet1] = getWallets(2);
 
         const ERC20CappedFactory = await ethers.getContractFactory("PVMERC20Capped");
         token = await ERC20CappedFactory.deploy(name, symbol, cap);

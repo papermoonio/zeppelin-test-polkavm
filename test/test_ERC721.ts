@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { Signer } from "ethers";
-
+import { getWallets } from "./test_util";
 import { PVMERC721 } from "../typechain-types/contracts/PVMERC721";
 
 describe("ERC721", function () {
@@ -14,7 +14,7 @@ describe("ERC721", function () {
   const symbol = "TNFT";
 
   before(async function () {
-    [owner, wallet1] = await ethers.getSigners();
+    [owner, wallet1] = getWallets(2);
     wallet2 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
 
     const ERC721Factory = await ethers.getContractFactory("PVMERC721");

@@ -13,7 +13,7 @@ describe("PVMERC721Votes", function () {
     const version = "1";
 
     beforeEach(async function () {
-        [owner, wallet1] = await ethers.getSigners();
+        [owner, wallet1] = getWallets(2);
         wallet2 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
 
         const ERC721VotesFactory = await ethers.getContractFactory("PVMERC721Votes");

@@ -15,7 +15,7 @@ describe("PVMERC721Wrapper", function () {
     const wrapperSymbol = "WNFT";
 
     beforeEach(async function () {
-        [owner, wallet1] = await ethers.getSigners();
+        [owner, wallet1] = getWallets(2);
         wallet2 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
 
 

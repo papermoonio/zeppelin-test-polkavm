@@ -1,7 +1,9 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import { PVMERC20Votes } from "../typechain-types/contracts/PVMERC20Votes";
 import { Signer } from "ethers";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { getWallets } from "./test_util";
 
 describe("PVMERC20Votes", function () {
     let token: PVMERC20Votes;
@@ -16,10 +18,13 @@ describe("PVMERC20Votes", function () {
     const version = "1.0.0"; // EIP712 version
 
     before(async function () {
-        [owner, wallet1] = await ethers.getSigners();
+        // [owner, wallet1] = getWallets(2);
+        [owner, wallet1] = getWallets(2);
         wallet2 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
 
-        const ERC20VotesFactory = await ethers.getContractFactory("PVMERC20Votes");
+        // await ethers.getContractFactory("UniswapV2Pair", getWallets(1)[0]);
+
+        const ERC20VotesFactory = await ethers.getContractFactory("PVMERC20Votes", owner);
         token = await ERC20VotesFactory.deploy(name, symbol, initialSupply, name2, version);
         await token.waitForDeployment();
     });

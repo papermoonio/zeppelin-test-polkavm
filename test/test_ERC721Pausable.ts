@@ -12,7 +12,7 @@ describe("PVMERC721Pausable", function () {
     const symbol = "PNFT";
 
     beforeEach(async function () {
-        [owner, wallet1] = await ethers.getSigners();
+        [owner, wallet1] = getWallets(2);
         wallet2 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
 
         const ERC721PausableFactory = await ethers.getContractFactory("PVMERC721Pausable");

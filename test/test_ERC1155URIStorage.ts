@@ -13,7 +13,7 @@ describe("PVMERC1155URIStorage", function () {
     const defaultUri = "https://api.example.com/metadata/{id}.json";
 
     beforeEach(async function () {
-        [owner, wallet1] = await ethers.getSigners();
+        [owner, wallet1] = getWallets(2);
         wallet2 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
 
         try {

@@ -16,7 +16,7 @@ describe("PVMERC20Wrapper", function () {
     const initialSupply = ethers.parseEther("10000");
 
     beforeEach(async function () {
-        [owner, wallet1] = await ethers.getSigners();
+        [owner, wallet1] = getWallets(2);
         user = ethers.Wallet.createRandom(ethers.getDefaultProvider());
 
         // Deploy a mock ERC20 as the underlying token
