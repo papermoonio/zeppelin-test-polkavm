@@ -1,9 +1,4 @@
-import { expect } from "chai";
 import { ethers, network } from "hardhat";
-import { PVMERC20Votes } from "../typechain-types/contracts/PVMERC20Votes";
-import { Signer } from "ethers";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-
 
 export function getWallets(n: number) {
     const provider = new ethers.JsonRpcProvider(network.config.url);
