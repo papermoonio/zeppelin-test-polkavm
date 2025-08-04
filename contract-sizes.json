@@ -1,0 +1,177 @@
+[
+  {
+    "contractName": "PVMERC721Votes",
+    "sourceName": "contracts/PVMERC721Votes.sol",
+    "filePath": "contracts/PVMERC721Votes.sol/PVMERC721Votes.json",
+    "bytecodeSize": 88136,
+    "bytecodeSizeKB": 86.07
+  },
+  {
+    "contractName": "PVMERC20Votes",
+    "sourceName": "contracts/PVMERC20Votes.sol",
+    "filePath": "contracts/PVMERC20Votes.sol/PVMERC20Votes.json",
+    "bytecodeSize": 79590,
+    "bytecodeSizeKB": 77.72
+  },
+  {
+    "contractName": "PVMERC721Enumerable",
+    "sourceName": "contracts/PVMERC721Enumerable.sol",
+    "filePath": "contracts/PVMERC721Enumerable.sol/PVMERC721Enumerable.json",
+    "bytecodeSize": 78398,
+    "bytecodeSizeKB": 76.56
+  },
+  {
+    "contractName": "PVMERC1155URIStorage",
+    "sourceName": "contracts/PVMERC1155URIStorage.sol",
+    "filePath": "contracts/PVMERC1155URIStorage.sol/PVMERC1155URIStorage.json",
+    "bytecodeSize": 73746,
+    "bytecodeSizeKB": 72.02
+  },
+  {
+    "contractName": "PVMERC4626",
+    "sourceName": "contracts/PVMERC4626.sol",
+    "filePath": "contracts/PVMERC4626.sol/PVMERC4626.json",
+    "bytecodeSize": 70690,
+    "bytecodeSizeKB": 69.03
+  },
+  {
+    "contractName": "MyNewToken",
+    "sourceName": "contracts/MyNewToken.sol",
+    "filePath": "contracts/MyNewToken.sol/MyNewToken.json",
+    "bytecodeSize": 65319,
+    "bytecodeSizeKB": 63.79
+  },
+  {
+    "contractName": "PVMERC1155Pausable",
+    "sourceName": "contracts/PVMERC1155Pausable.sol",
+    "filePath": "contracts/PVMERC1155Pausable.sol/PVMERC1155Pausable.json",
+    "bytecodeSize": 64441,
+    "bytecodeSizeKB": 62.93
+  },
+  {
+    "contractName": "PVMERC1155",
+    "sourceName": "contracts/PVMERC1155.sol",
+    "filePath": "contracts/PVMERC1155.sol/PVMERC1155.json",
+    "bytecodeSize": 62573,
+    "bytecodeSizeKB": 61.11
+  },
+  {
+    "contractName": "PVMERC1155Burnable",
+    "sourceName": "contracts/PVMERC1155Burnable.sol",
+    "filePath": "contracts/PVMERC1155Burnable.sol/PVMERC1155Burnable.json",
+    "bytecodeSize": 61857,
+    "bytecodeSizeKB": 60.41
+  },
+  {
+    "contractName": "PVMERC1155Public",
+    "sourceName": "contracts/PVMERC1155Public.sol",
+    "filePath": "contracts/PVMERC1155Public.sol/PVMERC1155Public.json",
+    "bytecodeSize": 61756,
+    "bytecodeSizeKB": 60.31
+  },
+  {
+    "contractName": "PVMERC1155Supply",
+    "sourceName": "contracts/PVMERC1155Supply.sol",
+    "filePath": "contracts/PVMERC1155Supply.sol/PVMERC1155Supply.json",
+    "bytecodeSize": 61102,
+    "bytecodeSizeKB": 59.67
+  },
+  {
+    "contractName": "PVMERC721URIStorage",
+    "sourceName": "contracts/PVMERC721URIStorage.sol",
+    "filePath": "contracts/PVMERC721URIStorage.sol/PVMERC721URIStorage.json",
+    "bytecodeSize": 60743,
+    "bytecodeSizeKB": 59.32
+  },
+  {
+    "contractName": "PVMERC721Royalty",
+    "sourceName": "contracts/PVMERC721Royalty.sol",
+    "filePath": "contracts/PVMERC721Royalty.sol/PVMERC721Royalty.json",
+    "bytecodeSize": 50858,
+    "bytecodeSizeKB": 49.67
+  },
+  {
+    "contractName": "PVMERC721Consecutive",
+    "sourceName": "contracts/PVMERC721Consecutive.sol",
+    "filePath": "contracts/PVMERC721Consecutive.sol/PVMERC721Consecutive.json",
+    "bytecodeSize": 49950,
+    "bytecodeSizeKB": 48.78
+  },
+  {
+    "contractName": "PVMERC721Wrapper",
+    "sourceName": "contracts/PVMERC721Wrapper.sol",
+    "filePath": "contracts/PVMERC721Wrapper.sol/PVMERC721Wrapper.json",
+    "bytecodeSize": 49835,
+    "bytecodeSizeKB": 48.67
+  },
+  {
+    "contractName": "PVMERC721Pausable",
+    "sourceName": "contracts/PVMERC721Pausable.sol",
+    "filePath": "contracts/PVMERC721Pausable.sol/PVMERC721Pausable.json",
+    "bytecodeSize": 42686,
+    "bytecodeSizeKB": 41.69
+  },
+  {
+    "contractName": "PVMERC721",
+    "sourceName": "contracts/PVMERC721.sol",
+    "filePath": "contracts/PVMERC721.sol/PVMERC721.json",
+    "bytecodeSize": 42371,
+    "bytecodeSizeKB": 41.38
+  },
+  {
+    "contractName": "PVMERC721Burnable",
+    "sourceName": "contracts/PVMERC721Burnable.sol",
+    "filePath": "contracts/PVMERC721Burnable.sol/PVMERC721Burnable.json",
+    "bytecodeSize": 41477,
+    "bytecodeSizeKB": 40.5
+  },
+  {
+    "contractName": "PVMERC20Wrapper",
+    "sourceName": "contracts/PVMERC20Wrapper.sol",
+    "filePath": "contracts/PVMERC20Wrapper.sol/PVMERC20Wrapper.json",
+    "bytecodeSize": 32562,
+    "bytecodeSizeKB": 31.8
+  },
+  {
+    "contractName": "PVMERC20FlashMint",
+    "sourceName": "contracts/PVMERC20FlashMint.sol",
+    "filePath": "contracts/PVMERC20FlashMint.sol/PVMERC20FlashMint.json",
+    "bytecodeSize": 30868,
+    "bytecodeSizeKB": 30.14
+  },
+  {
+    "contractName": "PVMERC20Burnable",
+    "sourceName": "contracts/PVMERC20Burnable.sol",
+    "filePath": "contracts/PVMERC20Burnable.sol/PVMERC20Burnable.json",
+    "bytecodeSize": 26840,
+    "bytecodeSizeKB": 26.21
+  },
+  {
+    "contractName": "PVMERC20Pausable",
+    "sourceName": "contracts/PVMERC20Pausable.sol",
+    "filePath": "contracts/PVMERC20Pausable.sol/PVMERC20Pausable.json",
+    "bytecodeSize": 26396,
+    "bytecodeSizeKB": 25.78
+  },
+  {
+    "contractName": "PVMERC20Capped",
+    "sourceName": "contracts/PVMERC20Capped.sol",
+    "filePath": "contracts/PVMERC20Capped.sol/PVMERC20Capped.json",
+    "bytecodeSize": 25569,
+    "bytecodeSizeKB": 24.97
+  },
+  {
+    "contractName": "PVMERC20",
+    "sourceName": "contracts/PVMERC20.sol",
+    "filePath": "contracts/PVMERC20.sol/PVMERC20.json",
+    "bytecodeSize": 24368,
+    "bytecodeSizeKB": 23.8
+  },
+  {
+    "contractName": "PVMERC3156FlashBorrower",
+    "sourceName": "contracts/PVMERC3156FlashBorrower.sol",
+    "filePath": "contracts/PVMERC3156FlashBorrower.sol/PVMERC3156FlashBorrower.json",
+    "bytecodeSize": 3623,
+    "bytecodeSizeKB": 3.54
+  }
+]
