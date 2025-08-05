@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { PVMERC20Capped } from "../typechain-types/contracts/PVMERC20Capped";
 import { Signer } from "ethers";
+import { getWallets } from "./test_util";
 
 describe("PVMERC20Capped", function () {
     let token: PVMERC20Capped;
@@ -15,7 +16,7 @@ describe("PVMERC20Capped", function () {
     before(async function () {
         [owner, wallet1] = getWallets(2);
 
-        const ERC20CappedFactory = await ethers.getContractFactory("PVMERC20Capped");
+        const ERC20CappedFactory = await ethers.getContractFactory("PVMERC20Capped", owner);
         token = await ERC20CappedFactory.deploy(name, symbol, cap);
         await token.waitForDeployment();
     });

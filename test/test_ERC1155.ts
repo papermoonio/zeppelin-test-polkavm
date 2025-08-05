@@ -17,7 +17,7 @@ describe("ERC1155", function () {
         [owner, wallet1] = getWallets(2);
 
         try {
-            const ERC1155Factory = await ethers.getContractFactory("PVMERC1155");
+            const ERC1155Factory = await ethers.getContractFactory("PVMERC1155", owner);
             token = await ERC1155Factory.deploy(uri);
             await token.waitForDeployment();
         } catch (error) {

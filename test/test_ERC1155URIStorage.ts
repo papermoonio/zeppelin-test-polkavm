@@ -13,11 +13,11 @@ describe("PVMERC1155URIStorage", function () {
     const defaultUri = "https://api.example.com/metadata/{id}.json";
 
     beforeEach(async function () {
-        [owner, wallet1] = getWallets(2);
+        [owner, wallet1] = await ethers.getSigners();
         wallet2 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
 
         try {
-            const ERC1155URIStorageFactory = await ethers.getContractFactory("PVMERC1155URIStorage");
+            const ERC1155URIStorageFactory = await ethers.getContractFactory("PVMERC1155URIStorage", owner);
             token = await ERC1155URIStorageFactory.deploy(defaultUri);
             await token.waitForDeployment();
         } catch (error) {

@@ -3,6 +3,7 @@ import { ethers } from "hardhat";
 import { Signer } from "ethers";
 import { PVMERC20 } from "../typechain-types/PVMERC20";
 import { PVMERC4626 } from "../typechain-types/PVMERC4626";
+import { getWallets } from "./test_util";
 
 describe("PVMERC4626", function () {
     let vault: PVMERC4626;
@@ -15,7 +16,7 @@ describe("PVMERC4626", function () {
     const initialSupply = ethers.parseEther("10000");
 
     beforeEach(async function () {
-        [owner, user] = await ethers.getSigners();
+        [owner, user] = getWallets(2);
 
         // Deploy the underlying ERC20 asset
         const ERC20Factory = await ethers.getContractFactory("PVMERC20");

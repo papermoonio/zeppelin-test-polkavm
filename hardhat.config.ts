@@ -6,6 +6,9 @@ dotConfig();
 
 const config: HardhatUserConfig = {
   solidity: "0.8.28",
+  mocha: {
+    timeout: 1200000, // 20 minutes for test execution
+  },
   resolc: {
     compilerSource: "npm",
     settings: {
@@ -48,7 +51,7 @@ const config: HardhatUserConfig = {
       polkavm: true,
       url: "https://testnet-passet-hub-eth-rpc.polkadot.io",
       accounts: [process.env.PH_PRIV_KEY ?? "", process.env.PH_PRIV_KEY_2 ?? ""],
-    },
+    }
   },
 };
 

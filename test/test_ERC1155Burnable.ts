@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { PVMERC1155Burnable } from "../typechain-types/contracts/PVMERC1155Burnable";
 import { Signer } from "ethers";
+import { getWallets } from "./test_util";
 
 describe("PVMERC1155Burnable", function () {
     let token: PVMERC1155Burnable;
@@ -11,24 +12,23 @@ describe("PVMERC1155Burnable", function () {
 
     const uri = "https://api.example.com/metadata/{id}.json";
 
-    beforeEach(async function () {
+    before(async function () {
         [owner, wallet1] = getWallets(2);
         wallet2 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
 
-        try {
-            const ERC1155BurnableFactory = await ethers.getContractFactory("PVMERC1155Burnable");
-            token = await ERC1155BurnableFactory.deploy(uri);
-            await token.waitForDeployment();
-        } catch (error) {
-            console.error(error);
-        }
+        const ERC1155BurnableFactory = await ethers.getContractFactory("PVMERC1155Burnable", owner);
+        token = await ERC1155BurnableFactory.deploy(uri);
+        await token.waitForDeployment();
 
         // Mint some tokens for testing
         const wallet1Address = await wallet1.getAddress();
         const wallet2Address = await wallet2.getAddress();
-        await token.mint(wallet1Address, 1, 1000, "0x");
-        await token.mint(wallet2Address, 2, 500, "0x");
-        await token.mintBatch(wallet1Address, [3, 4], [300, 200], "0x");
+        const txMint = await token.mint(wallet1Address, 1, 1000, "0x");
+        await txMint.wait();
+        const txMint2 = await token.mint(wallet2Address, 2, 500, "0x");
+        await txMint2.wait();
+        const txMintBatch = await token.mintBatch(wallet1Address, [3, 4], [300, 200], "0x");
+        await txMintBatch.wait();
     });
 
     describe("Deployment", function () {
@@ -44,7 +44,8 @@ describe("PVMERC1155Burnable", function () {
     describe("Owner Minting", function () {
         it("Should allow owner to mint tokens", async function () {
             const wallet1Address = await wallet1.getAddress();
-            await token.mint(wallet1Address, 5, 100, "0x");
+            const txMint = await token.mint(wallet1Address, 5, 100, "0x");
+            await txMint.wait();
 
             expect(await token.balanceOf(wallet1Address, 5)).to.equal(100);
             expect(await token.totalSupply(5)).to.equal(100);
@@ -65,7 +66,8 @@ describe("PVMERC1155Burnable", function () {
             const initialBalance = await token.balanceOf(wallet1Address, 1);
             const initialSupply = await token.totalSupply(1);
 
-            await token.connect(wallet1).burn(wallet1Address, 1, 200);
+            const txBurn = await token.connect(wallet1).burn(wallet1Address, 1, 200);
+            await txBurn.wait();
 
             expect(await token.balanceOf(wallet1Address, 1)).to.equal(initialBalance - 200n);
             expect(await token.totalSupply(1)).to.equal(initialSupply - 200n);
@@ -78,7 +80,8 @@ describe("PVMERC1155Burnable", function () {
             const initialSupply3 = await token.totalSupply(3);
             const initialSupply4 = await token.totalSupply(4);
 
-            await token.connect(wallet1).burnBatch(wallet1Address, [3, 4], [50, 25]);
+            const txBurnBatch = await token.connect(wallet1).burnBatch(wallet1Address, [3, 4], [50, 25]);
+            await txBurnBatch.wait();
 
             expect(await token.balanceOf(wallet1Address, 3)).to.equal(initialBalance3 - 50n);
             expect(await token.balanceOf(wallet1Address, 4)).to.equal(initialBalance4 - 25n);
@@ -109,10 +112,12 @@ describe("PVMERC1155Burnable", function () {
             const initialSupply = await token.totalSupply(1);
 
             // wallet1 approves wallet2 to operate on their tokens
-            await token.connect(wallet1).setApprovalForAll(wallet2Address, true);
+            const txApprove = await token.connect(wallet1).setApprovalForAll(wallet2Address, true);
+            await txApprove.wait();
 
             // wallet2 burns tokens from wallet1's account
-            await token.connect(wallet2).burn(wallet1Address, 1, 150);
+            const txBurn = await token.connect(wallet2).burn(wallet1Address, 1, 150);
+            await txBurn.wait();
 
             expect(await token.balanceOf(wallet1Address, 1)).to.equal(initialBalance - 150n);
             expect(await token.totalSupply(1)).to.equal(initialSupply - 150n);
@@ -127,10 +132,12 @@ describe("PVMERC1155Burnable", function () {
             const initialSupply4 = await token.totalSupply(4);
 
             // wallet1 approves wallet2 to operate on their tokens
-            await token.connect(wallet1).setApprovalForAll(wallet2Address, true);
+            const txApprove = await token.connect(wallet1).setApprovalForAll(wallet2Address, true);
+            await txApprove.wait();
 
             // wallet2 burns batch tokens from wallet1's account
-            await token.connect(wallet2).burnBatch(wallet1Address, [3, 4], [30, 20]);
+            const txBurnBatch = await token.connect(wallet2).burnBatch(wallet1Address, [3, 4], [30, 20]);
+            await txBurnBatch.wait();
 
             expect(await token.balanceOf(wallet1Address, 3)).to.equal(initialBalance3 - 30n);
             expect(await token.balanceOf(wallet1Address, 4)).to.equal(initialBalance4 - 20n);
@@ -143,10 +150,12 @@ describe("PVMERC1155Burnable", function () {
             const wallet2Address = await wallet2.getAddress();
 
             // wallet1 approves wallet2
-            await token.connect(wallet1).setApprovalForAll(wallet2Address, true);
+            const txApprove = await token.connect(wallet1).setApprovalForAll(wallet2Address, true);
+            await txApprove.wait();
 
             // wallet1 revokes approval
-            await token.connect(wallet1).setApprovalForAll(wallet2Address, false);
+            const txApprove2 = await token.connect(wallet1).setApprovalForAll(wallet2Address, false);
+            await txApprove2.wait();
 
             // wallet2 should not be able to burn
             await expect(
@@ -160,7 +169,8 @@ describe("PVMERC1155Burnable", function () {
             const wallet1Address = await wallet1.getAddress();
             const initialSupply = await token.totalSupply(1);
 
-            await token.connect(wallet1).burn(wallet1Address, 1, 100);
+            const txBurn = await token.connect(wallet1).burn(wallet1Address, 1, 100);
+            await txBurn.wait();
 
             expect(await token.totalSupply(1)).to.equal(initialSupply - 100n);
             expect(await token.exists(1)).to.be.true; // Still exists since supply > 0
@@ -170,7 +180,8 @@ describe("PVMERC1155Burnable", function () {
             const wallet2Address = await wallet2.getAddress();
 
             // Burn all tokens of ID 2
-            await token.connect(wallet2).burn(wallet2Address, 2, 500);
+            const txBurn = await token.connect(wallet2).burn(wallet2Address, 2, 500);
+            await txBurn.wait();
 
             expect(await token.totalSupply(2)).to.equal(0);
             expect(await token.exists(2)).to.be.false;
@@ -182,13 +193,14 @@ describe("PVMERC1155Burnable", function () {
             const wallet1Address = await wallet1.getAddress();
             const wallet2Address = await wallet2.getAddress();
 
-            await token.connect(wallet1).safeTransferFrom(
+            const txTransfer = await token.connect(wallet1).safeTransferFrom(
                 wallet1Address,
                 wallet2Address,
                 1,
                 100,
                 "0x"
             );
+            await txTransfer.wait();
 
             expect(await token.balanceOf(wallet1Address, 1)).to.equal(900);
             expect(await token.balanceOf(wallet2Address, 1)).to.equal(100);

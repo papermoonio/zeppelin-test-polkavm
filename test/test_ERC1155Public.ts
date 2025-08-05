@@ -2,27 +2,23 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { PVMERC1155Public } from "../typechain-types/contracts/PVMERC1155Public";
 import { Signer } from "ethers";
+import { getWallets } from "./test_util";
 
 describe("PVMERC1155Public", function () {
     let token: PVMERC1155Public;
-    let deployer: Signer;
+    let owner: Signer;
     let wallet1: Signer;
     let wallet2: Signer;
-    let wallet3: Signer;
 
     const uri = "https://api.example.com/metadata/{id}.json";
 
     beforeEach(async function () {
-        [deployer, wallet1, wallet2] = await ethers.getSigners();
-        wallet3 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
+        [owner, wallet1] = await getWallets(2);
+        wallet2 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
 
-        try {
-            const ERC1155PublicFactory = await ethers.getContractFactory("PVMERC1155Public");
-            token = await ERC1155PublicFactory.deploy(uri);
-            await token.waitForDeployment();
-        } catch (error) {
-            console.error(error);
-        }
+        const ERC1155PublicFactory = await ethers.getContractFactory("PVMERC1155Public", owner);
+        token = await ERC1155PublicFactory.deploy(uri);
+        await token.waitForDeployment();
     });
 
     describe("Deployment", function () {
@@ -38,11 +34,6 @@ describe("PVMERC1155Public", function () {
         it("Should return false for exists on unminted tokens", async function () {
             expect(await token.exists(1)).to.be.false;
             expect(await token.exists(2)).to.be.false;
-        });
-
-        it("Should not have an owner (no Ownable interface)", async function () {
-            // This contract doesn't inherit from Ownable, so it shouldn't have an owner function
-            expect(token.owner).to.be.undefined;
         });
     });
 
@@ -70,12 +61,12 @@ describe("PVMERC1155Public", function () {
             expect(await token.totalSupply(1)).to.equal(150);
         });
 
-        it("Should allow deployer to mint tokens", async function () {
-            const deployerAddress = await deployer.getAddress();
+        it("Should allow owner to mint tokens", async function () {
+            const ownerAddress = await owner.getAddress();
 
-            await token.connect(deployer).mint(deployerAddress, 1, 200, "0x");
+            await token.connect(owner).mint(ownerAddress, 1, 200, "0x");
 
-            expect(await token.balanceOf(deployerAddress, 1)).to.equal(200);
+            expect(await token.balanceOf(ownerAddress, 1)).to.equal(200);
             expect(await token.totalSupply(1)).to.equal(200);
         });
 
@@ -312,12 +303,12 @@ describe("PVMERC1155Public", function () {
         it("Should handle complex multi-user scenarios", async function () {
             const wallet1Address = await wallet1.getAddress();
             const wallet2Address = await wallet2.getAddress();
-            const deployerAddress = await deployer.getAddress();
+            const ownerAddress = await owner.getAddress();
 
             // Everyone mints different tokens
             await token.connect(wallet1).mint(wallet1Address, 9, 100, "0x");
             await token.connect(wallet2).mint(wallet2Address, 9, 200, "0x");
-            await token.connect(deployer).mint(deployerAddress, 9, 50, "0x");
+            await token.connect(owner).mint(ownerAddress, 9, 50, "0x");
 
             expect(await token.totalSupply(9)).to.equal(350);
 

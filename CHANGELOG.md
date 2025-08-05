@@ -88,7 +88,7 @@ npx hardhat test test/test_ERC20Pausable.ts --network passetHub
 ### PVMERC20Votes.sol
 
 ```shell
-npx hardhat test/test_ERC20Votes.ts --network passetHub
+npx hardhat test test/test_ERC20Votes.ts --network passetHub
 
 
   PVMERC20Votes
@@ -438,21 +438,38 @@ AggregatedError: fields had validation errors
 ```shell
 npx hardhat test test/test_ERC1155Pausable.ts --network passetHub
 
-
   PVMERC1155Pausable
     Deployment
-AggregatedError: fields had validation errors
-    at validateFields (/home/user/node_modules/micro-eth-signer/src/tx.ts:575:32)
-    at new Transaction (/home/user/node_modules/micro-eth-signer/src/index.ts:114:19)
-    at Function.prepare (/home/user/node_modules/micro-eth-signer/src/index.ts:140:12)
-    at LocalAccountsProvider._getSignedTransaction (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async LocalAccountsProvider.request (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
-    at async HardhatEthersSigner.sendTransaction (/home/user/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
-    at async ContractFactory.deploy (/home/user/node_modules/ethers/src.ts/contract/factory.ts:111:24)
-    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC1155Pausable.ts:20:21) {
-  errors: [ { field: 'data', error: 'initcode is too big: 129140' } ]
-}
+      ✔ Should set the correct URI (369ms)
+      ✔ Should set the deployer as owner (353ms)
+      ✔ Should start unpaused (354ms)
+    Pause/Unpause Functions
+      ✔ Should allow owner to pause the contract (12304ms)
+      ✔ Should allow owner to unpause the contract (24339ms)
+      ✔ Should prevent non-owner from pausing (690ms)
+      ✔ Should prevent non-owner from unpausing (3854ms)
+    Minting When Paused
+      ✔ Should prevent batch minting when paused (710ms)
+      ✔ Should allow minting after unpausing (11021ms)
+    Burning When Paused
+      ✔ Should prevent burning when paused (731ms)
+      ✔ Should prevent batch burning when paused (749ms)
+      ✔ Should allow burning after unpausing (10765ms)
+    Transfers When Paused
+      ✔ Should prevent transfers when paused (759ms)
+      ✔ Should prevent batch transfers when paused (715ms)
+      ✔ Should allow transfers after unpausing (21347ms)
+    View Functions When Paused
+      ✔ Should allow view functions when paused (1496ms)
+      ✔ Should allow approval functions when paused (7789ms)
+    Owner Functions When Paused
+      ✔ Should allow owner to change ownership when paused (12212ms)
+      ✔ Should allow new owner to unpause (10238ms)
+    Supply Tracking When Paused
+      ✔ Should maintain supply tracking across pause states (31794ms)
+
+
+  20 passing (16m)
 
 ```
 

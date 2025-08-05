@@ -26,7 +26,7 @@ describe("PVMERC20", function () {
   });
 
   beforeEach(async function () {
-    const ERC20Factory = await ethers.getContractFactory("PVMERC20");
+    const ERC20Factory = await ethers.getContractFactory("PVMERC20", owner);
     token = await ERC20Factory.deploy(name, symbol, initialSupply);
     await token.waitForDeployment();
   });
