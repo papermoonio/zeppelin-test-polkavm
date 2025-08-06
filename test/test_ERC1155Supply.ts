@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { PVMERC1155Supply } from "../typechain-types/contracts/PVMERC1155Supply";
 import { Signer } from "ethers";
-
+import { getWallets } from "./test_util";
 describe("PVMERC1155Supply", function () {
     let token: PVMERC1155Supply;
     let owner: Signer;
@@ -13,15 +13,11 @@ describe("PVMERC1155Supply", function () {
 
     beforeEach(async function () {
         [owner, wallet1] = getWallets(2);
-        wallet2 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
+        wallet2 = ethers.Wallet.createRandom().connect(ethers.provider);
 
-        try {
-            const ERC1155SupplyFactory = await ethers.getContractFactory("PVMERC1155Supply");
-            token = await ERC1155SupplyFactory.deploy(uri);
-            await token.waitForDeployment();
-        } catch (error) {
-            console.error(error);
-        }
+        const ERC1155SupplyFactory = await ethers.getContractFactory("PVMERC1155Supply", owner);
+        token = await ERC1155SupplyFactory.deploy(uri);
+        await token.waitForDeployment();
     });
 
     describe("Deployment", function () {
@@ -34,9 +30,9 @@ describe("PVMERC1155Supply", function () {
         });
 
         it("Should start with zero total supply for all token IDs", async function () {
-            expect(await token.totalSupply(1)).to.equal(0);
-            expect(await token.totalSupply(2)).to.equal(0);
-            expect(await token.totalSupply()).to.equal(0); // Total supply across all tokens
+            expect(await token["totalSupply(uint256)"](1)).to.equal(0);
+            expect(await token["totalSupply(uint256)"](2)).to.equal(0);
+            expect(await token["totalSupply()"]()).to.equal(0); // Total supply across all tokens
         });
 
         it("Should return false for exists on unminted tokens", async function () {
@@ -49,10 +45,11 @@ describe("PVMERC1155Supply", function () {
         it("Should track total supply when minting single tokens", async function () {
             const wallet1Address = await wallet1.getAddress();
 
-            await token.mint(wallet1Address, 1, 100, "0x");
+            const mintTx = await token.mint(wallet1Address, 1, 100, "0x");
+            await mintTx.wait();
 
-            expect(await token.totalSupply(1)).to.equal(100);
-            expect(await token.totalSupply()).to.equal(100);
+            expect(await token["totalSupply(uint256)"](1)).to.equal(100);
+            expect(await token["totalSupply()"]()).to.equal(100);
             expect(await token.exists(1)).to.be.true;
         });
 
@@ -60,11 +57,13 @@ describe("PVMERC1155Supply", function () {
             const wallet1Address = await wallet1.getAddress();
             const wallet2Address = await wallet2.getAddress();
 
-            await token.mint(wallet1Address, 1, 100, "0x");
-            await token.mint(wallet2Address, 1, 50, "0x");
+            const mintTx1 = await token.mint(wallet1Address, 1, 100, "0x");
+            await mintTx1.wait();
+            const mintTx2 = await token.mint(wallet2Address, 1, 50, "0x");
+            await mintTx2.wait();
 
-            expect(await token.totalSupply(1)).to.equal(150);
-            expect(await token.totalSupply()).to.equal(150);
+            expect(await token["totalSupply(uint256)"](1)).to.equal(150);
+            expect(await token["totalSupply()"]()).to.equal(150);
             expect(await token.balanceOf(wallet1Address, 1)).to.equal(100);
             expect(await token.balanceOf(wallet2Address, 1)).to.equal(50);
         });
@@ -72,22 +71,26 @@ describe("PVMERC1155Supply", function () {
         it("Should track total supply when burning single tokens", async function () {
             const wallet1Address = await wallet1.getAddress();
 
-            await token.mint(wallet1Address, 1, 100, "0x");
-            await token.burn(wallet1Address, 1, 30);
+            const mintTx = await token.mint(wallet1Address, 1, 100, "0x");
+            await mintTx.wait();
+            const burnTx = await token.burn(wallet1Address, 1, 30);
+            await burnTx.wait();
 
-            expect(await token.totalSupply(1)).to.equal(70);
-            expect(await token.totalSupply()).to.equal(70);
+            expect(await token["totalSupply(uint256)"](1)).to.equal(70);
+            expect(await token["totalSupply()"]()).to.equal(70);
             expect(await token.exists(1)).to.be.true;
         });
 
         it("Should update exists status when all tokens are burned", async function () {
             const wallet1Address = await wallet1.getAddress();
 
-            await token.mint(wallet1Address, 1, 100, "0x");
-            await token.burn(wallet1Address, 1, 100);
+            const mintTx = await token.mint(wallet1Address, 1, 100, "0x");
+            await mintTx.wait();
+            const burnTx = await token.burn(wallet1Address, 1, 100);
+            await burnTx.wait();
 
-            expect(await token.totalSupply(1)).to.equal(0);
-            expect(await token.totalSupply()).to.equal(0);
+            expect(await token["totalSupply(uint256)"](1)).to.equal(0);
+            expect(await token["totalSupply()"]()).to.equal(0);
             expect(await token.exists(1)).to.be.false;
         });
     });
@@ -96,12 +99,13 @@ describe("PVMERC1155Supply", function () {
         it("Should track total supply when batch minting", async function () {
             const wallet1Address = await wallet1.getAddress();
 
-            await token.mintBatch(wallet1Address, [1, 2, 3], [100, 200, 50], "0x");
+            const mintTx = await token.mintBatch(wallet1Address, [1, 2, 3], [100, 200, 50], "0x");
+            await mintTx.wait();
 
-            expect(await token.totalSupply(1)).to.equal(100);
-            expect(await token.totalSupply(2)).to.equal(200);
-            expect(await token.totalSupply(3)).to.equal(50);
-            expect(await token.totalSupply()).to.equal(350); // Sum of all supplies
+            expect(await token["totalSupply(uint256)"](1)).to.equal(100);
+            expect(await token["totalSupply(uint256)"](2)).to.equal(200);
+            expect(await token["totalSupply(uint256)"](3)).to.equal(50);
+            expect(await token["totalSupply()"]()).to.equal(350); // Sum of all supplies
             expect(await token.exists(1)).to.be.true;
             expect(await token.exists(2)).to.be.true;
             expect(await token.exists(3)).to.be.true;
@@ -110,23 +114,27 @@ describe("PVMERC1155Supply", function () {
         it("Should track total supply when batch burning", async function () {
             const wallet1Address = await wallet1.getAddress();
 
-            await token.mintBatch(wallet1Address, [1, 2], [100, 200], "0x");
-            await token.burnBatch(wallet1Address, [1, 2], [20, 50]);
+            const mintTx = await token.mintBatch(wallet1Address, [1, 2], [100, 200], "0x");
+            await mintTx.wait();
+            const burnTx = await token.burnBatch(wallet1Address, [1, 2], [20, 50]);
+            await burnTx.wait();
 
-            expect(await token.totalSupply(1)).to.equal(80);
-            expect(await token.totalSupply(2)).to.equal(150);
-            expect(await token.totalSupply()).to.equal(230);
+            expect(await token["totalSupply(uint256)"](1)).to.equal(80);
+            expect(await token["totalSupply(uint256)"](2)).to.equal(150);
+            expect(await token["totalSupply()"]()).to.equal(230);
         });
 
         it("Should handle partial batch burning", async function () {
             const wallet1Address = await wallet1.getAddress();
 
-            await token.mintBatch(wallet1Address, [1, 2], [100, 200], "0x");
-            await token.burnBatch(wallet1Address, [1, 2], [100, 50]);
+            const mintTx = await token.mintBatch(wallet1Address, [1, 2], [100, 200], "0x");
+            await mintTx.wait();
+            const burnTx = await token.burnBatch(wallet1Address, [1, 2], [100, 50]);
+            await burnTx.wait();
 
-            expect(await token.totalSupply(1)).to.equal(0);
-            expect(await token.totalSupply(2)).to.equal(150);
-            expect(await token.totalSupply()).to.equal(150);
+            expect(await token["totalSupply(uint256)"](1)).to.equal(0);
+            expect(await token["totalSupply(uint256)"](2)).to.equal(150);
+            expect(await token["totalSupply()"]()).to.equal(150);
             expect(await token.exists(1)).to.be.false;
             expect(await token.exists(2)).to.be.true;
         });
@@ -138,45 +146,50 @@ describe("PVMERC1155Supply", function () {
             const wallet2Address = await wallet2.getAddress();
 
             // Single mint
-            await token.mint(wallet1Address, 1, 100, "0x");
-            expect(await token.totalSupply()).to.equal(100);
+            const mintTx1 = await token.mint(wallet1Address, 1, 100, "0x");
+            await mintTx1.wait();
+            expect(await token["totalSupply()"]()).to.equal(100);
 
             // Batch mint
-            await token.mintBatch(wallet2Address, [2, 3], [200, 50], "0x");
-            expect(await token.totalSupply()).to.equal(350);
+            const mintTx2 = await token.mintBatch(wallet2Address, [2, 3], [200, 50], "0x");
+            await mintTx2.wait();
+            expect(await token["totalSupply()"]()).to.equal(350);
 
             // Single burn
-            await token.burn(wallet1Address, 1, 30);
-            expect(await token.totalSupply()).to.equal(320);
+            const burnTx1 = await token.burn(wallet1Address, 1, 30);
+            await burnTx1.wait();
+            expect(await token["totalSupply()"]()).to.equal(320);
 
             // Batch burn
-            await token.burnBatch(wallet2Address, [2, 3], [50, 25]);
-            expect(await token.totalSupply()).to.equal(245);
+            const burnTx2 = await token.burnBatch(wallet2Address, [2, 3], [50, 25]);
+            await burnTx2.wait();
+            expect(await token["totalSupply()"]()).to.equal(245);
 
-            expect(await token.totalSupply(1)).to.equal(70);
-            expect(await token.totalSupply(2)).to.equal(150);
-            expect(await token.totalSupply(3)).to.equal(25);
+            expect(await token["totalSupply(uint256)"](1)).to.equal(70);
+            expect(await token["totalSupply(uint256)"](2)).to.equal(150);
+            expect(await token["totalSupply(uint256)"](3)).to.equal(25);
         });
 
         it("Should maintain accurate supply after transfers", async function () {
             const wallet1Address = await wallet1.getAddress();
             const wallet2Address = await wallet2.getAddress();
 
-            await token.mint(wallet1Address, 1, 100, "0x");
-            const initialSupply = await token.totalSupply(1);
-            const initialTotalSupply = await token.totalSupply();
+            const mintTx = await token.mint(wallet1Address, 1, 100, "0x");
+            await mintTx.wait();
+            const initialSupply = await token["totalSupply(uint256)"](1);
+            const initialTotalSupply = await token["totalSupply()"]();
 
             // Transfer doesn't change total supply
-            await token.connect(wallet1).safeTransferFrom(
+            const transferTx = await token.connect(wallet1).safeTransferFrom(
                 wallet1Address,
                 wallet2Address,
                 1,
                 30,
                 "0x"
             );
-
-            expect(await token.totalSupply(1)).to.equal(initialSupply);
-            expect(await token.totalSupply()).to.equal(initialTotalSupply);
+            await transferTx.wait();
+            expect(await token["totalSupply(uint256)"](1)).to.equal(initialSupply);
+            expect(await token["totalSupply()"]()).to.equal(initialTotalSupply);
             expect(await token.balanceOf(wallet1Address, 1)).to.equal(70);
             expect(await token.balanceOf(wallet2Address, 1)).to.equal(30);
         });
@@ -186,36 +199,42 @@ describe("PVMERC1155Supply", function () {
         it("Should track supply independently for different token IDs", async function () {
             const wallet1Address = await wallet1.getAddress();
 
-            await token.mint(wallet1Address, 1, 100, "0x");
-            await token.mint(wallet1Address, 2, 200, "0x");
-            await token.mint(wallet1Address, 3, 50, "0x");
+            const mintTx1 = await token.mint(wallet1Address, 1, 100, "0x");
+            await mintTx1.wait();
+            const mintTx2 = await token.mint(wallet1Address, 2, 200, "0x");
+            await mintTx2.wait();
+            const mintTx3 = await token.mint(wallet1Address, 3, 50, "0x");
+            await mintTx3.wait();
 
-            expect(await token.totalSupply(1)).to.equal(100);
-            expect(await token.totalSupply(2)).to.equal(200);
-            expect(await token.totalSupply(3)).to.equal(50);
-            expect(await token.totalSupply()).to.equal(350);
+            expect(await token["totalSupply(uint256)"](1)).to.equal(100);
+            expect(await token["totalSupply(uint256)"](2)).to.equal(200);
+            expect(await token["totalSupply(uint256)"](3)).to.equal(50);
+            expect(await token["totalSupply()"]()).to.equal(350);
 
             // Burn from one type shouldn't affect others
             await token.burn(wallet1Address, 2, 100);
 
-            expect(await token.totalSupply(1)).to.equal(100);
-            expect(await token.totalSupply(2)).to.equal(100);
-            expect(await token.totalSupply(3)).to.equal(50);
-            expect(await token.totalSupply()).to.equal(250);
+            expect(await token["totalSupply(uint256)"](1)).to.equal(100);
+            expect(await token["totalSupply(uint256)"](2)).to.equal(100);
+            expect(await token["totalSupply(uint256)"](3)).to.equal(50);
+            expect(await token["totalSupply()"]()).to.equal(250);
         });
 
         it("Should handle exists correctly for multiple token types", async function () {
             const wallet1Address = await wallet1.getAddress();
 
-            await token.mint(wallet1Address, 1, 100, "0x");
-            await token.mint(wallet1Address, 2, 200, "0x");
+            const mintTx1 = await token.mint(wallet1Address, 1, 100, "0x");
+            await mintTx1.wait();
+            const mintTx2 = await token.mint(wallet1Address, 2, 200, "0x");
+            await mintTx2.wait();
 
             expect(await token.exists(1)).to.be.true;
             expect(await token.exists(2)).to.be.true;
             expect(await token.exists(3)).to.be.false;
 
             // Burn all of token 1
-            await token.burn(wallet1Address, 1, 100);
+            const burnTx = await token.burn(wallet1Address, 1, 100);
+            await burnTx.wait();
 
             expect(await token.exists(1)).to.be.false;
             expect(await token.exists(2)).to.be.true;
@@ -227,20 +246,22 @@ describe("PVMERC1155Supply", function () {
         it("Should handle zero amount minting", async function () {
             const wallet1Address = await wallet1.getAddress();
 
-            await token.mint(wallet1Address, 1, 0, "0x");
+            const mintTx = await token.mint(wallet1Address, 1, 0, "0x");
+            await mintTx.wait();
 
-            expect(await token.totalSupply(1)).to.equal(0);
-            expect(await token.totalSupply()).to.equal(0);
+            expect(await token["totalSupply(uint256)"](1)).to.equal(0);
+            expect(await token["totalSupply()"]()).to.equal(0);
             expect(await token.exists(1)).to.be.false;
         });
 
         it("Should prevent burning more than supply", async function () {
             const wallet1Address = await wallet1.getAddress();
 
-            await token.mint(wallet1Address, 1, 100, "0x");
+            const mintTx = await token.mint(wallet1Address, 1, 100, "0x");
+            await mintTx.wait();
 
             await expect(
-                token.burn(wallet1Address, 1, 150),
+                token.connect(wallet1).burn(wallet1Address, 1, 150),
             ).to.be.reverted;
         });
 
@@ -248,15 +269,17 @@ describe("PVMERC1155Supply", function () {
             const wallet1Address = await wallet1.getAddress();
             const largeAmount = ethers.parseUnits("1000000", 18);
 
-            await token.mint(wallet1Address, 1, largeAmount, "0x");
+            const mintTx = await token.mint(wallet1Address, 1, largeAmount, "0x");
+            await mintTx.wait();
 
-            expect(await token.totalSupply(1)).to.equal(largeAmount);
-            expect(await token.totalSupply()).to.equal(largeAmount);
+            expect(await token["totalSupply(uint256)"](1)).to.equal(largeAmount);
+            expect(await token["totalSupply()"]()).to.equal(largeAmount);
 
-            await token.burn(wallet1Address, 1, largeAmount / 2n);
+            const burnTx = await token.burn(wallet1Address, 1, largeAmount / 2n);
+            await burnTx.wait();
 
-            expect(await token.totalSupply(1)).to.equal(largeAmount / 2n);
-            expect(await token.totalSupply()).to.equal(largeAmount / 2n);
+            expect(await token["totalSupply(uint256)"](1)).to.equal(largeAmount / 2n);
+            expect(await token["totalSupply()"]()).to.equal(largeAmount / 2n);
         });
     });
 
@@ -272,7 +295,8 @@ describe("PVMERC1155Supply", function () {
         it("Should prevent non-owner from burning", async function () {
             const wallet1Address = await wallet1.getAddress();
 
-            await token.mint(wallet1Address, 1, 100, "0x");
+            const mintTx = await token.mint(wallet1Address, 1, 100, "0x");
+            await mintTx.wait();
 
             await expect(
                 token.connect(wallet1).burn(wallet1Address, 1, 50),

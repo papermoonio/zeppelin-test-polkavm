@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { PVMERC1155URIStorage } from "../typechain-types/contracts/PVMERC1155URIStorage";
 import { Signer } from "ethers";
+import { getWallets } from "./test_util";
 
 describe("PVMERC1155URIStorage", function () {
     let token: PVMERC1155URIStorage;
@@ -13,23 +14,22 @@ describe("PVMERC1155URIStorage", function () {
     const defaultUri = "https://api.example.com/metadata/{id}.json";
 
     beforeEach(async function () {
-        [owner, wallet1] = await ethers.getSigners();
+        [owner, wallet1] = getWallets(2)
         wallet2 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
 
-        try {
-            const ERC1155URIStorageFactory = await ethers.getContractFactory("PVMERC1155URIStorage", owner);
-            token = await ERC1155URIStorageFactory.deploy(defaultUri);
-            await token.waitForDeployment();
-        } catch (error) {
-            console.error(error);
-        }
+        const ERC1155URIStorageFactory = await ethers.getContractFactory("PVMERC1155URIStorage", owner);
+        token = await ERC1155URIStorageFactory.deploy(defaultUri);
+        await token.waitForDeployment();
 
         // Mint some tokens for testing
         const wallet1Address = await wallet1.getAddress();
         const wallet2Address = await wallet2.getAddress();
-        await token.mint(wallet1Address, 1, 1000, "0x");
-        await token.mint(wallet2Address, 2, 500, "0x");
-        await token.mintBatch(wallet1Address, [3, 4], [300, 200], "0x");
+        const mintTx1 = await token.mint(wallet1Address, 1, 1000, "0x");
+        await mintTx1.wait();
+        const mintTx2 = await token.mint(wallet2Address, 2, 500, "0x");
+        await mintTx2.wait();
+        const mintTx3 = await token.mintBatch(wallet1Address, [3, 4], [300, 200], "0x");
+        await mintTx3.wait();
     });
 
     describe("Deployment", function () {
@@ -47,7 +47,8 @@ describe("PVMERC1155URIStorage", function () {
     describe("Individual Token URI Management", function () {
         it("Should allow owner to set individual token URI", async function () {
             const tokenURI = "special-token-1.json";
-            await token.setURI(1, tokenURI);
+            const setUriTx = await token.setURI(1, tokenURI);
+            await setUriTx.wait();
 
             expect(await token.uri(1)).to.equal(tokenURI);
             expect(await token.uri(2)).to.equal(defaultUri); // Other tokens unchanged
@@ -61,25 +62,32 @@ describe("PVMERC1155URIStorage", function () {
 
         it("Should emit URI event when setting token URI", async function () {
             const tokenURI = "special-token-1.json";
-            await expect(token.setURI(1, tokenURI))
+            const setUriTx = await token.setURI(1, tokenURI);
+            await setUriTx.wait();
+            await expect(setUriTx)
                 .to.emit(token, "URI")
                 .withArgs(tokenURI, 1);
         });
 
         it("Should allow setting empty token URI (reverts to default)", async function () {
             const tokenURI = "special-token-1.json";
-            await token.setURI(1, tokenURI);
+            const setUriTx = await token.setURI(1, tokenURI);
+            await setUriTx.wait();
             expect(await token.uri(1)).to.equal(tokenURI);
 
             // Set empty URI to revert to default
-            await token.setURI(1, "");
+            const setUriTx2 = await token.setURI(1, "");
+            await setUriTx2.wait();
             expect(await token.uri(1)).to.equal(defaultUri);
         });
 
         it("Should handle multiple token URIs independently", async function () {
-            await token.setURI(1, "token-1.json");
-            await token.setURI(2, "token-2.json");
-            await token.setURI(3, "token-3.json");
+            const setUriTx1 = await token.setURI(1, "token-1.json");
+            await setUriTx1.wait();
+            const setUriTx2 = await token.setURI(2, "token-2.json");
+            await setUriTx2.wait();
+            const setUriTx3 = await token.setURI(3, "token-3.json");
+            await setUriTx3.wait();
 
             expect(await token.uri(1)).to.equal("token-1.json");
             expect(await token.uri(2)).to.equal("token-2.json");
@@ -90,8 +98,10 @@ describe("PVMERC1155URIStorage", function () {
 
     describe("Base URI Management", function () {
         it("Should allow owner to set base URI", async function () {
-            await token.setBaseURI(baseUri);
-            await token.setURI(1, "special-token-1.json");
+            const setBaseUriTx = await token.setBaseURI(baseUri);
+            await setBaseUriTx.wait();
+            const setUriTx = await token.setURI(1, "special-token-1.json");
+            await setUriTx.wait();
 
             expect(await token.uri(1)).to.equal(baseUri + "special-token-1.json");
             expect(await token.uri(2)).to.equal(defaultUri); // Falls back to default URI
@@ -104,29 +114,37 @@ describe("PVMERC1155URIStorage", function () {
         });
 
         it("Should concatenate base URI with token URI", async function () {
-            await token.setBaseURI(baseUri);
-            await token.setURI(1, "1.json");
-            await token.setURI(2, "special/2.json");
+            const setBaseUriTx = await token.setBaseURI(baseUri);
+            await setBaseUriTx.wait();
+            const setUriTx1 = await token.setURI(1, "1.json");
+            await setUriTx1.wait();
+            const setUriTx2 = await token.setURI(2, "special/2.json");
+            await setUriTx2.wait();
 
             expect(await token.uri(1)).to.equal(baseUri + "1.json");
             expect(await token.uri(2)).to.equal(baseUri + "special/2.json");
         });
 
         it("Should handle empty base URI", async function () {
-            await token.setBaseURI("");
-            await token.setURI(1, "https://example.com/token1.json");
+            const setBaseUriTx = await token.setBaseURI("");
+            await setBaseUriTx.wait();
+            const setUriTx = await token.setURI(1, "https://example.com/token1.json");
+            await setUriTx.wait();
 
             expect(await token.uri(1)).to.equal("https://example.com/token1.json");
         });
 
         it("Should update existing token URIs when base URI changes", async function () {
-            await token.setURI(1, "token-1.json");
+            const setUriTx1 = await token.setURI(1, "token-1.json");
+            await setUriTx1.wait();
             expect(await token.uri(1)).to.equal("token-1.json");
 
-            await token.setBaseURI(baseUri);
+            const setBaseUriTx = await token.setBaseURI(baseUri);
+            await setBaseUriTx.wait();
             expect(await token.uri(1)).to.equal(baseUri + "token-1.json");
 
-            await token.setBaseURI("https://newdomain.com/");
+            const setBaseUriTx2 = await token.setBaseURI("https://newdomain.com/");
+            await setBaseUriTx2.wait();
             expect(await token.uri(1)).to.equal("https://newdomain.com/token-1.json");
         });
     });
@@ -138,85 +156,100 @@ describe("PVMERC1155URIStorage", function () {
         });
 
         it("Should use specific URI when set, even if base URI is also set", async function () {
-            await token.setBaseURI(baseUri);
-            await token.setURI(1, "specific-1.json");
+            const setBaseUriTx = await token.setBaseURI(baseUri);
+            await setBaseUriTx.wait();
+            const setUriTx = await token.setURI(1, "specific-1.json");
+            await setUriTx.wait();
 
             expect(await token.uri(1)).to.equal(baseUri + "specific-1.json");
         });
 
         it("Should fallback properly when token URI is cleared", async function () {
-            await token.setBaseURI(baseUri);
-            await token.setURI(1, "specific-1.json");
+            const setBaseUriTx = await token.setBaseURI(baseUri);
+            await setBaseUriTx.wait();
+            const setUriTx = await token.setURI(1, "specific-1.json");
+            await setUriTx.wait();
             expect(await token.uri(1)).to.equal(baseUri + "specific-1.json");
 
             // Clear the specific URI
-            await token.setURI(1, "");
+            const setUriTx2 = await token.setURI(1, "");
+            await setUriTx2.wait();
             expect(await token.uri(1)).to.equal(defaultUri);
         });
     });
 
     describe("URI Management for Non-existent Tokens", function () {
         it("Should allow setting URI for non-existent tokens", async function () {
-            await token.setURI(999, "non-existent.json");
+            const setUriTx = await token.setURI(999, "non-existent.json");
+            await setUriTx.wait();
             expect(await token.uri(999)).to.equal("non-existent.json");
         });
 
         it("Should handle base URI with non-existent tokens", async function () {
-            await token.setBaseURI(baseUri);
-            await token.setURI(999, "non-existent.json");
+            const setBaseUriTx = await token.setBaseURI(baseUri);
+            await setBaseUriTx.wait();
+            const setUriTx = await token.setURI(999, "non-existent.json");
+            await setUriTx.wait();
             expect(await token.uri(999)).to.equal(baseUri + "non-existent.json");
         });
     });
 
     describe("Token Operations with URI Storage", function () {
         it("Should maintain URI after minting additional tokens", async function () {
-            await token.setURI(1, "special-1.json");
+            const setUriTx = await token.setURI(1, "special-1.json");
+            await setUriTx.wait();
             const initialUri = await token.uri(1);
 
             const wallet1Address = await wallet1.getAddress();
-            await token.mint(wallet1Address, 1, 500, "0x");
+            const mintTx = await token.mint(wallet1Address, 1, 500, "0x");
+            await mintTx.wait();
 
             expect(await token.uri(1)).to.equal(initialUri);
             expect(await token.balanceOf(wallet1Address, 1)).to.equal(1500);
         });
 
         it("Should maintain URI after burning tokens", async function () {
-            await token.setURI(1, "special-1.json");
+            const setUriTx = await token.setURI(1, "special-1.json");
+            await setUriTx.wait();
             const initialUri = await token.uri(1);
 
             const wallet1Address = await wallet1.getAddress();
-            await token.burn(wallet1Address, 1, 200);
+            const burnTx = await token.burn(wallet1Address, 1, 200);
+            await burnTx.wait();
 
             expect(await token.uri(1)).to.equal(initialUri);
             expect(await token.balanceOf(wallet1Address, 1)).to.equal(800);
         });
 
         it("Should maintain URI after transferring tokens", async function () {
-            await token.setURI(1, "special-1.json");
+            const setUriTx = await token.setURI(1, "special-1.json");
+            await setUriTx.wait();
             const initialUri = await token.uri(1);
 
             const wallet1Address = await wallet1.getAddress();
             const wallet2Address = await wallet2.getAddress();
 
-            await token.connect(wallet1).safeTransferFrom(
+            const transferTx = await token.connect(wallet1).safeTransferFrom(
                 wallet1Address,
                 wallet2Address,
                 1,
                 100,
                 "0x"
             );
-
+            await transferTx.wait();
             expect(await token.uri(1)).to.equal(initialUri);
             expect(await token.balanceOf(wallet1Address, 1)).to.equal(900);
             expect(await token.balanceOf(wallet2Address, 1)).to.equal(100);
         });
 
         it("Should maintain URI when all tokens are burned", async function () {
-            await token.setURI(1, "special-1.json");
+            const setUriTx = await token.setURI(1, "special-1.json");
+            await setUriTx.wait();
             const initialUri = await token.uri(1);
 
             const wallet1Address = await wallet1.getAddress();
-            await token.burn(wallet1Address, 1, 1000); // Burn all tokens
+            const burnTx = await token.burn(wallet1Address, 1, 1000); // Burn all tokens
+            await burnTx.wait();
 
             expect(await token.uri(1)).to.equal(initialUri);
             expect(await token.totalSupply(1)).to.equal(0);
@@ -227,11 +260,15 @@ describe("PVMERC1155URIStorage", function () {
     describe("Batch URI Operations", function () {
         it("Should handle URI for batch minted tokens", async function () {
             const wallet1Address = await wallet1.getAddress();
-            await token.setBaseURI(baseUri);
-            await token.setURI(5, "batch-5.json");
-            await token.setURI(6, "batch-6.json");
+            const setBaseUriTx = await token.setBaseURI(baseUri);
+            await setBaseUriTx.wait();
+            const setUriTx1 = await token.setURI(5, "batch-5.json");
+            await setUriTx1.wait();
+            const setUriTx2 = await token.setURI(6, "batch-6.json");
+            await setUriTx2.wait();
 
-            await token.mintBatch(wallet1Address, [5, 6], [100, 200], "0x");
+            const mintTx = await token.mintBatch(wallet1Address, [5, 6], [100, 200], "0x");
+            await mintTx.wait();
 
             expect(await token.uri(5)).to.equal(baseUri + "batch-5.json");
             expect(await token.uri(6)).to.equal(baseUri + "batch-6.json");
@@ -244,10 +281,12 @@ describe("PVMERC1155URIStorage", function () {
         it("Should track supply correctly with URI operations", async function () {
             const wallet1Address = await wallet1.getAddress();
 
-            await token.setURI(1, "tracked-1.json");
+            const setUriTx = await token.setURI(1, "tracked-1.json");
+            await setUriTx.wait();
             expect(await token.totalSupply(1)).to.equal(1000);
 
-            await token.mint(wallet1Address, 1, 500, "0x");
+            const mintTx = await token.mint(wallet1Address, 1, 500, "0x");
+            await mintTx.wait();
             expect(await token.totalSupply(1)).to.equal(1500);
             expect(await token.uri(1)).to.equal("tracked-1.json");
         });

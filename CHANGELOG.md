@@ -375,18 +375,32 @@ npx hardhat test/test_ERC721Wrapper.ts --network passetHub
 
   PVMERC721Wrapper
     Deployment
-AggregatedError: fields had validation errors
-    at validateFields (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/tx.ts:575:32)
-    at new Transaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/index.ts:114:19)
-    at Function.prepare (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/index.ts:140:12)
-    at LocalAccountsProvider._getSignedTransaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async LocalAccountsProvider.request (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
-    at async HardhatEthersSigner.sendTransaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
-    at async ContractFactory.deploy (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/ethers/src.ts/contract/factory.ts:111:24)
-    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC721Wrapper.ts:30:23) {
-  errors: [ { field: 'data', error: 'initcode is too big: 103104' } ]
-}
+      ✔ Should set the correct name and symbol (737ms)
+      ✔ Should set the correct underlying token (368ms)
+      ✔ Should set the deployer as owner (352ms)
+    Token Wrapping - Single Token
+      ✔ Should deposit a single token successfully (25190ms)
+      ✔ Should withdraw a single token successfully (22634ms)
+    Token Wrapping - Multiple Tokens
+      ✔ Should deposit multiple tokens in one transaction (36865ms)
+      ✔ Should withdraw multiple tokens in one transaction (35673ms)
+    Direct Transfer and onERC721Received
+      ✔ Should automatically wrap tokens sent directly to contract (8314ms)
+      ✔ Should reject tokens from unsupported contracts (25049ms)
+    Ownership and Access Control
+      ✔ Should allow deposit to different account (11050ms)
+      ✔ Should allow withdraw to different account (18759ms)
+      ✔ Should maintain Ownable functionality (1068ms)
+    ERC721 Standard Compliance
+      ✔ Should support ERC721 transfers (12190ms)
+    Error Conditions
+      ✔ Should revert when depositing without approval (731ms)
+      ✔ Should revert when depositing non-existent token (715ms)
+    Gas Optimization and Batch Operations
+      ✔ Should handle large batch operations efficiently (180720ms)
+
+
+  16 passing (20m)
 ```
 
 ### PVMERC1155
@@ -395,19 +409,25 @@ AggregatedError: fields had validation errors
 npx hardhat test test/test_ERC1155.ts --network passetHub
 
 ERC1155
-AggregatedError: fields had validation errors
-at validateFields (/home/user/node_modules/micro-eth-signer/src/tx.ts:575:32)
-at new Transaction (/home/user/node_modules/micro-eth-signer/src/index.ts:114:19)
-at Function.prepare (/home/user/node_modules/micro-eth-signer/src/index.ts:140:12)
-at LocalAccountsProvider.\_getSignedTransaction (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
-at processTicksAndRejections (node:internal/process/task_queues:105:5)
-at async LocalAccountsProvider.request (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
-at async HardhatEthersSigner.sendTransaction (/home/user/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
-at async ContractFactory.deploy (/home/user/node_modules/ethers/src.ts/contract/factory.ts:111:24)
-at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC1155.ts:21:21) {
-errors: [ { field: 'data', error: 'initcode is too big: 125404' } ]
-}
-Deployment
+    Deployment
+      ✔ Should set the correct URI (365ms)
+      ✔ Should set the deployer as owner (355ms)
+      ✔ Should start with zero total supply for all token IDs (709ms)
+      ✔ Should return false for exists on unminted tokens (711ms)
+    Minting
+      ✔ Should allow owner to mint tokens (9057ms)
+      ✔ Should prevent non-owners from minting (715ms)
+      ✔ Should allow batch minting (9140ms)
+    Burning
+      ✔ Should allow burning of owned tokens (8484ms)
+      ✔ Should prevent burning more than balance (735ms)
+    Transfers
+      ✔ Should allow transfer between accounts (8298ms)
+    Approvals
+      ✔ Should allow setting approval for all (12307ms)
+
+
+  11 passing (1m)
 ```
 
 ### PVMERC1155Burnable
@@ -418,18 +438,19 @@ npx hardhat test test/test_ERC1155Burnable.ts --network passetHub
 
   PVMERC1155Burnable
     Deployment
-AggregatedError: fields had validation errors
-    at validateFields (/home/user/node_modules/micro-eth-signer/src/tx.ts:575:32)
-    at new Transaction (/home/user/node_modules/micro-eth-signer/src/index.ts:114:19)
-    at Function.prepare (/home/user/node_modules/micro-eth-signer/src/index.ts:140:12)
-    at LocalAccountsProvider._getSignedTransaction (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async LocalAccountsProvider.request (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
-    at async HardhatEthersSigner.sendTransaction (/home/user/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
-    at async ContractFactory.deploy (/home/user/node_modules/ethers/src.ts/contract/factory.ts:111:24)
-    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC1155Burnable.ts:20:21) {
-  errors: [ { field: 'data', error: 'initcode is too big: 123972' } ]
-}
+      ✔ Should set the correct URI (387ms)
+      ✔ Should set the deployer as owner (356ms)
+    Owner Minting
+      ✔ Should allow owner to mint tokens (8783ms)
+      ✔ Should prevent non-owner from minting (755ms)
+    Token Holder Burning
+      ✔ Should allow token holders to burn their own tokens (13597ms)
+      ✔ Should prevent burning more tokens than balance (725ms)
+      ✔ Should allow token holders to burn batch tokens (5407ms)
+    Supply Tracking
+      ✔ Should track total supply correctly after burning (8698ms)
+    Transfers
+      ✔ Should transfer tokens normally (12993ms)
 
 ```
 
@@ -481,18 +502,31 @@ npx hardhat test test/test_ERC1155Public.ts --network passetHub
 
   PVMERC1155Public
     Deployment
-AggregatedError: fields had validation errors
-    at validateFields (/home/user/node_modules/micro-eth-signer/src/tx.ts:575:32)
-    at new Transaction (/home/user/node_modules/micro-eth-signer/src/index.ts:114:19)
-    at Function.prepare (/home/user/node_modules/micro-eth-signer/src/index.ts:140:12)
-    at LocalAccountsProvider._getSignedTransaction (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async LocalAccountsProvider.request (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
-    at async HardhatEthersSigner.sendTransaction (/home/user/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
-    at async ContractFactory.deploy (/home/user/node_modules/ethers/src.ts/contract/factory.ts:111:24)
-    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC1155Public.ts:21:21) {
-  errors: [ { field: 'data', error: 'initcode is too big: 123770' } ]
-}
+      ✔ Should set the correct URI (364ms)
+      ✔ Should start with zero total supply for all token IDs (698ms)
+      ✔ Should return false for exists on unminted tokens (721ms)
+    Public Minting
+      ✔ Should allow anyone to mint tokens (12971ms)
+      ✔ Should allow anyone to mint tokens for others (8686ms)
+      ✔ Should allow owner to mint tokens (12618ms)
+    Public Batch Minting
+      ✔ Should allow anyone to batch mint tokens (9656ms)
+      ✔ Should fail when batch minting to zero address (721ms)
+      ✔ Should fail when ids and values arrays have different lengths (703ms)
+    Permission-Based Burning
+      ✔ Should allow token holders to burn their own tokens (8927ms)
+      ✔ Should prevent burning from zero address (701ms)
+      ✔ Should prevent burning more than balance (714ms)
+    Permission-Based Batch Burning
+      ✔ Should allow token holders to batch burn their own tokens (8974ms)
+    Supply Tracking
+      ✔ Should update exists status correctly (11219ms)
+      ✔ Should track total supply across multiple mints and burns (20069ms)
+    Standard ERC1155 Functions
+      ✔ Should transfer tokens between accounts (12885ms)
+
+
+  16 passing (6m)
 ```
 
 ### PVMERC1155Supply
@@ -502,18 +536,35 @@ npx hardhat test test/test_ERC1155Supply.ts --network passetHub
 
   PVMERC1155Supply
     Deployment
-AggregatedError: fields had validation errors
-    at validateFields (/home/user/node_modules/micro-eth-signer/src/tx.ts:575:32)
-    at new Transaction (/home/user/node_modules/micro-eth-signer/src/index.ts:114:19)
-    at Function.prepare (/home/user/node_modules/micro-eth-signer/src/index.ts:140:12)
-    at LocalAccountsProvider._getSignedTransaction (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async LocalAccountsProvider.request (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
-    at async HardhatEthersSigner.sendTransaction (/home/user/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
-    at async ContractFactory.deploy (/home/user/node_modules/ethers/src.ts/contract/factory.ts:111:24)
-    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC1155Supply.ts:20:21) {
-  errors: [ { field: 'data', error: 'initcode is too big: 122462' } ]
-}
+      ✔ Should set the correct URI (359ms)
+      ✔ Should set the deployer as owner (342ms)
+      ✔ Should start with zero total supply for all token IDs (1032ms)
+      ✔ Should return false for exists on unminted tokens (702ms)
+    Single Token Supply Tracking
+      ✔ Should track total supply when minting single tokens (12872ms)
+      ✔ Should track total supply when minting to multiple addresses (20652ms)
+      ✔ Should track total supply when burning single tokens (24637ms)
+      ✔ Should update exists status when all tokens are burned (28972ms)
+    Batch Supply Tracking
+      ✔ Should track total supply when batch minting (9910ms)
+      ✔ Should track total supply when batch burning (11604ms)
+      ✔ Should handle partial batch burning (20974ms)
+    Mixed Operations Supply Tracking
+      ✔ Should track supply across mixed single and batch operations (45443ms)
+      ✔ Should maintain accurate supply after transfers (12164ms)
+    Multiple Token Types
+      ✔ Should track supply independently for different token IDs (22163ms)
+      ✔ Should handle exists correctly for multiple token types (19335ms)
+    Edge Cases
+      ✔ Should handle zero amount minting (12801ms)
+      ✔ Should prevent burning more than supply (8170ms)
+      ✔ Should maintain accurate counts with large numbers (24997ms)
+    Access Control
+      ✔ Should prevent non-owner from minting (693ms)
+      ✔ Should prevent non-owner from burning (12495ms)
+
+
+  20 passing (8m)
 
 ```
 
@@ -522,21 +573,40 @@ AggregatedError: fields had validation errors
 ```shell
 npx hardhat test test/test_ERC1155URIStorage.ts --network passetH
 ub
-
-
-  PVMERC1155URIStorage
+PVMERC1155URIStorage
     Deployment
-AggregatedError: fields had validation errors
-    at validateFields (/home/user/node_modules/micro-eth-signer/src/tx.ts:575:32)
-    at new Transaction (/home/user/node_modules/micro-eth-signer/src/index.ts:114:19)
-    at Function.prepare (/home/user/node_modules/micro-eth-signer/src/index.ts:140:12)
-    at LocalAccountsProvider._getSignedTransaction (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async LocalAccountsProvider.request (/home/user/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
-    at async HardhatEthersSigner.sendTransaction (/home/user/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
-    at async ContractFactory.deploy (/home/user/node_modules/ethers/src.ts/contract/factory.ts:111:24)
-    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC1155URIStorage.ts:21:21) {
-  errors: [ { field: 'data', error: 'initcode is too big: 147750' } ]
-}
+      ✔ Should set the correct default URI (1066ms)
+      ✔ Should set the deployer as owner (345ms)
+    Individual Token URI Management
+      ✔ Should allow owner to set individual token URI (3127ms)
+      ✔ Should prevent non-owner from setting token URI (687ms)
+      ✔ Should emit URI event when setting token URI (12162ms)
+      ✔ Should allow setting empty token URI (reverts to default) (14906ms)
+      ✔ Should handle multiple token URIs independently (18916ms)
+    Base URI Management
+      ✔ Should allow owner to set base URI (15604ms)
+      ✔ Should prevent non-owner from setting base URI (682ms)
+      ✔ Should concatenate base URI with token URI (23342ms)
+      ✔ Should handle empty base URI (24314ms)
+      ✔ Should update existing token URIs when base URI changes (24823ms)
+    URI Fallback Behavior
+      ✔ Should fallback to default URI when no specific URI is set (356ms)
+      ✔ Should use specific URI when set, even if base URI is also set (10335ms)
+      ✔ Should fallback properly when token URI is cleared (27498ms)
+    URI Management for Non-existent Tokens
+      ✔ Should allow setting URI for non-existent tokens (12399ms)
+      ✔ Should handle base URI with non-existent tokens (11340ms)
+    Token Operations with URI Storage
+      ✔ Should maintain URI after minting additional tokens (21325ms)
+      ✔ Should maintain URI after burning tokens (24952ms)
+      ✔ Should maintain URI after transferring tokens (25286ms)
+      ✔ Should maintain URI when all tokens are burned (83848ms)
+    Batch URI Operations
+      ✔ Should handle URI for batch minted tokens (57750ms)
+    Supply Tracking with URI Storage
+      ✔ Should track supply correctly with URI operations (24865ms)
+
+
+  23 passing (24m)
 
 ```

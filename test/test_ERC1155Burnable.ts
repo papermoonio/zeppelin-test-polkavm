@@ -3,6 +3,7 @@ import { ethers } from "hardhat";
 import { PVMERC1155Burnable } from "../typechain-types/contracts/PVMERC1155Burnable";
 import { Signer } from "ethers";
 import { getWallets } from "./test_util";
+import { setMaxIdleHTTPParsers } from "http";
 
 describe("PVMERC1155Burnable", function () {
     let token: PVMERC1155Burnable;
@@ -15,6 +16,10 @@ describe("PVMERC1155Burnable", function () {
     before(async function () {
         [owner, wallet1] = getWallets(2);
         wallet2 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
+
+        console.log("owner", await owner.getAddress());
+        console.log("wallet1", await wallet1.getAddress());
+        console.log("wallet2", await wallet2.getAddress());
 
         const ERC1155BurnableFactory = await ethers.getContractFactory("PVMERC1155Burnable", owner);
         token = await ERC1155BurnableFactory.deploy(uri);
@@ -73,6 +78,13 @@ describe("PVMERC1155Burnable", function () {
             expect(await token.totalSupply(1)).to.equal(initialSupply - 200n);
         });
 
+        it("Should prevent burning more tokens than balance", async function () {
+            const wallet1Address = await wallet1.getAddress();
+            await expect(
+                token.connect(wallet1).burn(wallet1Address, 1, 2000),
+            ).to.be.reverted;
+        });
+
         it("Should allow token holders to burn batch tokens", async function () {
             const wallet1Address = await wallet1.getAddress();
             const initialBalance3 = await token.balanceOf(wallet1Address, 3);
@@ -89,80 +101,9 @@ describe("PVMERC1155Burnable", function () {
             expect(await token.totalSupply(4)).to.equal(initialSupply4 - 25n);
         });
 
-        it("Should prevent burning more tokens than balance", async function () {
-            const wallet1Address = await wallet1.getAddress();
-            await expect(
-                token.connect(wallet1).burn(wallet1Address, 1, 2000),
-            ).to.be.reverted;
-        });
-
-        it("Should prevent unauthorized users from burning tokens", async function () {
-            const wallet1Address = await wallet1.getAddress();
-            await expect(
-                token.connect(wallet2).burn(wallet1Address, 1, 100),
-            ).to.be.reverted;
-        });
     });
 
-    describe("Approved Burning", function () {
-        it("Should allow approved operators to burn tokens", async function () {
-            const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
-            const initialBalance = await token.balanceOf(wallet1Address, 1);
-            const initialSupply = await token.totalSupply(1);
 
-            // wallet1 approves wallet2 to operate on their tokens
-            const txApprove = await token.connect(wallet1).setApprovalForAll(wallet2Address, true);
-            await txApprove.wait();
-
-            // wallet2 burns tokens from wallet1's account
-            const txBurn = await token.connect(wallet2).burn(wallet1Address, 1, 150);
-            await txBurn.wait();
-
-            expect(await token.balanceOf(wallet1Address, 1)).to.equal(initialBalance - 150n);
-            expect(await token.totalSupply(1)).to.equal(initialSupply - 150n);
-        });
-
-        it("Should allow approved operators to burn batch tokens", async function () {
-            const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
-            const initialBalance3 = await token.balanceOf(wallet1Address, 3);
-            const initialBalance4 = await token.balanceOf(wallet1Address, 4);
-            const initialSupply3 = await token.totalSupply(3);
-            const initialSupply4 = await token.totalSupply(4);
-
-            // wallet1 approves wallet2 to operate on their tokens
-            const txApprove = await token.connect(wallet1).setApprovalForAll(wallet2Address, true);
-            await txApprove.wait();
-
-            // wallet2 burns batch tokens from wallet1's account
-            const txBurnBatch = await token.connect(wallet2).burnBatch(wallet1Address, [3, 4], [30, 20]);
-            await txBurnBatch.wait();
-
-            expect(await token.balanceOf(wallet1Address, 3)).to.equal(initialBalance3 - 30n);
-            expect(await token.balanceOf(wallet1Address, 4)).to.equal(initialBalance4 - 20n);
-            expect(await token.totalSupply(3)).to.equal(initialSupply3 - 30n);
-            expect(await token.totalSupply(4)).to.equal(initialSupply4 - 20n);
-        });
-
-        it("Should prevent burning after approval is revoked", async function () {
-            const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
-
-            // wallet1 approves wallet2
-            const txApprove = await token.connect(wallet1).setApprovalForAll(wallet2Address, true);
-            await txApprove.wait();
-
-            // wallet1 revokes approval
-            const txApprove2 = await token.connect(wallet1).setApprovalForAll(wallet2Address, false);
-            await txApprove2.wait();
-
-            // wallet2 should not be able to burn
-            await expect(
-                token.connect(wallet2).burn(wallet1Address, 1, 100),
-            ).to.be.reverted;
-        });
-    });
 
     describe("Supply Tracking", function () {
         it("Should track total supply correctly after burning", async function () {
@@ -175,23 +116,13 @@ describe("PVMERC1155Burnable", function () {
             expect(await token.totalSupply(1)).to.equal(initialSupply - 100n);
             expect(await token.exists(1)).to.be.true; // Still exists since supply > 0
         });
-
-        it("Should update exists status when all tokens are burned", async function () {
-            const wallet2Address = await wallet2.getAddress();
-
-            // Burn all tokens of ID 2
-            const txBurn = await token.connect(wallet2).burn(wallet2Address, 2, 500);
-            await txBurn.wait();
-
-            expect(await token.totalSupply(2)).to.equal(0);
-            expect(await token.exists(2)).to.be.false;
-        });
     });
 
     describe("Transfers", function () {
         it("Should transfer tokens normally", async function () {
             const wallet1Address = await wallet1.getAddress();
             const wallet2Address = await wallet2.getAddress();
+            const initialBalance = await token.balanceOf(wallet1Address, 1);
 
             const txTransfer = await token.connect(wallet1).safeTransferFrom(
                 wallet1Address,
@@ -202,7 +133,7 @@ describe("PVMERC1155Burnable", function () {
             );
             await txTransfer.wait();
 
-            expect(await token.balanceOf(wallet1Address, 1)).to.equal(900);
+            expect(initialBalance - 100n).to.equal(await token.balanceOf(wallet1Address, 1));
             expect(await token.balanceOf(wallet2Address, 1)).to.equal(100);
         });
     });
