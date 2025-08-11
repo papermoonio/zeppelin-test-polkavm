@@ -24,7 +24,11 @@ contract PVMERC721Consecutive is ERC721Consecutive, Ownable {
         require(to != address(0), "Cannot mint to zero address");
         require(quantity > 0, "Quantity must be greater than 0");
 
-        _mintConsecutive(to, quantity);
+        // Use regular minting since _mintConsecutive is only allowed during construction
+        for (uint96 i = 0; i < quantity; i++) {
+            _mint(to, _currentIndex);
+            _currentIndex++;
+        }
     }
 
     /**

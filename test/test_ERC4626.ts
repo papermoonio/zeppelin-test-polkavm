@@ -19,29 +19,30 @@ describe("PVMERC4626", function () {
         [owner, user] = getWallets(2);
 
         // Deploy the underlying ERC20 asset
-        const ERC20Factory = await ethers.getContractFactory("PVMERC20");
+        const ERC20Factory = await ethers.getContractFactory("PVMERC20", owner);
         asset = await ERC20Factory.deploy("Underlying", "UND", initialSupply);
         await asset.waitForDeployment();
 
         // Deploy the ERC4626 vault
-        const VaultFactory = await ethers.getContractFactory("PVMERC4626");
-        try {
-            vault = await VaultFactory.deploy(asset.getAddress(), name, symbol);
-            await vault.waitForDeployment();
-        } catch (error) {
-            console.log(error)
-        }
+        const VaultFactory = await ethers.getContractFactory("PVMERC4626", owner);
+        vault = await VaultFactory.deploy(asset.getAddress(), name, symbol);
+        await vault.waitForDeployment();
 
         // Transfer some asset tokens to user
-        await asset.transfer(await user.getAddress(), ethers.parseEther("1000"));
+        const txTransfer = await asset.transfer(await user.getAddress(), ethers.parseEther("1000"));
+        await txTransfer.wait();
     });
 
     it("Should deposit and mint shares", async function () {
         const depositAmount = ethers.parseEther("100");
-        await asset.connect(user).approve(vault.getAddress(), depositAmount);
+        const txApprove = await asset.connect(user).approve(vault.getAddress(), depositAmount);
+        await txApprove.wait();
 
         // Deposit
-        await expect(vault.connect(user).deposit(depositAmount, await user.getAddress()))
+        const txDeposit = await vault.connect(user).deposit(depositAmount, await user.getAddress());
+        await txDeposit.wait();
+
+        await expect(txDeposit)
             .to.emit(vault, "Deposit")
             .withArgs(await user.getAddress(), await user.getAddress(), depositAmount, depositAmount);
 
@@ -51,19 +52,30 @@ describe("PVMERC4626", function () {
 
         // Mint
         const mintAmount = ethers.parseEther("50");
-        await asset.connect(user).approve(vault.getAddress(), mintAmount);
-        await expect(vault.connect(user).mint(mintAmount, await user.getAddress()))
+        const txApprove2 = await asset.connect(user).approve(vault.getAddress(), mintAmount);
+        await txApprove2.wait();
+
+        const txMint = await vault.connect(user).mint(mintAmount, await user.getAddress());
+        await txMint.wait();
+
+        await expect(txMint)
             .to.emit(vault, "Deposit");
-        expect(await vault.balanceOf(await user.getAddress())).to.equal(depositAmount.add(mintAmount));
+        expect(await vault.balanceOf(await user.getAddress())).to.equal(depositAmount + (mintAmount));
     });
 
     it("Should withdraw and redeem shares", async function () {
         const depositAmount = ethers.parseEther("200");
-        await asset.connect(user).approve(vault.getAddress(), depositAmount);
-        await vault.connect(user).deposit(depositAmount, await user.getAddress());
+        const txApprove = await asset.connect(user).approve(vault.getAddress(), depositAmount);
+        await txApprove.wait();
+
+        const txDeposit = await vault.connect(user).deposit(depositAmount, await user.getAddress());
+        await txDeposit.wait();
 
         // Withdraw
-        await expect(vault.connect(user).withdraw(ethers.parseEther("100"), await user.getAddress(), await user.getAddress()))
+        const txWithdraw = await vault.connect(user).withdraw(ethers.parseEther("100"), await user.getAddress(), await user.getAddress());
+        await txWithdraw.wait();
+
+        await expect(txWithdraw)
             .to.emit(vault, "Withdraw")
             .withArgs(await user.getAddress(), await user.getAddress(), await user.getAddress(), ethers.parseEther("100"), ethers.parseEther("100"));
 
@@ -71,16 +83,23 @@ describe("PVMERC4626", function () {
         expect(await asset.balanceOf(await user.getAddress())).to.equal(ethers.parseEther("900"));
 
         // Redeem
-        await expect(vault.connect(user).redeem(ethers.parseEther("100"), await user.getAddress(), await user.getAddress()))
+        const txRedeem = await vault.connect(user).redeem(ethers.parseEther("100"), await user.getAddress(), await user.getAddress());
+        await txRedeem.wait();
+
+        await expect(txRedeem)
             .to.emit(vault, "Withdraw");
+
         expect(await vault.balanceOf(await user.getAddress())).to.equal(0);
         expect(await asset.balanceOf(await user.getAddress())).to.equal(ethers.parseEther("1000"));
     });
 
     it("Should not allow withdraw more than balance", async function () {
         const depositAmount = ethers.parseEther("50");
-        await asset.connect(user).approve(vault.getAddress(), depositAmount);
-        await vault.connect(user).deposit(depositAmount, await user.getAddress());
+        const txApprove = await asset.connect(user).approve(vault.getAddress(), depositAmount);
+        await txApprove.wait();
+
+        const txDeposit = await vault.connect(user).deposit(depositAmount, await user.getAddress());
+        await txDeposit.wait();
 
         await expect(
             vault.connect(user).withdraw(ethers.parseEther("100"), await user.getAddress(), await user.getAddress())
@@ -89,8 +108,11 @@ describe("PVMERC4626", function () {
 
     it("Should not allow redeem more than shares", async function () {
         const depositAmount = ethers.parseEther("50");
-        await asset.connect(user).approve(vault.getAddress(), depositAmount);
-        await vault.connect(user).deposit(depositAmount, await user.getAddress());
+        const txApprove = await asset.connect(user).approve(vault.getAddress(), depositAmount);
+        await txApprove.wait();
+
+        const txDeposit = await vault.connect(user).deposit(depositAmount, await user.getAddress());
+        await txDeposit.wait();
 
         await expect(
             vault.connect(user).redeem(ethers.parseEther("100"), await user.getAddress(), await user.getAddress())

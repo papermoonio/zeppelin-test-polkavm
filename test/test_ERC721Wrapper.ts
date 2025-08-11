@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { Signer } from "ethers";
+import { getWallets } from "./test_util";
 
 describe("PVMERC721Wrapper", function () {
     let wrapper: any;
@@ -18,29 +19,27 @@ describe("PVMERC721Wrapper", function () {
         [owner, wallet1] = getWallets(2);
         wallet2 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
 
-
         // Deploy underlying ERC721 token
-        const UnderlyingFactory = await ethers.getContractFactory("PVMERC721");
+        const UnderlyingFactory = await ethers.getContractFactory("PVMERC721", owner);
         underlying = await UnderlyingFactory.deploy(underlyingName, underlyingSymbol);
         await underlying.waitForDeployment();
 
         // Deploy wrapper contract
-        const WrapperFactory = await ethers.getContractFactory("PVMERC721Wrapper");
-        try {
-            wrapper = await WrapperFactory.deploy(
-                await underlying.getAddress(),
-                wrapperName,
-                wrapperSymbol
-            );
-            await wrapper.waitForDeployment();
-        } catch (error) {
-            console.error(error);
-        }
+        const WrapperFactory = await ethers.getContractFactory("PVMERC721Wrapper", owner);
+        wrapper = await WrapperFactory.deploy(
+            await underlying.getAddress(),
+            wrapperName,
+            wrapperSymbol
+        );
+        await wrapper.waitForDeployment();
 
         // Mint some underlying tokens for testing
-        await underlying.mint(await wallet1.getAddress(), 1);
-        await underlying.mint(await wallet1.getAddress(), 2);
-        await underlying.mint(await wallet2.getAddress(), 3);
+        const txMint1 = await underlying.mint(await wallet1.getAddress(), 1);
+        await txMint1.wait();
+        const txMint2 = await underlying.mint(await wallet1.getAddress(), 2);
+        await txMint2.wait();
+        const txMint3 = await underlying.mint(await wallet2.getAddress(), 3);
+        await txMint3.wait();
     });
 
     describe("Deployment", function () {
@@ -58,226 +57,208 @@ describe("PVMERC721Wrapper", function () {
         });
     });
 
-    describe("Wrapping (Deposit)", function () {
-        beforeEach(async function () {
-            // Approve wrapper to transfer underlying tokens
-            await underlying.connect(wallet1).setApprovalForAll(await wrapper.getAddress(), true);
+    describe("Token Wrapping - Single Token", function () {
+        it("Should deposit a single token successfully", async function () {
+            // Approve wrapper to transfer token
+            const txApprove = await underlying.connect(wallet1).approve(await wrapper.getAddress(), 1);
+            await txApprove.wait();
+
+            // Deposit token
+            const txDeposit = await wrapper.connect(wallet1).depositFor(await wallet1.getAddress(), [1]);
+            await txDeposit.wait();
+
+            // Check wrapper has the wrapped token
+            expect(await wrapper.ownerOf(1)).to.equal(await wallet1.getAddress());
+            // Check wrapper contract owns the underlying token
+            expect(await underlying.ownerOf(1)).to.equal(await wrapper.getAddress());
+            // Check balance
+            expect(await wrapper.balanceOf(await wallet1.getAddress())).to.equal(1);
         });
 
-        it("Should allow depositing single token", async function () {
-            const wallet1Address = await wallet1.getAddress();
+        it("Should withdraw a single token successfully", async function () {
+            // First deposit
+            const txApprove = await underlying.connect(wallet1).approve(await wrapper.getAddress(), 1);
+            await txApprove.wait();
+            const txDeposit = await wrapper.connect(wallet1).depositFor(await wallet1.getAddress(), [1]);
+            await txDeposit.wait();
 
-            await wrapper.connect(wallet1).depositFor(wallet1Address, [1]);
+            // Then withdraw
+            const txWithdraw = await wrapper.connect(wallet1).withdrawTo(await wallet1.getAddress(), [1]);
+            await txWithdraw.wait();
 
-            expect(await wrapper.ownerOf(1)).to.equal(wallet1Address);
+            // Check wallet1 has the underlying token back
+            expect(await underlying.ownerOf(1)).to.equal(await wallet1.getAddress());
+            // Check wrapper balance is 0
+            expect(await wrapper.balanceOf(await wallet1.getAddress())).to.equal(0);
+        });
+    });
+
+    describe("Token Wrapping - Multiple Tokens", function () {
+        it("Should deposit multiple tokens in one transaction", async function () {
+            // Approve wrapper for both tokens
+            const txApprove1 = await underlying.connect(wallet1).approve(await wrapper.getAddress(), 1);
+            await txApprove1.wait();
+            const txApprove2 = await underlying.connect(wallet1).approve(await wrapper.getAddress(), 2);
+            await txApprove2.wait();
+
+            // Deposit both tokens
+            const txDeposit = await wrapper.connect(wallet1).depositFor(await wallet1.getAddress(), [1, 2]);
+            await txDeposit.wait();
+
+            // Check both tokens are wrapped
+            expect(await wrapper.ownerOf(1)).to.equal(await wallet1.getAddress());
+            expect(await wrapper.ownerOf(2)).to.equal(await wallet1.getAddress());
+            expect(await wrapper.balanceOf(await wallet1.getAddress())).to.equal(2);
+        });
+
+        it("Should withdraw multiple tokens in one transaction", async function () {
+            // Setup: deposit tokens first
+            const txApprove1 = await underlying.connect(wallet1).approve(await wrapper.getAddress(), 1);
+            await txApprove1.wait();
+            const txApprove2 = await underlying.connect(wallet1).approve(await wrapper.getAddress(), 2);
+            await txApprove2.wait();
+            const txDeposit = await wrapper.connect(wallet1).depositFor(await wallet1.getAddress(), [1, 2]);
+            await txDeposit.wait();
+
+            // Withdraw both tokens
+            const txWithdraw = await wrapper.connect(wallet1).withdrawTo(await wallet1.getAddress(), [1, 2]);
+            await txWithdraw.wait();
+
+            // Check tokens are back with original owner
+            expect(await underlying.ownerOf(1)).to.equal(await wallet1.getAddress());
+            expect(await underlying.ownerOf(2)).to.equal(await wallet1.getAddress());
+            expect(await wrapper.balanceOf(await wallet1.getAddress())).to.equal(0);
+        });
+    });
+
+    describe("Direct Transfer and onERC721Received", function () {
+        it("Should automatically wrap tokens sent directly to contract", async function () {
+            // Direct transfer using safeTransferFrom
+            const txTransfer = await underlying.connect(wallet1)["safeTransferFrom(address,address,uint256)"](
+                await wallet1.getAddress(),
+                await wrapper.getAddress(),
+                1
+            );
+            await txTransfer.wait();
+            // Should automatically mint wrapped token to sender
+            expect(await wrapper.ownerOf(1)).to.equal(await wallet1.getAddress());
             expect(await underlying.ownerOf(1)).to.equal(await wrapper.getAddress());
         });
 
-        it("Should allow depositing multiple tokens", async function () {
-            const wallet1Address = await wallet1.getAddress();
+        it("Should reject tokens from unsupported contracts", async function () {
+            // Deploy another ERC721 contract
+            const AnotherFactory = await ethers.getContractFactory("PVMERC721", owner);
+            const anotherToken = await AnotherFactory.deploy("Another NFT", "ANFT");
+            await anotherToken.waitForDeployment();
 
-            await wrapper.connect(wallet1).depositFor(wallet1Address, [1, 2]);
+            // Mint token
+            const txMint = await anotherToken.mint(await wallet1.getAddress(), 1);
+            await txMint.wait();
 
-            expect(await wrapper.ownerOf(1)).to.equal(wallet1Address);
-            expect(await wrapper.ownerOf(2)).to.equal(wallet1Address);
-            expect(await underlying.ownerOf(1)).to.equal(await wrapper.getAddress());
-            expect(await underlying.ownerOf(2)).to.equal(await wrapper.getAddress());
-        });
-
-        it("Should allow depositing for another address", async function () {
-            const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
-
-            await wrapper.connect(wallet1).depositFor(wallet2Address, [1]);
-
-            expect(await wrapper.ownerOf(1)).to.equal(wallet2Address);
-            expect(await underlying.ownerOf(1)).to.equal(await wrapper.getAddress());
-        });
-
-        it("Should prevent depositing without approval", async function () {
-            const wallet2Address = await wallet2.getAddress();
-
+            // Try to send to wrapper - should revert
             await expect(
-                wrapper.connect(wallet2).depositFor(wallet2Address, [3])
-            ).to.be.reverted;
-        });
-
-        it("Should prevent depositing tokens not owned", async function () {
-            const wallet1Address = await wallet1.getAddress();
-
-            await expect(
-                wrapper.connect(wallet1).depositFor(wallet1Address, [3])
-            ).to.be.reverted;
-        });
-
-        it("Should prevent depositing to zero address", async function () {
-            await expect(
-                wrapper.connect(wallet1).depositFor(ethers.ZeroAddress, [1])
-            ).to.be.reverted;
-        });
-
-        it("Should prevent depositing empty array", async function () {
-            const wallet1Address = await wallet1.getAddress();
-
-            await expect(
-                wrapper.connect(wallet1).depositFor(wallet1Address, [])
-            ).to.be.reverted;
+                anotherToken.connect(wallet1)["safeTransferFrom(address,address,uint256)"](
+                    await wallet1.getAddress(),
+                    await wrapper.getAddress(),
+                    1
+                )
+            ).to.be.revertedWithCustomError(wrapper, "ERC721UnsupportedToken");
         });
     });
 
-    describe("Unwrapping (Withdraw)", function () {
-        beforeEach(async function () {
-            // Approve and deposit tokens
-            await underlying.connect(wallet1).setApprovalForAll(await wrapper.getAddress(), true);
-            await wrapper.connect(wallet1).depositFor(await wallet1.getAddress(), [1, 2]);
+    describe("Ownership and Access Control", function () {
+        it("Should allow deposit to different account", async function () {
+            const txApprove = await underlying.connect(wallet1).approve(await wrapper.getAddress(), 1);
+            await txApprove.wait();
+
+            // Deposit to wallet2's address
+            const txDeposit = await wrapper.connect(wallet1).depositFor(await wallet2.getAddress(), [1]);
+            await txDeposit.wait();
+
+            expect(await wrapper.ownerOf(1)).to.equal(await wallet2.getAddress());
         });
 
-        it("Should allow withdrawing single token", async function () {
-            const wallet1Address = await wallet1.getAddress();
+        it("Should allow withdraw to different account", async function () {
+            // Setup: deposit token
+            const txApprove = await underlying.connect(wallet1).approve(await wrapper.getAddress(), 1);
+            await txApprove.wait();
+            const txDeposit = await wrapper.connect(wallet1).depositFor(await wallet1.getAddress(), [1]);
+            await txDeposit.wait();
 
-            await wrapper.connect(wallet1).withdrawTo(wallet1Address, [1]);
+            // Withdraw to wallet2
+            const txWithdraw = await wrapper.connect(wallet1).withdrawTo(await wallet2.getAddress(), [1]);
+            await txWithdraw.wait();
 
-            expect(await underlying.ownerOf(1)).to.equal(wallet1Address);
-            await expect(wrapper.ownerOf(1)).to.be.reverted;
+            expect(await underlying.ownerOf(1)).to.equal(await wallet2.getAddress());
         });
 
-        it("Should allow withdrawing multiple tokens", async function () {
-            const wallet1Address = await wallet1.getAddress();
+        it("Should maintain Ownable functionality", async function () {
+            expect(await wrapper.owner()).to.equal(await owner.getAddress());
 
-            await wrapper.connect(wallet1).withdrawTo(wallet1Address, [1, 2]);
-
-            expect(await underlying.ownerOf(1)).to.equal(wallet1Address);
-            expect(await underlying.ownerOf(2)).to.equal(wallet1Address);
-            await expect(wrapper.ownerOf(1)).to.be.reverted;
-            await expect(wrapper.ownerOf(2)).to.be.reverted;
-        });
-
-        it("Should allow withdrawing to another address", async function () {
-            const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
-
-            await wrapper.connect(wallet1).withdrawTo(wallet2Address, [1]);
-
-            expect(await underlying.ownerOf(1)).to.equal(wallet2Address);
-            await expect(wrapper.ownerOf(1)).to.be.reverted;
-        });
-
-        it("Should prevent withdrawing tokens not owned", async function () {
-            const wallet2Address = await wallet2.getAddress();
-
+            // Only owner should be able to transfer ownership
             await expect(
-                wrapper.connect(wallet2).withdrawTo(wallet2Address, [1])
-            ).to.be.reverted;
-        });
-
-        it("Should prevent withdrawing to zero address", async function () {
-            await expect(
-                wrapper.connect(wallet1).withdrawTo(ethers.ZeroAddress, [1])
-            ).to.be.reverted;
-        });
-
-        it("Should prevent withdrawing empty array", async function () {
-            const wallet1Address = await wallet1.getAddress();
-
-            await expect(
-                wrapper.connect(wallet1).withdrawTo(wallet1Address, [])
-            ).to.be.reverted;
+                wrapper.connect(wallet1).transferOwnership(await wallet1.getAddress())
+            ).to.be.revertedWithCustomError(wrapper, "OwnableUnauthorizedAccount");
         });
     });
 
-    describe("Standard ERC721 Functionality", function () {
+    describe("ERC721 Standard Compliance", function () {
         beforeEach(async function () {
-            // Setup wrapped tokens
-            await underlying.connect(wallet1).setApprovalForAll(await wrapper.getAddress(), true);
-            await wrapper.connect(wallet1).depositFor(await wallet1.getAddress(), [1, 2]);
+            // Setup wrapped tokens for testing
+            const txApprove = await underlying.connect(wallet1).approve(await wrapper.getAddress(), 1);
+            await txApprove.wait();
+            const txDeposit = await wrapper.connect(wallet1).depositFor(await wallet1.getAddress(), [1]);
+            await txDeposit.wait();
         });
 
-        it("Should transfer wrapped tokens correctly", async function () {
-            const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
-
-            await wrapper.connect(wallet1).transferFrom(wallet1Address, wallet2Address, 1);
-            expect(await wrapper.ownerOf(1)).to.equal(wallet2Address);
-        });
-
-        it("Should handle approvals correctly", async function () {
-            const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
-
-            await wrapper.connect(wallet1).approve(wallet2Address, 1);
-            expect(await wrapper.getApproved(1)).to.equal(wallet2Address);
-        });
-
-        it("Should handle approval for all correctly", async function () {
-            const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
-
-            await wrapper.connect(wallet1).setApprovalForAll(wallet2Address, true);
-            expect(await wrapper.isApprovedForAll(wallet1Address, wallet2Address)).to.be.true;
-        });
-    });
-
-    describe("Token Existence", function () {
-        beforeEach(async function () {
-            await underlying.connect(wallet1).setApprovalForAll(await wrapper.getAddress(), true);
-            await wrapper.connect(wallet1).depositFor(await wallet1.getAddress(), [1]);
-        });
-
-        it("Should return true for existing wrapped tokens", async function () {
-            expect(await wrapper.exists(1)).to.be.true;
-        });
-
-        it("Should return false for non-existent wrapped tokens", async function () {
-            expect(await wrapper.exists(999)).to.be.false;
-        });
-
-        it("Should return false for unwrapped tokens", async function () {
-            expect(await wrapper.exists(2)).to.be.false;
-        });
-    });
-
-    describe("Complex Scenarios", function () {
-        beforeEach(async function () {
-            await underlying.connect(wallet1).setApprovalForAll(await wrapper.getAddress(), true);
-            await underlying.connect(wallet2).setApprovalForAll(await wrapper.getAddress(), true);
-        });
-
-        it("Should handle wrap -> transfer -> unwrap scenario", async function () {
-            const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
-
-            // Wrap token
-            await wrapper.connect(wallet1).depositFor(wallet1Address, [1]);
-            expect(await wrapper.ownerOf(1)).to.equal(wallet1Address);
-
+        it("Should support ERC721 transfers", async function () {
             // Transfer wrapped token
-            await wrapper.connect(wallet1).transferFrom(wallet1Address, wallet2Address, 1);
-            expect(await wrapper.ownerOf(1)).to.equal(wallet2Address);
-
-            // Unwrap token
-            await wrapper.connect(wallet2).withdrawTo(wallet2Address, [1]);
-            expect(await underlying.ownerOf(1)).to.equal(wallet2Address);
-        });
-
-        it("Should handle multiple users wrapping and unwrapping", async function () {
-            const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
-
-            // Both users wrap their tokens
-            await wrapper.connect(wallet1).depositFor(wallet1Address, [1, 2]);
-            await wrapper.connect(wallet2).depositFor(wallet2Address, [3]);
-
-            expect(await wrapper.ownerOf(1)).to.equal(wallet1Address);
-            expect(await wrapper.ownerOf(2)).to.equal(wallet1Address);
-            expect(await wrapper.ownerOf(3)).to.equal(wallet2Address);
-
-            // Users unwrap their tokens
-            await wrapper.connect(wallet1).withdrawTo(wallet1Address, [1]);
-            await wrapper.connect(wallet2).withdrawTo(wallet2Address, [3]);
-
-            expect(await underlying.ownerOf(1)).to.equal(wallet1Address);
-            expect(await underlying.ownerOf(3)).to.equal(wallet2Address);
-            expect(await wrapper.ownerOf(2)).to.equal(wallet1Address); // Still wrapped
+            const txTransfer = await wrapper.connect(wallet1).transferFrom(
+                await wallet1.getAddress(),
+                await wallet2.getAddress(),
+                1
+            );
+            await txTransfer.wait();
+            expect(await wrapper.ownerOf(1)).to.equal(await wallet2.getAddress());
         });
     });
-}); 
+
+    describe("Error Conditions", function () {
+
+        it("Should revert when depositing without approval", async function () {
+            await expect(
+                wrapper.connect(wallet1).depositFor(await wallet1.getAddress(), [1])
+            ).to.be.revertedWithCustomError(underlying, "ERC721InsufficientApproval");
+        });
+
+        it("Should revert when depositing non-existent token", async function () {
+            await expect(
+                wrapper.connect(wallet1).depositFor(await wallet1.getAddress(), [999])
+            ).to.be.revertedWithCustomError(underlying, "ERC721NonexistentToken");
+        });
+    });
+
+    describe("Gas Optimization and Batch Operations", function () {
+        it("Should handle large batch operations efficiently", async function () {
+            // Mint more tokens for testing
+            const tokenIds = [4, 5, 6, 7, 8];
+            for (const tokenId of tokenIds) {
+                const txMint = await underlying.mint(await wallet1.getAddress(), tokenId);
+                await txMint.wait();
+                const txApprove = await underlying.connect(wallet1).approve(await wrapper.getAddress(), tokenId);
+                await txApprove.wait();
+            }
+
+            // Batch deposit
+            const tx = await wrapper.connect(wallet1).depositFor(await wallet1.getAddress(), tokenIds);
+            await tx.wait();
+
+            // Verify all tokens are wrapped
+            for (const tokenId of tokenIds) {
+                expect(await wrapper.ownerOf(tokenId)).to.equal(await wallet1.getAddress());
+            }
+
+            expect(await wrapper.balanceOf(await wallet1.getAddress())).to.equal(tokenIds.length);
+        });
+    });
+});

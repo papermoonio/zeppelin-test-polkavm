@@ -65,16 +65,4 @@ contract PVMERC1155Supply is ERC1155Supply, Ownable {
 
         _burnBatch(from, ids, values);
     }
-
-    /**
-     * @dev See {ERC1155Supply-_update}.
-     */
-    function _update(
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory values
-    ) internal override {
-        super._update(from, to, ids, values);
-    }
 }

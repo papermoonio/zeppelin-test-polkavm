@@ -90,30 +90,42 @@ npx hardhat test test/test_ERC20Pausable.ts --network passetHub
 ```shell
 npx hardhat test test/test_ERC20Votes.ts --network passetHub
 
+PVMERC20Votes
+    Deployment
+      ✔ Should set the correct name and symbol (726ms)
+      ✔ Should assign the total supply to the owner (727ms)
+      ✔ Should set correct EIP712 domain (1672ms)
+    ERC20 Functionality
+      ✔ Should transfer tokens correctly (13322ms)
+      ✔ Should handle allowances correctly (11428ms)
+    Voting Delegation
+      ✔ Should delegate votes to self (3532ms)
+      ✔ Should delegate votes to another account (13356ms)
+      ✔ Should emit DelegateChanged event (12545ms)
+      ✔ Should emit DelegateVotesChanged event (16812ms)
+    Vote Tracking and Checkpoints
+      ✔ Should track votes correctly after delegation (719ms)
+      ✔ Should track total supply in checkpoints (1914ms)
+    Delegate by Signature
+      ✔ Should delegate using valid signature (9103ms)
+      ✔ Should increment nonce after delegation (12547ms)
+    EIP712 and Domain Verification
+      ✔ Should return correct domain information (1382ms)
+      ✔ Should have correct clock mode (351ms)
+      ✔ Should return current block as clock (1375ms)
+    Error Conditions and Edge Cases
+      ✔ Should revert on expired signature (1234ms)
+      ✔ Should revert on invalid signature (1034ms)
+      ✔ Should handle delegation to zero address (84287ms)
+      ✔ Should revert on future timepoint queries (1485ms)
+    Supply Cap and Limits
+      ✔ Should respect maximum supply limits (500ms)
+      ✔ Should handle large token amounts in voting (18100ms)
 
-  PVMERC20Votes
-    1) "before all" hook in "PVMERC20Votes"
 
-
-  0 passing (3s)
-  1 failing
-
-  1) PVMERC20Votes
-       "before all" hook in "PVMERC20Votes":
-     Error: fields had validation errors
-      at validateFields (node_modules/micro-eth-signer/src/tx.ts:575:32)
-      at new Transaction (node_modules/micro-eth-signer/src/index.ts:114:19)
-      at Function.prepare (node_modules/micro-eth-signer/src/index.ts:140:12)
-      at LocalAccountsProvider._getSignedTransaction (node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
-      at processTicksAndRejections (node:internal/process/task_queues:105:5)
-      at async LocalAccountsProvider.request (node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
-      at async HardhatEthersSigner.sendTransaction (node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
-      at async ContractFactory.deploy (node_modules/ethers/src.ts/contract/factory.ts:111:24)
-      at async Context.<anonymous> (test/test_ERC20Votes.ts:23:17)
+  22 passing (12m)
 
 ```
-
-Created an issue for this bug, reported as https://github.com/paritytech/hardhat-polkadot/issues/191. The root case is the initcode size is too big.
 
 ### PVMERC20Wrapper.sol
 
@@ -121,12 +133,27 @@ Created an issue for this bug, reported as https://github.com/paritytech/hardhat
 npx hardhat test test/test_ERC20Wrapper.ts --network passetHub
 
   PVMERC20Wrapper
-    ✔ Should wrap (deposit) underlying tokens (15835ms)
-9000000000000000000000n
-    ✔ Should unwrap (withdraw) wrapped tokens (17667ms)
+    ✔ Should wrap (deposit) underlying tokens (31253ms)
+    ✔ Should unwrap (withdraw) wrapped tokens (19553ms)
+    Deployment and Configuration
+      ✔ Should set correct wrapper token name and symbol (2058ms)
+      ✔ Should correctly reference underlying token (373ms)
+      ✔ Should inherit decimals from underlying token (682ms)
+    Deposit Operations
+      ✔ Should handle deposit to different account (38865ms)
+      ✔ Should revert when depositing without sufficient allowance (798ms)
+      ✔ Should revert when depositing more than balance (3252ms)
+    Withdraw Operations
+      ✔ Should handle withdraw to different account (10097ms)
+      ✔ Should revert when withdrawing more than wrapped balance (710ms)
+      ✔ Should emit correct Transfer event on withdraw (8890ms)
+    Balance Consistency and Edge Cases
+      ✔ Should maintain 1:1 ratio between wrapped and underlying tokens (12586ms)
+      ✔ Should handle zero amount deposits and withdrawals (30256ms)
+      ✔ Should correctly update total supply on deposits and withdrawals (29266ms)
 
 
-  2 passing
+  14 passing (11m)
 
 ```
 
@@ -137,18 +164,13 @@ npx hardhat test test/test_ERC4626.ts --network passetHub
 
 
   PVMERC4626
-AggregatedError: fields had validation errors
-    at validateFields (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/tx.ts:575:32)
-    at new Transaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/index.ts:114:19)
-    at Function.prepare (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/index.ts:140:12)
-    at LocalAccountsProvider._getSignedTransaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async LocalAccountsProvider.request (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
-    at async HardhatEthersSigner.sendTransaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
-    at async ContractFactory.deploy (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/ethers/src.ts/contract/factory.ts:111:24)
-    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC4626.ts:28:21) {
-  errors: [ { field: 'data', error: 'initcode is too big: 141830' } ]
-}
+    ✔ Should deposit and mint shares (41756ms)
+    ✔ Should withdraw and redeem shares (45827ms)
+    ✔ Should not allow withdraw more than balance (24630ms)
+    ✔ Should not allow redeem more than shares (20326ms)
+
+
+  4 passing (4m)
 
 ```
 

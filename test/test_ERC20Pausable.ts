@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { PVMERC20Pausable } from "../typechain-types/contracts/PVMERC20Pausable";
 import { Signer } from "ethers";
+import { getWallets } from "./test_util";
 
 describe("PVMERC20Pausable", function () {
     let token: PVMERC20Pausable;

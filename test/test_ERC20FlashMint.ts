@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { PVMERC20FlashMint } from "../typechain-types/contracts/PVMERC20FlashMint";
 import { Signer } from "ethers";
+import { getWallets } from "./test_util";
 
 describe("PVMERC20FlashMint", function () {
     let token: PVMERC20FlashMint;
