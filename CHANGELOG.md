@@ -261,18 +261,41 @@ npx hardhat test test/test_ERC721Consecutive.ts --network passetHub
 
   PVMERC721Consecutive
     Deployment
-AggregatedError: fields had validation errors
-    at validateFields (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/tx.ts:575:32)
-    at new Transaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/index.ts:114:19)
-    at Function.prepare (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/index.ts:140:12)
-    at LocalAccountsProvider._getSignedTransaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async LocalAccountsProvider.request (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
-    at async HardhatEthersSigner.sendTransaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
-    at async ContractFactory.deploy (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/ethers/src.ts/contract/factory.ts:111:24)
-    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC721Consecutive.ts:22:21) {
-  errors: [ { field: 'data', error: 'initcode is too big: 100286' } ]
-}
+      ✔ Should set the correct name and symbol (720ms)
+      ✔ Should set the deployer as owner (396ms)
+      ✔ Should start with next token ID as 1 (345ms)
+      ✔ Should start with total supply of 0 (345ms)
+    Single Token Minting
+      ✔ Should mint a single token correctly (12907ms)
+      ✔ Should increment token ID after each mint (16425ms)
+      ✔ Should revert when non-owner tries to mint (702ms)
+      ✔ Should revert when minting to zero address (687ms)
+    Consecutive Batch Minting
+      ✔ Should mint consecutive tokens in batch (14296ms)
+      ✔ Should revert when non-owner tries to mint batch (689ms)
+      ✔ Should revert when batch size is zero (689ms)
+      ✔ Should revert when minting batch to zero address (710ms)
+    Token ID Sequencing and Tracking
+      ✔ Should maintain correct token ID sequence after mixed operations (33023ms)
+      ✔ Should track ownership correctly for consecutive tokens (20160ms)
+    ERC721 Standard Compliance
+      ✔ Should support ERC721 transfers (8679ms)
+      ✔ Should support safeTransferFrom (12551ms)
+    Access Control and Authorization
+      ✔ Should allow only owner to mint (8639ms)
+      ✔ Should allow only owner to mint consecutive batches (8537ms)
+    Error Conditions and Edge Cases
+      ✔ Should handle zero quantity in batch minting (719ms)
+      ✔ Should handle minting to zero address in single mint (697ms)
+      ✔ Should handle minting to zero address in batch mint (698ms)
+      ✔ Should maintain state consistency after failed operations (2093ms)
+    Complex Scenarios and Integration
+      ✔ Should handle multiple batch operations (17569ms)
+      ✔ Should handle mixed single and batch minting (20887ms)
+      ✔ Should handle token transfers after batch minting (29594ms)
+
+
+  25 passing (9m)
 ```
 
 ### PVMERC721Enumerable
@@ -282,18 +305,44 @@ npx hardhat test test/test_ERC721Enumerable.ts --network passetHub
 
 PVMERC721Enumerable
     Deployment
-error is  AggregatedError: fields had validation errors
-    at validateFields (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/tx.ts:575:32)
-    at new Transaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/index.ts:114:19)
-    at Function.prepare (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/index.ts:140:12)
-    at LocalAccountsProvider._getSignedTransaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async LocalAccountsProvider.request (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
-    at async HardhatEthersSigner.sendTransaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
-    at async ContractFactory.deploy (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/ethers/src.ts/contract/factory.ts:111:24)
-    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC721Enumerable.ts:19:21) {
-  errors: [ { field: 'data', error: 'initcode is too big: 157182' } ]
-}
+      ✔ Should set the correct name and symbol (833ms)
+      ✔ Should set the deployer as owner (374ms)
+      ✔ Should start with next token ID as 1 (417ms)
+      ✔ Should start with total supply of 0 (403ms)
+    Single Minting
+      ✔ Should allow owner to mint single token (9876ms)
+      ✔ Should prevent non-owner from minting (717ms)
+      ✔ Should prevent minting to zero address (869ms)
+    Batch Minting
+      ✔ Should allow owner to mint multiple tokens (20319ms)
+      ✔ Should prevent non-owner from batch minting (959ms)
+      ✔ Should prevent batch minting to zero address (943ms)
+      ✔ Should prevent batch minting with zero quantity (853ms)
+      ✔ Should prevent batch minting more than 100 tokens (891ms)
+    Enumerable Functionality
+      ✔ Should return correct total supply (384ms)
+      ✔ Should return token by index (1060ms)
+      ✔ Should fail when querying token by invalid index (353ms)
+      ✔ Should return token of owner by index (2074ms)
+      ✔ Should fail when querying token of owner by invalid index (345ms)
+      ✔ Should return all tokens of owner (696ms)
+      ✔ Should return empty array for address with no tokens (352ms)
+    Burning
+      ✔ Should allow token owner to burn their token (18812ms)
+      ✔ Should update enumeration after burning (8233ms)
+    URI Functionality
+      ✔ Should allow owner to set base URI (10528ms)
+      ✔ Should prevent non-owner from setting base URI (682ms)
+    Standard ERC721 Functionality
+      ✔ Should transfer tokens correctly (12757ms)
+      ✔ Should handle approvals correctly (7716ms)
+      ✔ Should support correct interfaces (1041ms)
+    Owner Functions
+      ✔ Should allow owner to transfer ownership (7723ms)
+      ✔ Should prevent non-owner from transferring ownership (701ms)
+
+
+  28 passing (16m)
 
 ```
 
@@ -334,18 +383,31 @@ npx hardhat test test/test_ERC721Royalty.ts --network passetHub
 
   PVMERC721Royalty
     Deployment
-AggregatedError: fields had validation errors
-    at validateFields (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/tx.ts:575:32)
-    at new Transaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/index.ts:114:19)
-    at Function.prepare (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/index.ts:140:12)
-    at LocalAccountsProvider._getSignedTransaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async LocalAccountsProvider.request (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
-    at async HardhatEthersSigner.sendTransaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
-    at async ContractFactory.deploy (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/ethers/src.ts/contract/factory.ts:111:24)
-    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC721Royalty.ts:22:21) {
-  errors: [ { field: 'data', error: 'initcode is too big: 102102' } ]
-}
+      ✔ Should set the correct name and symbol (730ms)
+      ✔ Should set the deployer as owner (488ms)
+    Minting
+      ✔ Should allow owner to mint tokens (7951ms)
+      ✔ Should allow minting with royalty (17054ms)
+      ✔ Should prevent non-owner from minting (710ms)
+    Default Royalty
+      ✔ Should allow owner to set default royalty (15740ms)
+      ✔ Should prevent setting royalty fee above 100% (734ms)
+      ✔ Should prevent setting royalty receiver to zero address (703ms)
+      ✔ Should allow owner to delete default royalty (26832ms)
+    Token-specific Royalty
+      ✔ Should allow owner to set token-specific royalty (12281ms)
+      ✔ Should override default royalty with token-specific royalty (12167ms)
+      ✔ Should allow owner to reset token royalty (36098ms)
+      ✔ Should prevent setting royalty for non-existent token (704ms)
+    Interface Support
+      ✔ Should support ERC2981 interface (354ms)
+      ✔ Should support ERC721 interface (394ms)
+    Access Control
+      ✔ Should prevent non-owner from setting default royalty (698ms)
+      ✔ Should prevent non-owner from setting token royalty (8426ms)
+
+
+  17 passing (6m)
 ```
 
 ### PVMERC721URIStorage
@@ -355,18 +417,35 @@ npx hardhat test/test_ERC721URIStorage.ts --network passetHub
 
   PVMERC721URIStorage
     Deployment
-AggregatedError: fields had validation errors
-    at validateFields (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/tx.ts:575:32)
-    at new Transaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/index.ts:114:19)
-    at Function.prepare (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/index.ts:140:12)
-    at LocalAccountsProvider._getSignedTransaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async LocalAccountsProvider.request (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
-    at async HardhatEthersSigner.sendTransaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
-    at async ContractFactory.deploy (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/ethers/src.ts/contract/factory.ts:111:24)
-    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC721URIStorage.ts:19:21) {
-  errors: [ { field: 'data', error: 'initcode is too big: 121872' } ]
-}
+      ✔ Should set the correct name and symbol (753ms)
+      ✔ Should set the deployer as owner (344ms)
+    Minting
+      ✔ Should allow owner to mint tokens (12502ms)
+      ✔ Should allow minting with custom URI (11791ms)
+      ✔ Should prevent non-owner from minting (691ms)
+    URI Management
+      ✔ Should allow owner to set token URI (3135ms)
+      ✔ Should allow owner to set base URI (17071ms)
+      ✔ Should prioritize custom URI over base URI (21386ms)
+      ✔ Should allow updating token URI (20254ms)
+      ✔ Should prevent setting URI for non-existent token (776ms)
+      ✔ Should handle empty base URI (472ms)
+      ✔ Should handle empty custom URI (19836ms)
+    Batch URI Operations
+      ✔ Should handle multiple tokens with base URI (13551ms)
+      ✔ Should handle mix of base URI and custom URIs (27982ms)
+    Token Existence
+      ✔ Should return true for existing tokens (343ms)
+      ✔ Should return false for non-existent tokens (349ms)
+    Access Control
+      ✔ Should prevent non-owner from setting token URI (709ms)
+      ✔ Should prevent non-owner from setting base URI (743ms)
+    Standard ERC721 Functionality
+      ✔ Should transfer tokens correctly (7829ms)
+      ✔ Should handle approvals correctly (7865ms)
+
+
+  20 passing (12m)
 ```
 
 ### PVMERC721Votes
@@ -376,18 +455,35 @@ npx hardhat test/test_ERC721Votes.ts --network passetHub
 
   PVMERC721Votes
     Deployment
-AggregatedError: fields had validation errors
-    at validateFields (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/tx.ts:575:32)
-    at new Transaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/index.ts:114:19)
-    at Function.prepare (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/micro-eth-signer/src/index.ts:140:12)
-    at LocalAccountsProvider._getSignedTransaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/hardhat/src/internal/core/providers/accounts.ts:327:33)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async LocalAccountsProvider.request (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/hardhat/src/internal/core/providers/accounts.ts:188:30)
-    at async HardhatEthersSigner.sendTransaction (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:181:18)
-    at async ContractFactory.deploy (/home/user/github/papermoon/zeppelin-test-polkavm/node_modules/ethers/src.ts/contract/factory.ts:111:24)
-    at async Context.<anonymous> (/home/user/github/papermoon/zeppelin-test-polkavm/test/test_ERC721Votes.ts:21:21) {
-  errors: [ { field: 'data', error: 'initcode is too big: 176850' } ]
-}
+      ✔ Should set the correct name and symbol (676ms)
+      ✔ Should set the deployer as owner (331ms)
+    Minting
+      ✔ Should allow owner to mint tokens (6836ms)
+      ✔ Should prevent non-owner from minting (681ms)
+      ✔ Should revert when minting to zero address (675ms)
+      ✔ Should increment nextTokenId and totalSupply on mint (6385ms)
+    Existence
+      ✔ Should return true for existing token and false otherwise (6515ms)
+    Approvals
+      ✔ Should set and get approval for a token (18378ms)
+      ✔ Should clear single-token approval on transfer (18227ms)
+      ✔ Should allow approved operator to transfer token (18520ms)
+      ✔ Should allow operator via setApprovalForAll to transfer token (17632ms)
+      ✔ Should clear approval by approving zero address (18037ms)
+    Transfers
+      ✔ Should transfer token by owner (12572ms)
+      ✔ Should revert transfer by non-owner and non-approved (6490ms)
+    Voting Power
+      ✔ Should be zero before delegation and reflect balances after self-delegation (19553ms)
+      ✔ Should move votes when delegating to another account (19748ms)
+      ✔ Should update votes when changing delegation (11851ms)
+      ✔ Should return current delegate address (12540ms)
+    Clock and Checkpoints
+      ✔ Should return a clock at least current block (658ms)
+      ✔ Should return correct CLOCK_MODE string (323ms)
+
+
+  20 passing (6m)
 ```
 
 ### PVMERC721Wrapper

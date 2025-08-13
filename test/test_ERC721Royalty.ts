@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { Signer } from "ethers";
+import { getWallets } from "./test_util";
 
 describe("PVMERC721Royalty", function () {
     let token: any;
@@ -13,17 +14,14 @@ describe("PVMERC721Royalty", function () {
     const symbol = "RNFT";
 
     beforeEach(async function () {
-        [owner, wallet1, royaltyReceiver] = await ethers.getSigners();
+        [owner, wallet1] = getWallets(2);
         wallet2 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
+        royaltyReceiver = ethers.Wallet.createRandom(ethers.getDefaultProvider());
 
+        const ERC721RoyaltyFactory = await ethers.getContractFactory("PVMERC721Royalty", owner);
+        token = await ERC721RoyaltyFactory.deploy(name, symbol);
+        await token.waitForDeployment();
 
-        const ERC721RoyaltyFactory = await ethers.getContractFactory("PVMERC721Royalty");
-        try {
-            token = await ERC721RoyaltyFactory.deploy(name, symbol);
-            await token.waitForDeployment();
-        } catch (error) {
-            console.error(error);
-        }
     });
 
     describe("Deployment", function () {
@@ -40,7 +38,8 @@ describe("PVMERC721Royalty", function () {
     describe("Minting", function () {
         it("Should allow owner to mint tokens", async function () {
             const wallet1Address = await wallet1.getAddress();
-            await token.safeMint(wallet1Address);
+            const txMint = await token.safeMint(wallet1Address);
+            await txMint.wait();
             expect(await token.ownerOf(1)).to.equal(wallet1Address);
         });
 
@@ -49,7 +48,8 @@ describe("PVMERC721Royalty", function () {
             const royaltyReceiverAddress = await royaltyReceiver.getAddress();
             const royaltyFee = 500; // 5%
 
-            await token.safeMintWithRoyalty(wallet1Address, royaltyReceiverAddress, royaltyFee);
+            const txMintWithRoyalty = await token.safeMintWithRoyalty(wallet1Address, royaltyReceiverAddress, royaltyFee);
+            await txMintWithRoyalty.wait();
 
             expect(await token.ownerOf(1)).to.equal(wallet1Address);
 
@@ -60,7 +60,9 @@ describe("PVMERC721Royalty", function () {
 
         it("Should prevent non-owner from minting", async function () {
             const wallet2Address = await wallet2.getAddress();
-            await expect(token.connect(wallet1).safeMint(wallet2Address)).to.be.reverted;
+            await expect(
+                token.connect(wallet1).safeMint(wallet2Address)
+            ).to.be.reverted;
         });
     });
 
@@ -69,10 +71,12 @@ describe("PVMERC721Royalty", function () {
             const royaltyReceiverAddress = await royaltyReceiver.getAddress();
             const royaltyFee = 250; // 2.5%
 
-            await token.setDefaultRoyalty(royaltyReceiverAddress, royaltyFee);
+            const txSetDefaultRoyalty = await token.setDefaultRoyalty(royaltyReceiverAddress, royaltyFee);
+            await txSetDefaultRoyalty.wait();
 
             // Mint a token
-            await token.safeMint(await wallet1.getAddress());
+            const txMint = await token.safeMint(await wallet1.getAddress());
+            await txMint.wait();
 
             const [receiver, royalty] = await token.royaltyInfo(1, ethers.parseEther("1"));
             expect(receiver).to.equal(royaltyReceiverAddress);
@@ -100,11 +104,14 @@ describe("PVMERC721Royalty", function () {
             const royaltyReceiverAddress = await royaltyReceiver.getAddress();
             const royaltyFee = 250;
 
-            await token.setDefaultRoyalty(royaltyReceiverAddress, royaltyFee);
-            await token.deleteDefaultRoyalty();
+            const txSetDefaultRoyalty = await token.setDefaultRoyalty(royaltyReceiverAddress, royaltyFee);
+            await txSetDefaultRoyalty.wait();
+            const txDeleteDefaultRoyalty = await token.deleteDefaultRoyalty();
+            await txDeleteDefaultRoyalty.wait();
 
             // Mint a token
-            await token.safeMint(await wallet1.getAddress());
+            const txMint = await token.safeMint(await wallet1.getAddress());
+            await txMint.wait();
 
             const [receiver, royalty] = await token.royaltyInfo(1, ethers.parseEther("1"));
             expect(receiver).to.equal(ethers.ZeroAddress);
@@ -114,14 +121,16 @@ describe("PVMERC721Royalty", function () {
 
     describe("Token-specific Royalty", function () {
         beforeEach(async function () {
-            await token.safeMint(await wallet1.getAddress()); // Token 1
+            const txMint = await token.safeMint(await wallet1.getAddress()); // Token 1
+            await txMint.wait();
         });
 
         it("Should allow owner to set token-specific royalty", async function () {
             const royaltyReceiverAddress = await royaltyReceiver.getAddress();
             const royaltyFee = 750; // 7.5%
 
-            await token.setTokenRoyalty(1, royaltyReceiverAddress, royaltyFee);
+            const txSetTokenRoyalty = await token.setTokenRoyalty(1, royaltyReceiverAddress, royaltyFee);
+            await txSetTokenRoyalty.wait();
 
             const [receiver, royalty] = await token.royaltyInfo(1, ethers.parseEther("1"));
             expect(receiver).to.equal(royaltyReceiverAddress);
@@ -133,10 +142,12 @@ describe("PVMERC721Royalty", function () {
             const tokenReceiverAddress = await royaltyReceiver.getAddress();
 
             // Set default royalty
-            await token.setDefaultRoyalty(defaultReceiverAddress, 250); // 2.5%
+            const txSetDefaultRoyalty = await token.setDefaultRoyalty(defaultReceiverAddress, 250); // 2.5%
+            await txSetDefaultRoyalty.wait();
 
             // Set token-specific royalty
-            await token.setTokenRoyalty(1, tokenReceiverAddress, 750); // 7.5%
+            const txSetTokenRoyalty = await token.setTokenRoyalty(1, tokenReceiverAddress, 750); // 7.5%
+            await txSetTokenRoyalty.wait();
 
             const [receiver, royalty] = await token.royaltyInfo(1, ethers.parseEther("1"));
             expect(receiver).to.equal(tokenReceiverAddress);
@@ -148,13 +159,16 @@ describe("PVMERC721Royalty", function () {
             const tokenReceiverAddress = await royaltyReceiver.getAddress();
 
             // Set default royalty
-            await token.setDefaultRoyalty(defaultReceiverAddress, 250); // 2.5%
+            const txSetDefaultRoyalty = await token.setDefaultRoyalty(defaultReceiverAddress, 250); // 2.5%
+            await txSetDefaultRoyalty.wait();
 
             // Set token-specific royalty
-            await token.setTokenRoyalty(1, tokenReceiverAddress, 750); // 7.5%
+            const txSetTokenRoyalty = await token.setTokenRoyalty(1, tokenReceiverAddress, 750); // 7.5%
+            await txSetTokenRoyalty.wait();
 
             // Reset token royalty
-            await token.resetTokenRoyalty(1);
+            const txResetTokenRoyalty = await token.resetTokenRoyalty(1);
+            await txResetTokenRoyalty.wait();
 
             // Should fall back to default royalty
             const [receiver, royalty] = await token.royaltyInfo(1, ethers.parseEther("1"));
@@ -166,7 +180,7 @@ describe("PVMERC721Royalty", function () {
             const royaltyReceiverAddress = await royaltyReceiver.getAddress();
 
             await expect(
-                token.setTokenRoyalty(999, royaltyReceiverAddress, 250)
+                token.connect(owner).setTokenRoyalty(999, royaltyReceiverAddress, 250)
             ).to.be.reverted;
         });
     });
@@ -193,7 +207,8 @@ describe("PVMERC721Royalty", function () {
         });
 
         it("Should prevent non-owner from setting token royalty", async function () {
-            await token.safeMint(await wallet1.getAddress());
+            const txMint = await token.safeMint(await wallet1.getAddress());
+            await txMint.wait();
             const royaltyReceiverAddress = await royaltyReceiver.getAddress();
 
             await expect(

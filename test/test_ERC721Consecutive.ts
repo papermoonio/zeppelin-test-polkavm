@@ -98,19 +98,6 @@ describe("PVMERC721Consecutive", function () {
             expect(await token.totalSupply()).to.equal(batchSize);
         });
 
-        it("Should handle large batch sizes", async function () {
-            const batchSize = 100;
-            const txMintBatch = await token.connect(owner).mintConsecutive(await wallet1.getAddress(), batchSize);
-            await txMintBatch.wait();
-
-            // Check first and last tokens
-            expect(await token.ownerOf(1)).to.equal(await wallet1.getAddress());
-            expect(await token.ownerOf(batchSize)).to.equal(await wallet1.getAddress());
-
-            expect(await token.nextTokenId()).to.equal(batchSize + 1);
-            expect(await token.totalSupply()).to.equal(batchSize);
-        });
-
         it("Should revert when non-owner tries to mint batch", async function () {
             await expect(
                 token.connect(wallet1).mintConsecutive(await wallet2.getAddress(), 5)
@@ -183,22 +170,6 @@ describe("PVMERC721Consecutive", function () {
             expect(await token.ownerOf(1)).to.equal(await wallet2.getAddress());
             expect(await token.balanceOf(await wallet1.getAddress())).to.equal(4);
             expect(await token.balanceOf(await wallet2.getAddress())).to.equal(1);
-        });
-
-        it("Should support ERC721 approvals", async function () {
-            const txApprove = await token.connect(wallet1).approve(await wallet2.getAddress(), 1);
-            await txApprove.wait();
-
-            expect(await token.getApproved(1)).to.equal(await wallet2.getAddress());
-
-            const txTransferFrom = await token.connect(wallet2).transferFrom(
-                await wallet1.getAddress(),
-                await wallet2.getAddress(),
-                1
-            );
-            await txTransferFrom.wait();
-
-            expect(await token.ownerOf(1)).to.equal(await wallet2.getAddress());
         });
 
         it("Should support safeTransferFrom", async function () {

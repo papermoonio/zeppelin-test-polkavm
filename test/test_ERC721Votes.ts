@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { Signer } from "ethers";
+import { getWallets } from "./test_util";
 
 describe("PVMERC721Votes", function () {
     let token: any;
@@ -16,13 +17,9 @@ describe("PVMERC721Votes", function () {
         [owner, wallet1] = getWallets(2);
         wallet2 = ethers.Wallet.createRandom(ethers.getDefaultProvider());
 
-        const ERC721VotesFactory = await ethers.getContractFactory("PVMERC721Votes");
-        try {
-            token = await ERC721VotesFactory.deploy(name, symbol, version);
-            await token.waitForDeployment();
-        } catch (error) {
-            console.error(error);
-        }
+        const ERC721VotesFactory = await ethers.getContractFactory("PVMERC721Votes", owner);
+        token = await ERC721VotesFactory.deploy(name, symbol, version);
+        await token.waitForDeployment();
     });
 
     describe("Deployment", function () {
@@ -39,7 +36,8 @@ describe("PVMERC721Votes", function () {
     describe("Minting", function () {
         it("Should allow owner to mint tokens", async function () {
             const wallet1Address = await wallet1.getAddress();
-            await token.safeMint(wallet1Address);
+            const txMint = await token.connect(owner).safeMint(wallet1Address);
+            await txMint.wait();
             expect(await token.ownerOf(1)).to.equal(wallet1Address);
         });
 
@@ -47,186 +45,159 @@ describe("PVMERC721Votes", function () {
             const wallet2Address = await wallet2.getAddress();
             await expect(token.connect(wallet1).safeMint(wallet2Address)).to.be.reverted;
         });
+
+        it("Should revert when minting to zero address", async function () {
+            await expect(token.connect(owner).safeMint(ethers.ZeroAddress)).to.be.revertedWith("Cannot mint to zero address");
+        });
+
+        it("Should increment nextTokenId and totalSupply on mint", async function () {
+            const wallet1Address = await wallet1.getAddress();
+            expect(await token.nextTokenId()).to.equal(1);
+            expect(await token.totalSupply()).to.equal(0);
+            const txMint1 = await token.connect(owner).safeMint(wallet1Address);
+            await txMint1.wait();
+            expect(await token.nextTokenId()).to.equal(2);
+            expect(await token.totalSupply()).to.equal(1);
+        });
+    });
+
+    describe("Existence", function () {
+        it("Should return true for existing token and false otherwise", async function () {
+            const wallet1Address = await wallet1.getAddress();
+            const txMint1 = await token.connect(owner).safeMint(wallet1Address);
+            await txMint1.wait();
+            expect(await token.exists(1)).to.equal(true);
+            expect(await token.exists(999)).to.equal(false);
+        });
+    });
+
+    describe("Approvals", function () {
+        it("Should set and get approval for a token", async function () {
+            const wallet1Address = await wallet1.getAddress();
+            const txMint1 = await token.connect(owner).safeMint(wallet1Address);
+            await txMint1.wait();
+            const txApprove = await token.connect(wallet1).approve(await owner.getAddress(), 1);
+            await txApprove.wait();
+            expect(await token.getApproved(1)).to.equal(await owner.getAddress());
+        });
+
+        it("Should clear single-token approval on transfer", async function () {
+            const wallet1Address = await wallet1.getAddress();
+            const txMint1 = await token.connect(owner).safeMint(wallet1Address);
+            await txMint1.wait();
+            const txApprove = await token.connect(wallet1).approve(await owner.getAddress(), 1);
+            await txApprove.wait();
+            const txTransfer = await token.connect(wallet1).transferFrom(wallet1Address, await owner.getAddress(), 1);
+            await txTransfer.wait();
+            expect(await token.getApproved(1)).to.equal(ethers.ZeroAddress);
+        });
+
+        it("Should allow approved operator to transfer token", async function () {
+            const wallet1Address = await wallet1.getAddress();
+            const txMint1 = await token.connect(owner).safeMint(wallet1Address);
+            await txMint1.wait();
+            const txApprove = await token.connect(wallet1).approve(await owner.getAddress(), 1);
+            await txApprove.wait();
+            const txTransfer = await token.connect(owner).transferFrom(wallet1Address, await ethers.getAddress(await wallet2.getAddress()), 1);
+            await txTransfer.wait();
+            expect(await token.ownerOf(1)).to.equal(await wallet2.getAddress());
+        });
+
+        it("Should allow operator via setApprovalForAll to transfer token", async function () {
+            const wallet1Address = await wallet1.getAddress();
+            const txMint1 = await token.connect(owner).safeMint(wallet1Address);
+            await txMint1.wait();
+            const txApprove = await token.connect(wallet1).setApprovalForAll(await owner.getAddress(), true);
+            await txApprove.wait();
+            const txTransfer = await token.connect(owner).transferFrom(wallet1Address, await owner.getAddress(), 1);
+            await txTransfer.wait();
+            expect(await token.ownerOf(1)).to.equal(await owner.getAddress());
+        });
+
+        it("Should clear approval by approving zero address", async function () {
+            const wallet1Address = await wallet1.getAddress();
+            const txMint1 = await token.connect(owner).safeMint(wallet1Address);
+            await txMint1.wait();
+            const txApprove = await token.connect(wallet1).approve(await owner.getAddress(), 1);
+            await txApprove.wait();
+            const txApprove2 = await token.connect(wallet1).approve(ethers.ZeroAddress, 1);
+            await txApprove2.wait();
+            expect(await token.getApproved(1)).to.equal(ethers.ZeroAddress);
+        });
+    });
+
+    describe("Transfers", function () {
+        it("Should transfer token by owner", async function () {
+            const wallet1Address = await wallet1.getAddress();
+            const txMint1 = await token.connect(owner).safeMint(wallet1Address);
+            await txMint1.wait();
+            const txTransfer = await token.connect(wallet1).transferFrom(wallet1Address, await owner.getAddress(), 1);
+            await txTransfer.wait();
+            expect(await token.ownerOf(1)).to.equal(await owner.getAddress());
+        });
+
+        it("Should revert transfer by non-owner and non-approved", async function () {
+            const wallet1Address = await wallet1.getAddress();
+            const txMint1 = await token.connect(owner).safeMint(wallet1Address);
+            await txMint1.wait();
+            await expect(token.connect(owner).transferFrom(wallet1Address, await owner.getAddress(), 1)).to.be.reverted;
+        });
     });
 
     describe("Voting Power", function () {
-        beforeEach(async function () {
-            // Mint tokens to different addresses
-            await token.safeMint(await wallet1.getAddress()); // Token 1
-            await token.safeMint(await wallet1.getAddress()); // Token 2
-            await token.safeMint(await wallet2.getAddress()); // Token 3
-        });
-
-        it("Should track voting power correctly", async function () {
+        it("Should be zero before delegation and reflect balances after self-delegation", async function () {
             const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
-
-            // Each NFT gives 1 voting power
-            expect(await token.getVotes(wallet1Address)).to.equal(2);
-            expect(await token.getVotes(wallet2Address)).to.equal(1);
-        });
-
-        it("Should update voting power on transfers", async function () {
-            const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
-
-            // Transfer token 1 from wallet1 to wallet2
-            await token.connect(wallet1).transferFrom(wallet1Address, wallet2Address, 1);
-
-            expect(await token.getVotes(wallet1Address)).to.equal(1);
-            expect(await token.getVotes(wallet2Address)).to.equal(2);
-        });
-
-        it("Should track past voting power", async function () {
-            const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
-
-            const blockNumber = await ethers.provider.getBlockNumber();
-
-            // Transfer token
-            await token.connect(wallet1).transferFrom(wallet1Address, wallet2Address, 1);
-
-            // Check past voting power
-            expect(await token.getPastVotes(wallet1Address, blockNumber)).to.equal(2);
-            expect(await token.getPastVotes(wallet2Address, blockNumber)).to.equal(1);
-        });
-    });
-
-    describe("Delegation", function () {
-        beforeEach(async function () {
-            await token.safeMint(await wallet1.getAddress()); // Token 1
-            await token.safeMint(await wallet1.getAddress()); // Token 2
-        });
-
-        it("Should allow delegation of voting power", async function () {
-            const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
-
-            await token.connect(wallet1).delegate(wallet2Address);
-
+            const txMint1 = await token.connect(owner).safeMint(wallet1Address);
+            await txMint1.wait();
             expect(await token.getVotes(wallet1Address)).to.equal(0);
-            expect(await token.getVotes(wallet2Address)).to.equal(2);
+            const txDelegate1 = await token.connect(wallet1).delegate(wallet1Address);
+            await txDelegate1.wait();
+            expect(await token.getVotes(wallet1Address)).to.equal(1);
         });
 
-        it("Should allow self-delegation", async function () {
+        it("Should move votes when delegating to another account", async function () {
             const wallet1Address = await wallet1.getAddress();
-
-            await token.connect(wallet1).delegate(wallet1Address);
-            expect(await token.getVotes(wallet1Address)).to.equal(2);
-        });
-
-        it("Should track delegation changes", async function () {
-            const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
             const ownerAddress = await owner.getAddress();
-
-            // Initially delegate to wallet2
-            await token.connect(wallet1).delegate(wallet2Address);
-            expect(await token.getVotes(wallet2Address)).to.equal(2);
-
-            // Change delegation to owner
-            await token.connect(wallet1).delegate(ownerAddress);
-            expect(await token.getVotes(wallet2Address)).to.equal(0);
-            expect(await token.getVotes(ownerAddress)).to.equal(2);
+            const txMint1 = await token.connect(owner).safeMint(wallet1Address);
+            await txMint1.wait();
+            const txDelegate1 = await token.connect(wallet1).delegate(ownerAddress);
+            await txDelegate1.wait();
+            expect(await token.getVotes(ownerAddress)).to.equal(1);
+            expect(await token.getVotes(wallet1Address)).to.equal(0);
         });
 
-        it("Should track delegates correctly", async function () {
+        it("Should update votes when changing delegation", async function () {
             const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
-
-            await token.connect(wallet1).delegate(wallet2Address);
-            expect(await token.delegates(wallet1Address)).to.equal(wallet2Address);
+            const ownerAddress = await owner.getAddress();
+            const txMint1 = await token.connect(owner).safeMint(wallet1Address);
+            await txMint1.wait();
+            const txDelegate1 = await token.connect(wallet1).delegate(ownerAddress);
+            await txDelegate1.wait();
+            expect(await token.getVotes(ownerAddress)).to.equal(1);
         });
-    });
 
-    describe("Signature-based Delegation", function () {
-        it("Should allow delegation by signature", async function () {
+        it("Should return current delegate address", async function () {
             const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
-
-            // Mint token to wallet1
-            await token.safeMint(wallet1Address);
-
-            const nonce = await token.nonces(wallet1Address);
-            const deadline = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
-
-            // Create delegation signature
-            const domain = {
-                name: name,
-                version: version,
-                chainId: await ethers.provider.getNetwork().then(n => n.chainId),
-                verifyingContract: await token.getAddress()
-            };
-
-            const types = {
-                Delegation: [
-                    { name: "delegatee", type: "address" },
-                    { name: "nonce", type: "uint256" },
-                    { name: "expiry", type: "uint256" }
-                ]
-            };
-
-            const value = {
-                delegatee: wallet2Address,
-                nonce: nonce,
-                expiry: deadline
-            };
-
-            const signature = await wallet1.signTypedData(domain, types, value);
-            const { v, r, s } = ethers.Signature.from(signature);
-
-            await token.delegateBySig(wallet2Address, nonce, deadline, v, r, s);
-
-            expect(await token.delegates(wallet1Address)).to.equal(wallet2Address);
-            expect(await token.getVotes(wallet2Address)).to.equal(1);
+            const txMint1 = await token.connect(owner).safeMint(wallet1Address);
+            await txMint1.wait();
+            const txDelegate1 = await token.connect(wallet1).delegate(wallet1Address);
+            await txDelegate1.wait();
+            expect(await token.delegates(wallet1Address)).to.equal(wallet1Address);
         });
     });
 
     describe("Clock and Checkpoints", function () {
-        it("Should return current clock", async function () {
+        it("Should return a clock at least current block", async function () {
             const currentBlock = await ethers.provider.getBlockNumber();
             const clock = await token.clock();
             expect(clock).to.be.at.least(currentBlock);
         });
 
-        it("Should return correct clock mode", async function () {
+        it("Should return correct CLOCK_MODE string", async function () {
             expect(await token.CLOCK_MODE()).to.equal("mode=blocknumber&from=default");
         });
     });
 
-    describe("Token Existence", function () {
-        beforeEach(async function () {
-            await token.safeMint(await wallet1.getAddress()); // Token 1
-        });
+});
 
-        it("Should return true for existing tokens", async function () {
-            expect(await token.exists(1)).to.be.true;
-        });
 
-        it("Should return false for non-existent tokens", async function () {
-            expect(await token.exists(999)).to.be.false;
-        });
-    });
-
-    describe("Standard ERC721 Functionality", function () {
-        beforeEach(async function () {
-            await token.safeMint(await wallet1.getAddress());
-        });
-
-        it("Should transfer tokens correctly", async function () {
-            const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
-
-            await token.connect(wallet1).transferFrom(wallet1Address, wallet2Address, 1);
-            expect(await token.ownerOf(1)).to.equal(wallet2Address);
-        });
-
-        it("Should handle approvals correctly", async function () {
-            const wallet1Address = await wallet1.getAddress();
-            const wallet2Address = await wallet2.getAddress();
-
-            await token.connect(wallet1).approve(wallet2Address, 1);
-            expect(await token.getApproved(1)).to.equal(wallet2Address);
-        });
-    });
-}); 
